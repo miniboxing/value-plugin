@@ -24,7 +24,15 @@ object ValiumBuild extends Build {
 
     scalacOptions ++= Seq("-feature", "-deprecation", "-unchecked", "-Xlint"),
 
-    publishArtifact in packageDoc := false
+    publishArtifact in packageDoc := false,
+
+    scalaHome := {
+      val scalaHome = System.getProperty("valium.scala.home")
+      if (scalaHome != null) {
+        println(s"Going for custom scala home at $scalaHome")
+        Some(file(scalaHome))
+      } else None
+    }
   )
 
   val pluginDeps = Seq(
@@ -43,7 +51,6 @@ object ValiumBuild extends Build {
   val testsDeps: Seq[Setting[_]] = junitDeps ++ Seq(
     fork in Test := true,
     scalacOptions in Compile <++= (Keys.`package` in (plugin, Compile)) map { (jar: File) =>
-      System.setProperty("macroparadise.plugin.jar", jar.getAbsolutePath)
       val addPlugin = "-Xplugin:" + jar.getAbsolutePath
       // Thanks Jason for this cool idea (taken from https://github.com/retronym/boxer)
       // add plugin timestamp to compiler options to trigger recompile of
