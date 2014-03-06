@@ -4,16 +4,16 @@ then
   VALIUM_PATH="`dirname \"$0\"`"                  # relative
   VALIUM_PATH="`( cd \"$VALIUM_PATH\" && pwd )`"  # absolutized and normalized
 fi
-if [ "$SCALA_PATH" == "" ] 
+if [ "$SCALA_PATH_211" == "" ] 
 then
-  SCALA_PATH="`dirname $(which scalac)`"
-  SCALA_PATH="`( cd \"$SCALA_PATH\" && pwd )`"
+  SCALA_PATH_211="`dirname $(which scalac)`"
+  SCALA_PATH_211="`( cd \"$SCALA_PATH_211\" && pwd )`"
 fi
 
-if [ "$VALIUM_PATH" == "" -o "$SCALA_PATH" == "" -o ! -f $SCALA_PATH/scalac -o ! -d $VALIUM_PATH/components ]
+if [ "$VALIUM_PATH" == "" -o "$SCALA_PATH_211" == "" -o ! -f $SCALA_PATH_211/scalac -o ! -d $VALIUM_PATH/components ]
 then
-  echo To use this script please set the VALIUM_PATH and SCALA_PATH environment variables such that:
-  echo " -" '$SCALA_PATH/scalac' "(currently $SCALA_PATH/scalac)"
+  echo To use this script please set the VALIUM_PATH and SCALA_PATH_211 environment variables such that:
+  echo " -" '$SCALA_PATH_211/scalac' "(currently $SCALA_PATH_211/scalac)"
   echo " -" '$VALIUM_PATH/components' "(currently $VALIUM_PATH/components)"
   echo are accessible
   exit 1
@@ -55,4 +55,4 @@ function checkjar {
 checkjar $PLUGIN_JAR valium-plugin/package
 checkjar $RUNTIME_JAR valium-runtime/package
 
-$SCALA_PATH/$target -bootclasspath $RUNTIME_JAR:$PLUGIN_JAR -Xplugin:$PLUGIN_JAR $@
+$SCALA_PATH_211/$target -bootclasspath $RUNTIME_JAR:$PLUGIN_JAR -Xplugin:$PLUGIN_JAR $@

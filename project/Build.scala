@@ -43,7 +43,7 @@ object ValiumBuild extends Build {
   val testsDeps: Seq[Setting[_]] = junitDeps ++ Seq(
     fork in Test := true,
     scalacOptions in Compile <++= (Keys.`package` in (plugin, Compile)) map { (jar: File) =>
-      System.setProperty("macroparadise.plugin.jar", jar.getAbsolutePath)
+      System.setProperty("valium.plugin.jar", jar.getAbsolutePath)
       val addPlugin = "-Xplugin:" + jar.getAbsolutePath
       // Thanks Jason for this cool idea (taken from https://github.com/retronym/boxer)
       // add plugin timestamp to compiler options to trigger recompile of
