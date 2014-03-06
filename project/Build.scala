@@ -64,8 +64,25 @@ object ValiumBuild extends Build {
     )
   )
 
+  val partestLikeDeps: Seq[Setting[_]] = testsDeps ++ Seq(
+    fork in Test := true,
+    javaOptions in Test <+= (dependencyClasspath in Runtime, packageBin in Compile in plugin) map { (path, _) =>
+      def isBoot(file: java.io.File) =
+        ((file.getName() startsWith "scala-") && (file.getName() endsWith ".jar")) ||
+        (file.toString contains "target/scala-2.10") // this makes me cry, seriously sbt...
+
+      val cp = "-Xbootclasspath/a:"+path.map(_.data).filter(isBoot).mkString(":")
+      // println(cp)
+      cp
+    },
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-partest_2.11.0-M4" % "1.0-RC1",
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.2.1"
+    )
+  )
+
   lazy val valium      = Project(id = "valium",         base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests)
   lazy val runtime     = Project(id = "valium-runtime", base = file("components/runtime"),     settings = defaults)
   lazy val plugin      = Project(id = "valium-plugin",  base = file("components/plugin"),      settings = defaults ++ pluginDeps) dependsOn(runtime)
-  lazy val tests       = Project(id = "valium-tests",   base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ testsDeps) dependsOn(plugin, runtime)
+  lazy val tests       = Project(id = "valium-tests",   base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ partestLikeDeps) dependsOn(plugin, runtime)
 }
