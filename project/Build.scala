@@ -24,7 +24,15 @@ object ValiumBuild extends Build {
 
     scalacOptions ++= Seq("-feature", "-deprecation", "-unchecked", "-Xlint"),
 
-    publishArtifact in packageDoc := false
+    publishArtifact in packageDoc := false,
+
+    scalaHome := {
+      val scalaHome = System.getProperty("valium.scala.home")
+      if (scalaHome != null) {
+        println(s"Going for custom scala home at $scalaHome")
+        Some(file(scalaHome))
+      } else None
+    }
   )
 
   val pluginDeps = Seq(
