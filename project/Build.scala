@@ -3,14 +3,6 @@ import Keys._
 import Process._
 
 object ValiumBuild extends Build {
-
-  // http://stackoverflow.com/questions/6506377/how-to-get-list-of-dependency-jars-from-an-sbt-0-10-0-project
-  val getJars = TaskKey[Unit]("get-jars")
-  val getJarsTask = getJars <<= (target, fullClasspath in Runtime) map { (target, cp) =>
-    println("Target path is: "+target)
-    println("Full classpath is: "+cp.map(_.data).mkString(":"))
-  }
-
   val defaults = Defaults.defaultSettings ++ Seq(
 
     scalaSource in Compile := baseDirectory.value / "src",
@@ -49,25 +41,23 @@ object ValiumBuild extends Build {
   )
 
   val testsDeps: Seq[Setting[_]] = junitDeps ++ Seq(
-    getJarsTask,
     fork in Test := true,
-    javaOptions in Test <+= (dependencyClasspath in Runtime, packageBin in Compile in plugin) map { (path, _) =>
-      def isBoot(file: java.io.File) = 
-        ((file.getName() startsWith "scala-") && (file.getName() endsWith ".jar")) ||
-        (file.toString contains "target/scala-2.11") // this makes me cry, seriously sbt...
-
-      val cp = "-Xbootclasspath/a:"+path.map(_.data).filter(isBoot).mkString(":")
-      // println(cp)
-      cp
+    scalacOptions in Compile <++= (Keys.`package` in (plugin, Compile)) map { (jar: File) =>
+      System.setProperty("macroparadise.plugin.jar", jar.getAbsolutePath)
+      val addPlugin = "-Xplugin:" + jar.getAbsolutePath
+      // Thanks Jason for this cool idea (taken from https://github.com/retronym/boxer)
+      // add plugin timestamp to compiler options to trigger recompile of
+      // main after editing the plugin. (Otherwise a 'clean' is needed.)
+      val dummy = "-Jdummy=" + jar.lastModified
+      Seq(addPlugin, dummy)
     },
     libraryDependencies ++= Seq(
-      // "org.scala-lang" % "scala-partest" % scalaVersion.value, 
       "com.googlecode.java-diff-utils" % "diffutils" % "1.2.1"
     )
   )
 
-  lazy val _valium     = Project(id = "valium",             base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests)
-  lazy val runtime     = Project(id = "valium-runtime",     base = file("components/runtime"),     settings = defaults)
-  lazy val plugin      = Project(id = "valium-plugin",      base = file("components/plugin"),      settings = defaults ++ pluginDeps) dependsOn(runtime)
+  lazy val valium      = Project(id = "valium",         base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests)
+  lazy val runtime     = Project(id = "valium-runtime", base = file("components/runtime"),     settings = defaults)
+  lazy val plugin      = Project(id = "valium-plugin",  base = file("components/plugin"),      settings = defaults ++ pluginDeps) dependsOn(runtime)
   lazy val tests       = Project(id = "valium-tests",   base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ testsDeps) dependsOn(plugin, runtime)
 }
