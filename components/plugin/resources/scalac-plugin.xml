@@ -1,0 +1,4 @@
+<plugin>
+  <name>valium</name>
+  <classname>valium.plugin.Valium</classname>
+</plugin>
