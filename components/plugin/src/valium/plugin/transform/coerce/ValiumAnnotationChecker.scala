@@ -15,7 +15,7 @@ trait ValiumAnnotationCheckers {
      */
     override def annotationsConform(tpe1: Type, tpe2: Type): Boolean =
       if (global.phase.id > valiumCoercePhase.id) {
-        val res = tpe1.dealiasWiden.hasAnnotation(ValueClass) == tpe2.dealiasWiden.hasAnnotation(ValueClass)
+        val res = tpe1.isValue == tpe2.isValue
         // println("after: " + tpe1 + " <: " + tpe2 + " ==> " + res + " (phase = " + global.phase.name + " " + global.phase.id + "  " + mboxAdaptPhase.id + ")")
         res
       } else {

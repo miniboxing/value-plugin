@@ -32,11 +32,25 @@ trait ValiumDefs {
     StorageSym
   }
 
+  case object TyperHackAttachment
+
+  implicit class RichTree(tree: Tree) {
+    def isValue = tree.tpe.isValue
+  }
+
+  implicit class RichSymbol(sym: Symbol) {
+    def isValium = sym != null && sym.hasAnnotation(ValiumClass)
+  }
+
+  implicit class RichType(tpe: Type) {
+    def isValue = tpe != null && tpe.dealiasWiden.hasAnnotation(ValueClass)
+  }
+
   // artificially created marker methods
-  lazy val marker_unbox2box =
-    newPolyMethod(1, ScalaPackageClass, newTermName("marker_unbox2box"), 0L)(
+  lazy val unbox2box =
+    newPolyMethod(1, ScalaPackageClass, newTermName("unbox2box"), 0L)(
       tpar => (Some(List(tpar.head.tpeHK withAnnotation AnnotationInfo(ValueClass.tpe, Nil, Nil))), tpar.head.tpeHK))
-  lazy val marker_box2unbox =
-    newPolyMethod(1, ScalaPackageClass, newTermName("marker_box2unbox"), 0L)(
+  lazy val box2unbox =
+    newPolyMethod(1, ScalaPackageClass, newTermName("box2unbox"), 0L)(
       tpar => (Some(List(tpar.head.tpeHK)), tpar.head.tpeHK withAnnotation AnnotationInfo(ValueClass.tpe, Nil, Nil)))
 }

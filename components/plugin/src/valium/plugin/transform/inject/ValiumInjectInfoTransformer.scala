@@ -11,15 +11,14 @@ trait ValiumInjectInfoTransformer extends InfoTransform {
   import definitions._
   import valium._
 
-  override def transformInfo(sym: Symbol, tpe: Type): Type = tpe
-
-  lazy val deepTransformation: TypeMap = new TypeMap {
-    def apply(tpe: Type): Type = mapOver(tpe)
-    override def mapOver(tpe: Type): Type = tpe match {
-      case tpe if tpe.hasAnnotation(ValueClass) =>
-        LongTpe
-      case _ =>
-        super.mapOver(tpe)
+  override def transformInfo(sym: Symbol, tpe: Type): Type = {
+    // need to transform:
+    // 1) val x: @valium C = ???
+    // 2) return types for 1-param value classes
+    val isValThatNeedsTransform = sym.isTerm && !sym.isMethod && tpe.typeSymbol.isValium
+    if (isValThatNeedsTransform) tpe.withAnnotation(AnnotationInfo marker ValueClass.tpe)
+    else {
+      tpe
     }
   }
 }

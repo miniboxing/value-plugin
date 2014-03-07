@@ -14,6 +14,7 @@ class Valium(val global: Global) extends Plugin {
   val description = "provides value class functionality"
 
   val components = List[PluginComponent](
+    // TODO: another phase that does checks of @valium-annotated classes
     ValiumInjectPhaseObj,
     ValiumCoercePhaseObj,
     ValiumConvertPhaseObj,
