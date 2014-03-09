@@ -13,7 +13,11 @@ class Foo[X] {
   }
 }
 
-class FooForC extends Foo[C] {
+trait IntForC {
+  def foo(c: C): C
+}
+
+class FooForC extends Foo[C] with IntForC{
   override def foo(x: C): C = {
     println("FooForC")
     x
@@ -32,7 +36,11 @@ class FooForC extends Foo[C] {
   //          def foo(x$x1: Int): Int        = { println(...); x$x1 }
 }
 
-class FooForD extends Foo[D] {
+trait IntForD {
+  def foo(d: D): D
+}
+
+class FooForD extends Foo[D] with IntForD {
   override def foo(x: D): D = {
     println("FooForD")
     x
@@ -47,16 +55,20 @@ object Test {
     val foo_c1 = new Foo[C]
     val foo_c2 = new FooForC
     val foo_c3 = new FooForC: Foo[C]
+    val foo_c4 = new FooForC: IntForC
     val foo_d1 = new Foo[D]
     val foo_d2 = new FooForD
     val foo_d3 = new FooForD: Foo[D]
+    val foo_d4 = new FooForD: IntForD
 
     // All these calls should work:
     foo_c1.foo(c) //   boxed arg,   boxed ret, output: Foo
     foo_c2.foo(c) // unboxed arg, unboxed ret, output: FooForC
     foo_c3.foo(c) //   boxed arg,   boxed ret, output: FooForC
+    foo_c4.foo(c) // unboxed arg, unboxed ret, output: FooForC
     foo_d1.foo(d) //   boxed arg,   boxed ret, output: Foo
     foo_d2.foo(d) // unboxed arg,   boxed ret, output: FooForD
     foo_d3.foo(d) //   boxed arg,   boxed ret, output: FooForD
+    foo_d4.foo(d) // unboxed arg,   boxed ret, output: FooForD
   }
 }
