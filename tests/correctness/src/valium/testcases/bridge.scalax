@@ -1,0 +1,62 @@
+package valium.testcases.bridge1
+
+@valium
+final class C(val x1: Int)
+
+@valium
+final class D(val x1: Int, val x2: Int)
+
+class Foo[X] {
+  def foo(x: X): X = {
+    println("Foo")
+    x
+  }
+}
+
+class FooForC extends Foo[C] {
+  override def foo(x: C): C = {
+    println("FooForC")
+    x
+  }
+
+  // <inject> translated to:
+  // override def foo(x: C): C               = foo(x)
+  //          def foo(x: @value C): @value C = { println(...); x }
+
+  // <coerce> translated to:
+  // override def foo(x: C): C               = unbox2box(foo(box2unbox(x)))
+  //          def foo(x: @value C): @value C = { println(...); x }
+
+  // <convert> translated to:
+  // override def foo(x: C): C               = new C(foo(x.x1))
+  //          def foo(x$x1: Int): Int        = { println(...); x$x1 }
+}
+
+class FooForD extends Foo[D] {
+  override def foo(x: D): D = {
+    println("FooForD")
+    x
+  }
+}
+
+object Test {
+
+  def main(args: Array[String]): Unit = {
+    val c = new C(1)
+    val d = new D(1, 2)
+    val foo_c1 = new Foo[C]
+    val foo_c2 = new FooForC
+    val foo_c3 = new FooForC: Foo[C]
+    val foo_d1 = new Foo[D]
+    val foo_d2 = new FooForD
+    val foo_d3 = new FooForD: Foo[D]
+
+    // All these calls should work:
+    foo_c1.foo(c) //   boxed arg,   boxed ret, output: Foo
+    foo_c2.foo(c) // unboxed arg, unboxed ret, output: FooForC
+    foo_c3.foo(c) //   boxed arg,   boxed ret, output: FooForC
+    foo_d1.foo(d) //   boxed arg,   boxed ret, output: Foo
+    foo_d2.foo(d) // unboxed arg,   boxed ret, output: FooForD
+    foo_d3.foo(d) //   boxed arg,   boxed ret, output: FooForD
+  }
+}
