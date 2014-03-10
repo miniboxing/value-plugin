@@ -6,7 +6,8 @@ trait ValiumAnnotationCheckers {
   this: ValiumCoercePhase =>
 
   import global._
-  import valium._
+  import definitions._
+  import helper._
 
   object ValueAnnotationChecker extends AnnotationChecker{
 
@@ -14,12 +15,9 @@ trait ValiumAnnotationCheckers {
      *  LDL FTW -- Boil frog, boil!
      */
     override def annotationsConform(tpe1: Type, tpe2: Type): Boolean =
-      if (global.phase.id > valiumCoercePhase.id) {
-        val res = tpe1.isValue == tpe2.isValue
-        // println("after: " + tpe1 + " <: " + tpe2 + " ==> " + res + " (phase = " + global.phase.name + " " + global.phase.id + "  " + mboxAdaptPhase.id + ")")
-        res
+      if (valiumCoercePhase != null && global.phase.id > valiumCoercePhase.id) {
+        tpe1.isValue == tpe2.isValue
       } else {
-        // println("before: " + tpe1 + " <: " + tpe2 + " ==> true" + " (phase = " + global.phase.name + "  " + global.phase.id + "  " + mboxAdaptPhase.id +  ")")
         true
       }
   }

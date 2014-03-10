@@ -11,10 +11,8 @@ import addext._
 /** Representation conversion phase `C @value -> fields` */
 trait ValiumInjectPhase extends
     PluginComponent
-    with ValiumInfo
-    with ValiumDefs
     with ValiumInjectInfoTransformer
-    with ValiumInjectTreeTransformer {
+    with ValiumInjectTreeTransformer { self =>
 
   def valiumInjectPhase: StdPhase
 
@@ -22,6 +20,8 @@ trait ValiumInjectPhase extends
   def beforeInject[T](op: => T): T = global.enteringPhase(valiumInjectPhase)(op)
 
   import global._
+  val helper: ValiumHelper { val global: self.global.type }
+  def logValium: Boolean
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {
@@ -37,23 +37,23 @@ trait ValiumInjectPhase extends
 trait ValiumCoercePhase extends
     PluginComponent
     with ValiumCoerceTreeTransformer
-    with ValiumAnnotationCheckers {
-
-  val valium: ValiumInjectPhase { val global: ValiumCoercePhase.this.global.type }
+    with ValiumAnnotationCheckers { self =>
 
   def valiumCoercePhase: StdPhase
 
   def afterCoerce[T](op: => T): T = global.exitingPhase(valiumCoercePhase)(op)
   def beforeCoerce[T](op: => T): T = global.enteringPhase(valiumCoercePhase)(op)
+
+  import global._
+  val helper: ValiumHelper { val global: self.global.type }
+  def logValium: Boolean
 }
 
 /** Representation conversion phase `C @value -> fields` */
 trait ValiumConvertPhase extends
     PluginComponent
     with ValiumConvertInfoTransformer
-    with ValiumConvertTreeTransformer {
-
-  val valium: ValiumInjectPhase { val global: ValiumConvertPhase.this.global.type }
+    with ValiumConvertTreeTransformer { self =>
 
   def valiumConvertPhase: StdPhase
 
@@ -61,6 +61,8 @@ trait ValiumConvertPhase extends
   def beforeConvert[T](op: => T): T = global.enteringPhase(valiumConvertPhase)(op)
 
   import global._
+  val helper: ValiumHelper { val global: self.global.type }
+  def logValium: Boolean
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {
@@ -76,18 +78,16 @@ trait ValiumConvertPhase extends
 trait ValiumAddExtensionMethodsPhase extends
     PluginComponent
     with ValiumAddExtInfoTransformer
-    with ValiumAddExtTreeTransformer {
-
-  val valium: ValiumInjectPhase { val global: ValiumAddExtensionMethodsPhase.this.global.type }
+    with ValiumAddExtTreeTransformer { self =>
 
   def valiumAddExtPhase: StdPhase
 
   def afterAddExt[T](op: => T): T = global.exitingPhase(valiumAddExtPhase)(op)
   def beforeAddExt[T](op: => T): T = global.enteringPhase(valiumAddExtPhase)(op)
 
-  def flag_log: Boolean
-
   import global._
+  val helper: ValiumHelper { val global: self.global.type }
+  def logValium: Boolean
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {

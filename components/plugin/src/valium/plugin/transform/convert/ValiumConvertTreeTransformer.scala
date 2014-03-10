@@ -8,10 +8,9 @@ trait ValiumConvertTreeTransformer extends TypingTransformers {
   this: ValiumConvertPhase =>
 
   import global._
-  import valium._
+  import definitions._
 
   class TreeConvertor(unit: CompilationUnit) extends TypingTransformer(unit) {
-    // TODO: Convert to fields
     override def transform(tree: Tree): Tree = tree
   }
 }

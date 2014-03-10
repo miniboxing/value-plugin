@@ -8,6 +8,7 @@ trait ValiumAddExtInfoTransformer extends InfoTransform {
   self: ValiumAddExtensionMethodsPhase =>
 
   import global._
+  import definitions._
 
   override def transformInfo(sym: Symbol, tpe: Type): Type = tpe
 }

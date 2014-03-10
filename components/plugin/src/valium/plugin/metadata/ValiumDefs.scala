@@ -3,7 +3,7 @@ package valium.plugin.metadata
 import scala.tools.nsc.plugins.PluginComponent
 
 trait ValiumDefs {
-  this: PluginComponent =>
+  this: ValiumHelper =>
 
   import global._
   import definitions._
@@ -30,20 +30,6 @@ trait ValiumDefs {
     val StorageSym = ScalaPackageClass.newClassSymbol(StorageName, NoPosition, 0L)
     StorageSym setInfoAndEnter ClassInfoType(List(AnnotationTpe, TypeConstrTpe), newScope, StorageSym)
     StorageSym
-  }
-
-  case object TyperHackAttachment
-
-  implicit class RichTree(tree: Tree) {
-    def isValue = tree.tpe.isValue
-  }
-
-  implicit class RichSymbol(sym: Symbol) {
-    def isValium = sym != null && sym.hasAnnotation(ValiumClass)
-  }
-
-  implicit class RichType(tpe: Type) {
-    def isValue = tpe != null && tpe.dealiasWiden.hasAnnotation(ValueClass)
   }
 
   // artificially created marker methods
