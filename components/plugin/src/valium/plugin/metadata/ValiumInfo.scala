@@ -8,9 +8,8 @@ trait ValiumInfo {
   import global._
 
   implicit class RichTree(tree: Tree) {
-    def isValiumClassRef = tree.tpe.isValiumClassRef
-    def isSingleValiumClassRef = tree.tpe.isSingleValiumClassRef
-    def toValue = TypeTree(tree.tpe.toValue) setOriginal tree
+    def isValue = tree.isTerm && tree.tpe.isValue
+    def toValue = { assert(tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toValue) setOriginal tree }
   }
 
   implicit class RichSymbol(sym: Symbol) {

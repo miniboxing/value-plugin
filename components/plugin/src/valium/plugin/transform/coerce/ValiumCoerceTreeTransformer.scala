@@ -53,7 +53,7 @@ trait ValiumCoerceTreeTransformer extends TypingTransformers {
       }
 
     def adaptdbg(ind: Int, msg: => String): Unit = {
-      if (logValium) println("  " * ind + msg)
+      if (logValium) println("[valium-coerce]" + "  " * ind + msg)
     }
 
     class TreeAdapter(context0: Context) extends Typer(context0) {
@@ -66,20 +66,12 @@ trait ValiumCoerceTreeTransformer extends TypingTransformers {
       override protected def adapt(tree: Tree, mode: Mode, pt: Type, original: Tree = EmptyTree): Tree = {
         val oldTpe = tree.tpe
         val newTpe = pt
-        if (oldTpe.isValue ^ newTpe.isValue) {
+        if (tree.isTerm && (oldTpe.isValue ^ newTpe.isValue)) {
           val conversion = if (oldTpe.isValue) unbox2box else box2unbox
           val tree1 = Apply(gen.mkAttributedRef(conversion), List(tree))
           val tree2 = super.typed(tree1, mode, pt)
           assert(tree2.tpe != ErrorType, tree2)
           tree2
-        } else if (oldTpe.isValue && newTpe.isValue) {
-          // there's no need for adapting, but singleton types and annotations don't mix
-          // (check out mb_nested_class_fifth.scala for an example that crashes without
-          // this workaround)
-          tree setType null
-          val tree1 = withNormalTyper(context) { _.typed(tree, mode, WildcardType) }
-          tree1 setType pt // just force the type and accept the -Ycheck complaints
-          tree1
         } else {
           super.adapt(tree, mode, pt, original)
         }
@@ -92,17 +84,17 @@ trait ValiumCoerceTreeTransformer extends TypingTransformers {
         val res = tree match {
           case EmptyTree | TypeTree() =>
             super.typed(tree, mode, pt)
-          case Select(qual, mth) if qual.isValiumClassRef =>
-            val boxed = Apply(gen.mkAttributedRef(unbox2box), List(qual))
-            super.typed(Select(boxed, mth), mode, pt)
           // IMPORTANT NOTE: ErrorType should be allowed to bubble up, since there will certainly be
           // a silent(_.typed(...)) ready to catch the error and perform the correct rewriting upstream.
-          case _ if tree.tpe != null && tree.tpe != ErrorType =>
+          case _ if tree.tpe == null || tree.tpe == ErrorType =>
+            super.typed(tree, mode, pt)
+          case Select(qual, mth) if qual.isValue =>
+            val boxed = Apply(gen.mkAttributedRef(unbox2box), List(qual))
+            super.typed(Select(boxed, mth) setSymbol tree.symbol, mode, pt)
+          case _ =>
             val oldTree = tree.duplicate
             val oldTpe = tree.tpe
             tree.clearType()
-            super.typed(tree, mode, pt)
-          case _ =>
             super.typed(tree, mode, pt)
         }
         adaptdbg(ind, " ==> " + res + ": " + res.tpe)
