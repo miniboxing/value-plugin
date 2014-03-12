@@ -43,7 +43,7 @@ class Valium(val global: Global) extends Plugin { plugin =>
   private object ValiumVerifyPhaseObj extends ValiumVerifyPhase { self =>
     val global: Valium.this.global.type = Valium.this.global
     val runsAfter = List("refchecks")
-    override val runsRightAfter = Some("uncurry")
+    override val runsRightAfter = Some("specialize")
     val phaseName = Valium.this.name + "-verify"
 
     import global._
