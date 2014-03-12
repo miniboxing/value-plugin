@@ -11,32 +11,28 @@ trait ValiumDefs {
   lazy val ValiumClass = rootMirror.getRequiredClass("scala.valium")
 
   /**
-   * This class should only appear in the tree during the `minibox` phase
-   * and should be cleaned up afterwards, during the `minibox-cleanup` phase.
+   * This class should only appear in the tree starting from the `valium-inject` phase
+   * and should be cleaned up afterwards, during the `valium-coerce` phase.
    */
-  lazy val ValueClass = {
+  lazy val UnboxedAnnotationClass = {
     // This is what is should look like:
     // ```
     //   package __root__.scala {
-    //     class value extends Annotation with TypeConstraint
+    //     class unboxed extends Annotation with TypeConstraint
     //   }
     // ```
-    val AnnotationName = "scala.annotation.Annotation"
-    val TypeConstrName = "scala.annotation.TypeConstraint"
-    val AnnotationTpe = rootMirror.getRequiredClass(AnnotationName).tpe
-    val TypeConstrTpe = rootMirror.getRequiredClass(TypeConstrName).tpe
-
-    val StorageName = newTypeName("value")
-    val StorageSym = ScalaPackageClass.newClassSymbol(StorageName, NoPosition, 0L)
-    StorageSym setInfoAndEnter ClassInfoType(List(AnnotationTpe, TypeConstrTpe), newScope, StorageSym)
-    StorageSym
+    val AnnotationTpe = rootMirror.getRequiredClass("scala.annotation.Annotation").tpe
+    val TypeConstrTpe = rootMirror.getRequiredClass("scala.annotation.TypeConstraint").tpe
+    val UnboxedSym = ScalaPackageClass.newClassSymbol(TypeName("unboxed"), NoPosition, 0L)
+    UnboxedSym setInfoAndEnter ClassInfoType(List(AnnotationTpe, TypeConstrTpe), newScope, UnboxedSym)
+    UnboxedSym
   }
 
   // artificially created marker methods
   lazy val unbox2box =
     newPolyMethod(1, ScalaPackageClass, newTermName("unbox2box"), 0L)(
-      tpar => (Some(List(tpar.head.tpeHK withAnnotation AnnotationInfo(ValueClass.tpe, Nil, Nil))), tpar.head.tpeHK))
+      tpar => (Some(List(tpar.head.tpeHK withAnnotation AnnotationInfo(UnboxedAnnotationClass.tpe, Nil, Nil))), tpar.head.tpeHK))
   lazy val box2unbox =
     newPolyMethod(1, ScalaPackageClass, newTermName("box2unbox"), 0L)(
-      tpar => (Some(List(tpar.head.tpeHK)), tpar.head.tpeHK withAnnotation AnnotationInfo(ValueClass.tpe, Nil, Nil)))
+      tpar => (Some(List(tpar.head.tpeHK)), tpar.head.tpeHK withAnnotation AnnotationInfo(UnboxedAnnotationClass.tpe, Nil, Nil)))
 }

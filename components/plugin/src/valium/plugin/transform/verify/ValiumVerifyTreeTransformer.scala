@@ -17,7 +17,7 @@ trait ValiumVerifyTreeTransformer extends TypingTransformers {
     def apply(unit: CompilationUnit): Unit = {
       object VerifyTraverser extends Traverser {
         override def traverse(tree: Tree): Unit = tree match {
-          case ClassDef(_, _, _, Template(_, _, stats)) if tree.symbol.isValium =>
+          case ClassDef(_, _, _, Template(_, _, stats)) if tree.symbol.isValiumClass =>
             if (tree.symbol.isAbstract) unit.error(tree.pos, "`abstract' modifier cannot be used with valium classes")
             val constParamGetters = tree.symbol.constrParamAccessors.map(field => (field, field.getterIn(field.owner)))
             constParamGetters collect { case (field, getter) if getter == NoSymbol || !getter.isPublic => unit.error(field.pos, "there can only be public fields in valium classes") }
@@ -28,7 +28,7 @@ trait ValiumVerifyTreeTransformer extends TypingTransformers {
             stats collect { case tdef: TypeDef => unit.error(tdef.pos, "type members can't be defined in valium classes") }
             stats collect { case vdef: ValDef if !vdef.symbol.isParamAccessor => unit.error(vdef.pos, "value members can't be defined in valium classes") }
             super.traverse(tree)
-          case _: MemberDef if tree.symbol.isValium =>
+          case _: MemberDef if tree.symbol.isValiumClass =>
             unit.error(tree.pos, "only classes (not traits) are allowed to be @valium")
             super.traverse(tree)
           case _ =>

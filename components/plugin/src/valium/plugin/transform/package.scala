@@ -78,6 +78,7 @@ trait ValiumConvertPhase extends
 
   import global._
   val helper: ValiumHelper { val global: self.global.type }
+  import helper._
   def logValium: Boolean
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
@@ -85,7 +86,7 @@ trait ValiumConvertPhase extends
       // execute the tree transformer after all symbols have been processed
       val tree1 = afterConvert(new TreeConverter(unit).transform(tree))
       tree1.foreach(tree => assert(tree.tpe != null, "tree not typed: " + tree))
-      def isDisallowed(tree: Tree) = afterConvert(tree.symbol == helper.box2unbox || tree.symbol == helper.unbox2box || tree.symbol.isValue)
+      def isDisallowed(tree: Tree) = afterConvert(tree.symbol == box2unbox || tree.symbol == unbox2box || tree.symbol.isUnboxedValiumRef)
       tree1.collect{ case sub if isDisallowed(sub) => unit.error(sub.pos, "unexpected leftovers after convert") }
       tree1
     }

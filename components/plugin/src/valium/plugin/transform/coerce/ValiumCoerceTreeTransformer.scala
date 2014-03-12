@@ -66,10 +66,10 @@ trait ValiumCoerceTreeTransformer extends TypingTransformers {
       override protected def adapt(tree: Tree, mode: Mode, pt: Type, original: Tree = EmptyTree): Tree = {
         val oldTpe = tree.tpe
         val newTpe = pt
-        def typeMismatch = oldTpe.isValue ^ newTpe.isValue
+        def typeMismatch = oldTpe.isUnboxedValiumRef ^ newTpe.isUnboxedValiumRef
         def dontAdapt = tree.isType || pt.isWildcard
         if (typeMismatch && !dontAdapt) {
-          val conversion = if (oldTpe.isValue) unbox2box else box2unbox
+          val conversion = if (oldTpe.isUnboxedValiumRef) unbox2box else box2unbox
           val tree1 = atPos(tree.pos)(Apply(gen.mkAttributedRef(conversion), List(tree)))
           val tree2 = super.typed(tree1, mode, pt)
           assert(tree2.tpe != ErrorType, tree2)
@@ -90,7 +90,7 @@ trait ValiumCoerceTreeTransformer extends TypingTransformers {
           // a silent(_.typed(...)) ready to catch the error and perform the correct rewriting upstream.
           case _ if tree.tpe == null || tree.tpe == ErrorType =>
             super.typed(tree, mode, pt)
-          case Select(qual, mth) if qual.isValue =>
+          case Select(qual, mth) if qual.isUnboxedValiumRef =>
             val boxed = atPos(tree.pos)(Apply(gen.mkAttributedRef(unbox2box), List(qual)))
             super.typed(Select(boxed, mth) setSymbol tree.symbol, mode, pt)
           case _ =>

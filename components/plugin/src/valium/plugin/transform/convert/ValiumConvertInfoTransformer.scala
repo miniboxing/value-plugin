@@ -25,11 +25,11 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
         def explode(p: Symbol): List[Symbol] = {
           p.info.valiumFields.map(f => sym.newSyntheticValueParam(p.info.memberInfo(f), TermName(p.name + "$" + f.name)))
         }
-        params.flatMap(p => if (p.isValiumRef) explode(p) else List(p))
+        params.flatMap(p => if (p.isUnboxedValiumRef) explode(p) else List(p))
       }
       // this handles case #3
       def unboxret(tpe: Type): Type = {
-        if (tpe.isValue && tpe.isSingleFieldValiumRef) tpe.memberInfo(tpe.valiumFields.head)
+        if (tpe.isUnboxedValiumRef && tpe.valiumFields.length == 1) tpe.memberInfo(tpe.valiumFields.head)
         else tpe
       }
       def loop(tpe: Type): Type = tpe match {

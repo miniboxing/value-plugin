@@ -8,30 +8,28 @@ trait ValiumInfo {
   import global._
 
   implicit class RichTree(tree: Tree) {
-    def isValue = tree.isTerm && tree.tpe.isValue
-    def toValue = { assert(tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toValue) setOriginal tree }
+    def valiumFields = tree.tpe.valiumFields
+    def isBoxedValiumRef = tree.isTerm && tree.tpe.isBoxedValiumRef
+    def isUnboxedValiumRef = tree.isTerm && tree.tpe.isUnboxedValiumRef
+    def toUnboxedValiumRef = { assert(tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toUnboxedValiumRef) setOriginal tree }
   }
 
   implicit class RichSymbol(sym: Symbol) {
-    def isValium = sym != null && sym.hasAnnotation(ValiumClass)
-    def isValiumRef = sym != null && sym.info.isValiumRef
-    def isSingleFieldValium = sym.isValium && valiumFields.length == 1
-    def isMultiFieldValium = sym.isValium && valiumFields.length > 1
-    def valiumFields = sym.info.members.filter(sym => !sym.isMethod && sym.isParamAccessor).toList
-    def isValue = sym != null && sym.info.isValue
+    def isValiumClass = sym != null && sym.hasAnnotation(ValiumClass)
+    def valiumFields = if (sym.isValiumClass) sym.info.members.filter(sym => !sym.isMethod && sym.isParamAccessor).toList else Nil
+    def isBoxedValiumRef = sym != null && sym.info.isBoxedValiumRef
+    def isUnboxedValiumRef = sym != null && sym.info.isUnboxedValiumRef
   }
 
   implicit class RichType(tpe: Type) {
-    def isValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isValium
-    def isSingleFieldValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isSingleFieldValium
-    def isMultiFieldValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isMultiFieldValium
     def valiumFields = tpe.dealiasWiden.typeSymbol.valiumFields
-    def isValue = tpe != null && tpe.dealiasWiden.hasAnnotation(ValueClass)
-    def toValue: Type = tpe match {
-      case MethodType(params, restpe) => MethodType(params, restpe.toValue)
-      case NullaryMethodType(restpe)  => NullaryMethodType(restpe.toValue)
-      case PolyType(tparams, tpe)     => PolyType(tparams, tpe.toValue)
-      case tpe                        => tpe.withAnnotation(AnnotationInfo marker ValueClass.tpe)
+    def isBoxedValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isValiumClass && !tpe.isUnboxedValiumRef
+    def isUnboxedValiumRef = tpe != null && tpe.dealiasWiden.hasAnnotation(UnboxedAnnotationClass)
+    def toUnboxedValiumRef: Type = tpe match {
+      case MethodType(params, restpe) => MethodType(params, restpe.toUnboxedValiumRef)
+      case NullaryMethodType(restpe)  => NullaryMethodType(restpe.toUnboxedValiumRef)
+      case PolyType(tparams, tpe)     => PolyType(tparams, tpe.toUnboxedValiumRef)
+      case tpe                        => tpe.withAnnotation(AnnotationInfo marker UnboxedAnnotationClass.tpe)
     }
   }
 }

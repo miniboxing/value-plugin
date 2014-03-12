@@ -20,9 +20,13 @@ trait ValiumInjectInfoTransformer extends InfoTransform {
       if (logValium) println(s"[valium-inject] $sym: $tpe -> $tpe1")
       tpe1
     }
-    if (sym.isTerm && sym.isParameter && tpe.isValiumRef) logTransform(tpe.toValue)
-    else if (sym.isTerm && !sym.isMethod && tpe.isValiumRef) logTransform(tpe.toValue)
-    else if (sym.isMethod && !sym.isConstructor && tpe.finalResultType.isSingleFieldValiumRef) logTransform(tpe.toValue)
-    else tpe
+    if (sym.isTerm && sym.isParameter && tpe.isBoxedValiumRef)
+      logTransform(tpe.toUnboxedValiumRef)
+    else if (sym.isTerm && !sym.isMethod && tpe.isBoxedValiumRef)
+      logTransform(tpe.toUnboxedValiumRef)
+    else if (sym.isMethod && !sym.isConstructor && tpe.finalResultType.isBoxedValiumRef && tpe.finalResultType.valiumFields.length == 1)
+      logTransform(tpe.toUnboxedValiumRef)
+    else
+      tpe
   }
 }
