@@ -3,12 +3,28 @@ package transform
 
 import scala.tools.nsc.plugins.PluginComponent
 import metadata._
+import verify._
 import inject._
 import coerce._
 import convert._
 import addext._
 
-/** Representation conversion phase `C @value -> fields` */
+/** Makes sure that valium class definitions satisfy certain preconditions. */
+trait ValiumVerifyPhase extends
+    PluginComponent
+    with ValiumVerifyTreeTransformer { self =>
+
+  def valiumVerifyPhase: StdPhase
+
+  def afterVerify[T](op: => T): T = global.exitingPhase(valiumVerifyPhase)(op)
+  def beforeVerify[T](op: => T): T = global.enteringPhase(valiumVerifyPhase)(op)
+
+  import global._
+  val helper: ValiumHelper { val global: self.global.type }
+  def logValium: Boolean
+}
+
+/** Transforms `C` to `C @value` where appropriate (arguments of methods, local and field values, returns types of 1-param valium classes) */
 trait ValiumInjectPhase extends
     PluginComponent
     with ValiumInjectInfoTransformer
@@ -33,7 +49,7 @@ trait ValiumInjectPhase extends
   }
 }
 
-/** Coercion adder */
+/** Adds box2unbox and unbox2box coercions based on annotations injected during the previous phase */
 trait ValiumCoercePhase extends
     PluginComponent
     with ValiumCoerceTreeTransformer
@@ -74,7 +90,7 @@ trait ValiumConvertPhase extends
   }
 }
 
-/** Extension methods extractor and @value annotation injector */
+/** Extension methods extractor */
 trait ValiumAddExtensionMethodsPhase extends
     PluginComponent
     with ValiumAddExtInfoTransformer

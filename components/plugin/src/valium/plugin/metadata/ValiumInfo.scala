@@ -13,13 +13,15 @@ trait ValiumInfo {
   }
 
   implicit class RichSymbol(sym: Symbol) {
-    def isValiumClass = sym != null && sym.hasAnnotation(ValiumClass)
-    def isSingleValiumClass = sym.isValiumClass && sym.primaryConstructor.paramss.flatten.length == 1
+    def isValium = sym != null && sym.hasAnnotation(ValiumClass)
+    def isSingleFieldValium = sym.isValium && sym.primaryConstructor.paramss.flatten.length == 1
+    def isMultiFieldValium = sym.isValium && sym.primaryConstructor.paramss.flatten.length > 1
   }
 
   implicit class RichType(tpe: Type) {
-    def isValiumClassRef = tpe != null && tpe.dealiasWiden.typeSymbol.isValiumClass
-    def isSingleValiumClassRef = tpe != null && tpe.dealiasWiden.typeSymbol.isSingleValiumClass
+    def isValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isValium
+    def isSingleFieldValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isSingleFieldValium
+    def isMultiFieldValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isMultiFieldValium
     def isValue = tpe != null && tpe.dealiasWiden.hasAnnotation(ValueClass)
     def toValue: Type = tpe match {
       case MethodType(params, restpe) => MethodType(params, restpe.toValue)

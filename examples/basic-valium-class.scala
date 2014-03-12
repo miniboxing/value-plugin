@@ -1,9 +1,9 @@
 package valium.examples
 
 @valium
-class Point(val x: Double) {
+class Point(val x: Double, val y: Double) {
   override def toString: String =
-    s"Point($x)"
+    s"Point($x, $y)"
 }
 
 object Test {
@@ -14,6 +14,6 @@ object Test {
       p2
     }
 
-    identity(new Point(1.0))
+    identity(new Point(1.0, 2.0))
   }
 }
