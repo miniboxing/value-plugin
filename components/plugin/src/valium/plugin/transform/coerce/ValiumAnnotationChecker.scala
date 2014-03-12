@@ -16,7 +16,7 @@ trait ValiumAnnotationCheckers {
      */
     override def annotationsConform(tpe1: Type, tpe2: Type): Boolean =
       if (valiumCoercePhase != null && global.phase.id > valiumCoercePhase.id) {
-        tpe1.isValue == tpe2.isValue
+        tpe1.isValue == tpe2.isValue || tpe1.isWildcard || tpe2.isWildcard
       } else {
         true
       }

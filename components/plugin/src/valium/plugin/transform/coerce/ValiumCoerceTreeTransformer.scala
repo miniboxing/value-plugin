@@ -66,7 +66,9 @@ trait ValiumCoerceTreeTransformer extends TypingTransformers {
       override protected def adapt(tree: Tree, mode: Mode, pt: Type, original: Tree = EmptyTree): Tree = {
         val oldTpe = tree.tpe
         val newTpe = pt
-        if (tree.isTerm && (oldTpe.isValue ^ newTpe.isValue)) {
+        def typeMismatch = oldTpe.isValue ^ newTpe.isValue
+        def dontAdapt = tree.isType || pt.isWildcard
+        if (typeMismatch && !dontAdapt) {
           val conversion = if (oldTpe.isValue) unbox2box else box2unbox
           val tree1 = Apply(gen.mkAttributedRef(conversion), List(tree))
           val tree2 = super.typed(tree1, mode, pt)
