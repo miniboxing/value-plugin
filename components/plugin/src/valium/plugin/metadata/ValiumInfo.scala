@@ -18,6 +18,7 @@ trait ValiumInfo {
     def isSingleFieldValium = sym.isValium && valiumFields.length == 1
     def isMultiFieldValium = sym.isValium && valiumFields.length > 1
     def valiumFields = sym.info.members.filter(sym => !sym.isMethod && sym.isParamAccessor).toList
+    def isValue = sym != null && sym.info.isValue
   }
 
   implicit class RichType(tpe: Type) {

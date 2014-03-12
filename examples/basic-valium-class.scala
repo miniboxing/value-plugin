@@ -10,8 +10,15 @@ object Test {
   def main(args: Array[String]): Unit = {
     def identity(p1: Point): Point = {
       val p2 = p1
+      println(p2)
       println(p2.toString)
+      val p3 = identity(p1)
       p2
+    }
+
+    def identity2(p1: Point): Point = {
+      case class C(p2: Point)
+      C(p1).p2
     }
 
     identity(new Point(1.0, 2.0))

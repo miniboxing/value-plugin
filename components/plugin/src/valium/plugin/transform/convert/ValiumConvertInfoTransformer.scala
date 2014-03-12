@@ -12,11 +12,7 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
   import helper._
 
   override def transformInfo(sym: Symbol, tpe: Type): Type = {
-    // need to transform:
-    // 1) def foo(x: C @value) = ??? => def foo(x$x: Int, x$y: Int) = ???
-    // 2) val x: C @value = ???      => val x$x: Int = ???; val x$y: Int = ???
-    // 3) def foo: C @value = ???    => def foo: Int = ??? (only for 1-arg value classes)
-    // 4) unbox2box(x).field         => x$field
+    // see comments to ValiumConvertTreeTransformer to see what needs to be transformed
     def logTransform(tpe1: Type): Type = {
       if (logValium && !(tpe =:= tpe1)) println(s"[valium-convert] $sym: $tpe -> $tpe1")
       tpe1
@@ -46,7 +42,7 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
     } else {
       // case #2 doesn't need to be handled by an info transform
       // we just throw away that symbol completely, so we don't care
-      // case #4 is about a tree transformation only
+      // cases #4+ are about tree transformations only
       tpe
     }
   }
