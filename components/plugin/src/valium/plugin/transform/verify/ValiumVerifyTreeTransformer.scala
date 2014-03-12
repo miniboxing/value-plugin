@@ -32,6 +32,7 @@ trait ValiumVerifyTreeTransformer extends TypingTransformers {
             unit.error(tree.pos, "only classes (not traits) are allowed to be @valium")
             super.traverse(tree)
           case _ =>
+            // TODO: need to ban p.type for valium classes
             super.traverse(tree)
         }
       }
