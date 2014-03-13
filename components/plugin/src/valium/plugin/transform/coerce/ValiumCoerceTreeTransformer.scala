@@ -2,13 +2,12 @@ package valium.plugin
 package transform
 package coerce
 
-import scala.tools.nsc.transform.TypingTransformers
 import scala.tools.nsc.typechecker.Analyzer
 import scala.tools.nsc.Phase
 import scala.reflect.internal.Mode
 import scala.util.DynamicVariable
 
-trait ValiumCoerceTreeTransformer extends TypingTransformers {
+trait ValiumCoerceTreeTransformer {
   this: ValiumCoercePhase =>
 
   import global._

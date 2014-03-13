@@ -1,7 +1,6 @@
 package valium.plugin
 package transform
 
-import scala.tools.nsc.plugins.PluginComponent
 import metadata._
 import verify._
 import inject._
@@ -11,33 +10,23 @@ import addext._
 
 /** Makes sure that valium class definitions satisfy certain preconditions. */
 trait ValiumVerifyPhase extends
-    PluginComponent
+    ValiumPluginComponent
     with ValiumVerifyTreeTransformer { self =>
-
+  import global._
   def valiumVerifyPhase: StdPhase
-
   def afterVerify[T](op: => T): T = global.exitingPhase(valiumVerifyPhase)(op)
   def beforeVerify[T](op: => T): T = global.enteringPhase(valiumVerifyPhase)(op)
-
-  import global._
-  val helper: ValiumHelper { val global: self.global.type }
-  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 }
 
 /** Transforms `C` to `C @value` where appropriate (arguments of methods, local and field values, returns types of 1-param valium classes) */
 trait ValiumInjectPhase extends
-    PluginComponent
+    ValiumPluginComponent
     with ValiumInjectInfoTransformer
     with ValiumInjectTreeTransformer { self =>
-
+  import global._
   def valiumInjectPhase: StdPhase
-
   def afterInject[T](op: => T): T = global.exitingPhase(valiumInjectPhase)(op)
   def beforeInject[T](op: => T): T = global.enteringPhase(valiumInjectPhase)(op)
-
-  import global._
-  val helper: ValiumHelper { val global: self.global.type }
-  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {
@@ -51,35 +40,25 @@ trait ValiumInjectPhase extends
 
 /** Adds box2unbox and unbox2box coercions based on annotations injected during the previous phase */
 trait ValiumCoercePhase extends
-    PluginComponent
+    ValiumPluginComponent
     with ValiumCoerceTreeTransformer
     with ValiumAnnotationCheckers { self =>
-
+  import global._
   def valiumCoercePhase: StdPhase
-
   def afterCoerce[T](op: => T): T = global.exitingPhase(valiumCoercePhase)(op)
   def beforeCoerce[T](op: => T): T = global.enteringPhase(valiumCoercePhase)(op)
-
-  import global._
-  val helper: ValiumHelper { val global: self.global.type }
-  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 }
 
 /** Representation conversion phase `C @value -> fields` */
 trait ValiumConvertPhase extends
-    PluginComponent
+    ValiumPluginComponent
     with ValiumConvertInfoTransformer
     with ValiumConvertTreeTransformer { self =>
-
+  import global._
+  import helper._
   def valiumConvertPhase: StdPhase
-
   def afterConvert[T](op: => T): T = global.exitingPhase(valiumConvertPhase)(op)
   def beforeConvert[T](op: => T): T = global.enteringPhase(valiumConvertPhase)(op)
-
-  import global._
-  val helper: ValiumHelper { val global: self.global.type }
-  import helper._
-  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {
@@ -95,18 +74,13 @@ trait ValiumConvertPhase extends
 
 /** Extension methods extractor */
 trait ValiumAddExtensionMethodsPhase extends
-    PluginComponent
+    ValiumPluginComponent
     with ValiumAddExtInfoTransformer
     with ValiumAddExtTreeTransformer { self =>
-
+  import global._
   def valiumAddExtPhase: StdPhase
-
   def afterAddExt[T](op: => T): T = global.exitingPhase(valiumAddExtPhase)(op)
   def beforeAddExt[T](op: => T): T = global.enteringPhase(valiumAddExtPhase)(op)
-
-  import global._
-  val helper: ValiumHelper { val global: self.global.type }
-  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {

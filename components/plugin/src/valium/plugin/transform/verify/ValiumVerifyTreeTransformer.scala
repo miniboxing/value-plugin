@@ -2,10 +2,9 @@ package valium.plugin
 package transform
 package verify
 
-import scala.tools.nsc.transform.TypingTransformers
 import scala.tools.nsc.Phase
 
-trait ValiumVerifyTreeTransformer extends TypingTransformers {
+trait ValiumVerifyTreeTransformer {
   this: ValiumVerifyPhase =>
 
   import global._

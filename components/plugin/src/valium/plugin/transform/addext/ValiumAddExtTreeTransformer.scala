@@ -2,9 +2,7 @@ package valium.plugin
 package transform
 package addext
 
-import scala.tools.nsc.transform.TypingTransformers
-
-trait ValiumAddExtTreeTransformer extends TypingTransformers {
+trait ValiumAddExtTreeTransformer {
   this: ValiumAddExtensionMethodsPhase =>
 
   import global._

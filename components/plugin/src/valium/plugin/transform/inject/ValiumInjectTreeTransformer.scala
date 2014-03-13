@@ -2,9 +2,7 @@ package valium.plugin
 package transform
 package inject
 
-import scala.tools.nsc.transform.TypingTransformers
-
-trait ValiumInjectTreeTransformer extends TypingTransformers {
+trait ValiumInjectTreeTransformer {
   this: ValiumInjectPhase =>
 
   import global._

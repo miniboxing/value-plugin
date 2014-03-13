@@ -2,17 +2,16 @@ package valium.plugin
 package transform
 package addext
 
-import scala.tools.nsc.transform.TypingTransformers
-
-trait ValiumConvertTreeTransformer extends TypingTransformers {
+trait ValiumConvertTreeTransformer {
   this: ValiumConvertPhase =>
 
   import global._
   import definitions._
   import treeInfo._
   import helper._
+  import Flag._
 
-  class TreeConverter(unit: CompilationUnit) extends TypingTransformer(unit) {
+  class TreeConverter(unit: CompilationUnit) extends ValuimTypingTransformer(unit) {
     // need to transform:
     // notation:
     //    x => something that has type C @unboxed
