@@ -39,6 +39,17 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
         case PolyType(tparams, restpe)                     => PolyType(tparams, loop(restpe))
       }
       logTransform(loop(tpe))
+    // after coerce, we want to remove all the magic from injectors
+    // in particular, we no longer want coercion functions to produce annotated types when typechecking
+    } else if (sym == box2unbox) {
+      val PolyType(tparams, MethodType(vparams, restpe)) = tpe
+      logTransform(PolyType(tparams, MethodType(vparams, restpe.removeAnnotation(UnboxedClass))))
+    } else if (sym.owner == unbox2box) {
+      logTransform(tpe.removeAnnotation(UnboxedClass))
+    } else if (sym == UnboxedClass) {
+      val ClassInfoType(parents, scope, sym) = tpe
+      val parents1 = parents.filter(_.typeSymbol != TypeConstraintClass)
+      ClassInfoType(parents1, scope, sym)
     } else {
       // case #1 doesn't need to be handled by an info transform
       // we just throw away that symbol completely, so we don't care

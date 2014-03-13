@@ -15,7 +15,8 @@ trait ValiumAnnotationCheckers {
      *  LDL FTW -- Boil frog, boil!
      */
     override def annotationsConform(tpe1: Type, tpe2: Type): Boolean =
-      if (valiumCoercePhase != null && global.phase.id > valiumCoercePhase.id) {
+      // we run localTyper during convert during code synthesis, and there we need `T @unboxed` and `Any` to be compatible again
+      if (valiumCoercePhase != null && global.phase.id == valiumCoercePhase.id) {
         tpe1.isUnboxedValiumRef == tpe2.isUnboxedValiumRef || tpe1.isWildcard || tpe2.isWildcard
       } else {
         true

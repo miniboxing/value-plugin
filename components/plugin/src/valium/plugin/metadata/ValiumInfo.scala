@@ -32,18 +32,18 @@ trait ValiumInfo {
   implicit class RichType(tpe: Type) {
     def valiumFields = tpe.dealiasWiden.typeSymbol.valiumFields
     def isBoxedValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isValiumClass && !tpe.isUnboxedValiumRef
-    def isUnboxedValiumRef = tpe != null && tpe.dealiasWiden.hasAnnotation(UnboxedAnnotationClass)
+    def isUnboxedValiumRef = tpe != null && tpe.dealiasWiden.hasAnnotation(UnboxedClass)
     def toUnboxedValiumRef: Type = tpe match {
       case MethodType(params, restpe) => MethodType(params, restpe.toUnboxedValiumRef)
       case NullaryMethodType(restpe)  => NullaryMethodType(restpe.toUnboxedValiumRef)
       case PolyType(tparams, tpe)     => PolyType(tparams, tpe.toUnboxedValiumRef)
-      case tpe                        => tpe.withAnnotation(AnnotationInfo marker UnboxedAnnotationClass.tpe)
+      case tpe                        => tpe.withAnnotation(AnnotationInfo marker UnboxedClass.tpe)
     }
     def toBoxedValiumRef: Type = tpe match {
       case MethodType(params, restpe) => MethodType(params, restpe.toBoxedValiumRef)
       case NullaryMethodType(restpe)  => NullaryMethodType(restpe.toBoxedValiumRef)
       case PolyType(tparams, tpe)     => PolyType(tparams, tpe.toBoxedValiumRef)
-      case tpe                        => tpe.removeAnnotation(UnboxedAnnotationClass)
+      case tpe                        => tpe.removeAnnotation(UnboxedClass)
     }
   }
 }
