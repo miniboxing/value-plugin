@@ -26,34 +26,16 @@ trait ValiumCoerceTreeTransformer extends TypingTransformers {
 
   class TreeAdapters extends Analyzer {
     var indent = 0
+    def adaptdbg(ind: Int, msg: => String): Unit = valiumlog("  " * ind + msg)
+
     lazy val global: ValiumCoerceTreeTransformer.this.global.type = ValiumCoerceTreeTransformer.this.global
+    override def newTyper(context: Context): Typer = new TreeAdapter(context)
 
     def adapt(unit: CompilationUnit): Tree = {
       val context = rootContext(unit)
       val checker = new TreeAdapter(context)
       unit.body = checker.typed(unit.body)
       unit.body
-    }
-
-    var normalTyper = false
-
-    def withNormalTyper[T](context: Context)(f: Typer => T): T = {
-      val normalTyper0 = normalTyper
-      normalTyper = true
-      val res = f(newTyper(context))
-      normalTyper = normalTyper0
-      res
-    }
-
-    override def newTyper(context: Context): Typer =
-      if (normalTyper) {
-        super.newTyper(context)
-      } else {
-        new TreeAdapter(context)
-      }
-
-    def adaptdbg(ind: Int, msg: => String): Unit = {
-      valiumlog("  " * ind + msg)
     }
 
     class TreeAdapter(context0: Context) extends Typer(context0) {
