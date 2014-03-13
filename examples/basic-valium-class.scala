@@ -10,9 +10,10 @@ object Test {
   def main(args: Array[String]): Unit = {
     def identity(p1: Point): Point = {
       val p2 = p1
+      def p3 = p2
       println(p2)
       println(p2.toString)
-      val p3 = identity(p1)
+      val p4 = identity(p3)
       p2
     }
 
