@@ -21,7 +21,7 @@ trait ValiumVerifyPhase extends
 
   import global._
   val helper: ValiumHelper { val global: self.global.type }
-  def logValium: Boolean
+  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 }
 
 /** Transforms `C` to `C @value` where appropriate (arguments of methods, local and field values, returns types of 1-param valium classes) */
@@ -37,7 +37,7 @@ trait ValiumInjectPhase extends
 
   import global._
   val helper: ValiumHelper { val global: self.global.type }
-  def logValium: Boolean
+  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {
@@ -62,7 +62,7 @@ trait ValiumCoercePhase extends
 
   import global._
   val helper: ValiumHelper { val global: self.global.type }
-  def logValium: Boolean
+  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 }
 
 /** Representation conversion phase `C @value -> fields` */
@@ -79,7 +79,7 @@ trait ValiumConvertPhase extends
   import global._
   val helper: ValiumHelper { val global: self.global.type }
   import helper._
-  def logValium: Boolean
+  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {
@@ -106,7 +106,7 @@ trait ValiumAddExtensionMethodsPhase extends
 
   import global._
   val helper: ValiumHelper { val global: self.global.type }
-  def logValium: Boolean
+  def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {

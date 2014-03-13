@@ -26,19 +26,12 @@ class Valium(val global: Global) extends Plugin { plugin =>
   global.addAnnotationChecker(ValiumCoercePhaseObj.ValueAnnotationChecker)
 
   lazy val helper = new { val global: plugin.global.type = plugin.global } with ValiumHelper
-  var logValium = sys.props.get("valium.log").isDefined
 
   override def processOptions(options: List[String], error: String => Unit) {
     for (option <- options) {
-      if (option.toLowerCase() == "log")
-        logValium = true
-      else
-        error("Valium: Option not understood: " + option)
+      error("Valium: option not understood: " + option)
     }
   }
-
-  override val optionsHelp: Option[String] = Some(
-    s"  -P:${name}:log               log valium transformations\n")
 
   private object ValiumVerifyPhaseObj extends ValiumVerifyPhase { self =>
     val global: Valium.this.global.type = Valium.this.global
@@ -48,7 +41,6 @@ class Valium(val global: Global) extends Plugin { plugin =>
 
     import global._
     val helper: plugin.helper.type = plugin.helper
-    def logValium = Valium.this.logValium
 
     var valiumVerifyPhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
@@ -65,7 +57,6 @@ class Valium(val global: Global) extends Plugin { plugin =>
 
     import global._
     val helper: plugin.helper.type = plugin.helper
-    def logValium = Valium.this.logValium
 
     var valiumInjectPhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
@@ -82,7 +73,6 @@ class Valium(val global: Global) extends Plugin { plugin =>
 
     import global._
     val helper: plugin.helper.type = plugin.helper
-    def logValium = Valium.this.logValium
 
     var valiumCoercePhase : StdPhase = _
     def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
@@ -99,7 +89,6 @@ class Valium(val global: Global) extends Plugin { plugin =>
 
     import global._
     val helper: plugin.helper.type = plugin.helper
-    def logValium = Valium.this.logValium
 
     var valiumConvertPhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
@@ -116,7 +105,6 @@ class Valium(val global: Global) extends Plugin { plugin =>
 
     import global._
     val helper: plugin.helper.type = plugin.helper
-    def logValium = Valium.this.logValium
 
     var valiumAddExtPhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {

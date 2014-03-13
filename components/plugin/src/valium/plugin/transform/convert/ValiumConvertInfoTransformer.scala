@@ -14,7 +14,7 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
   override def transformInfo(sym: Symbol, tpe: Type): Type = {
     // see comments to ValiumConvertTreeTransformer to see what needs to be transformed
     def logTransform(tpe1: Type): Type = {
-      if (logValium && !(tpe =:= tpe1)) println(s"[valium-convert] $sym: $tpe -> $tpe1")
+      if (!(tpe =:= tpe1)) valiumlog(s"$sym: $tpe -> $tpe1")
       tpe1
     }
     if (sym.isMethod) {

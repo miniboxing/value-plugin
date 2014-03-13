@@ -53,7 +53,7 @@ trait ValiumCoerceTreeTransformer extends TypingTransformers {
       }
 
     def adaptdbg(ind: Int, msg: => String): Unit = {
-      if (logValium) println("[valium-coerce]" + "  " * ind + msg)
+      valiumlog("  " * ind + msg)
     }
 
     class TreeAdapter(context0: Context) extends Typer(context0) {
