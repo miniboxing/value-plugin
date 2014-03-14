@@ -101,7 +101,7 @@ trait ValiumConvertTreeTransformer {
         commit(RefTree(e, nme.valueExplode(a, a.valiumField)))
       case BS(e, bs) =>
         commit(Select(unbox2box(Select(e, bs)), bs.valiumField))
-      case tree @ Apply(core, args) if !core.symbol.isInjected && args.exists(_.isUnboxedValiumRef) =>
+      case Apply(core, args) if !core.symbol.isInjected && args.exists(_.isUnboxedValiumRef) =>
         // TODO: make sure this works with varargs
         var precomputeds = List[ValDef]()
         val vals = flatMap2(args, core.tpe.params)((arg, p) => {
@@ -123,6 +123,14 @@ trait ValiumConvertTreeTransformer {
           val args1 = vals.map(_.rhs).map{ case rhs @ Select(qual, _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType }
           commit(apply1(args1))
         }
+      case Assign(A(e1, a1), c2 @ C(_, _)) =>
+        val precomputed = temp(nme.assignPrecompute(), c2)
+        precomputed +: c2.valiumFields.map(f => Assign(RefTree(e1, nme.valueExplode(a1, f)), unbox2box(precomputed.symbol, f)))
+      case Assign(A(e1, b1), c2 @ C(_, _)) =>
+        val precomputed = temp(nme.assignPrecompute(), e1)
+        List(precomputed, Assign(Select(Ident(precomputed.symbol), b1), c2))
+      case Return(cs @ CS(_, _)) =>
+        commit(Select(unbox2box(cs), cs.valiumField))
     }
   }
 }
