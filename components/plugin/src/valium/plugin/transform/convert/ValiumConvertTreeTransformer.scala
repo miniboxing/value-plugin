@@ -59,8 +59,8 @@ trait ValiumConvertTreeTransformer {
   // B01) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]
   // B02) [[ unbox2box(e.a).x ]] => e.a$x
   // B03) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
-  // B04) [[ unbox2box(bs).x ]] => [[ bs ]].asInstanceOf[X]
-  // B05) [[ unbox2box(bs) ]] => new VS([[ unbox2box(bs).x ]])
+  // B04) [[ unbox2box(cs).x ]] => [[ cs ]].asInstanceOf[X]
+  // B05) [[ unbox2box(cs) ]] => new VS([[ unbox2box(cs).x ]])
   // B06) [[ box2unbox(es) ]] => [[ es ]].x.asInstanceOf[VS @unboxed]
   // B07) [[ box2unbox(em) ]] => [[ em ]]
   // B08) [[ e.a ]] => [[ e.a$x ]]
@@ -91,10 +91,10 @@ trait ValiumConvertTreeTransformer {
       case Unbox2box(A(e, a)) =>
         val args = tree.tpe.valiumFields.map(x => Eax(e, a, x))
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
-      case Select(Unbox2box(bs @ BS(_, _)), x) if !tree.symbol.isMethod =>
-        commit(bs setType bs.tpe.toValiumField)
-      case Unbox2box(bs @ BS(_, _)) =>
-        commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(bs, bs.valiumField))))
+      case Select(Unbox2box(cs @ CS(_, _)), x) =>
+        commit(cs setType cs.tpe.toValiumField)
+      case Unbox2box(cs @ CS(_, _)) =>
+        commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(cs, cs.valiumField))))
       case Box2unbox(es @ ES(_, _)) =>
         commit(Select(es, es.tpe.valiumField))
       case Box2unbox(em @ EM(_, _)) =>
