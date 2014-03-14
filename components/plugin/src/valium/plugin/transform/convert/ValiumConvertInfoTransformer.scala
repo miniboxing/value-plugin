@@ -18,16 +18,14 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
       tpe1
     }
     if (sym.isMethod && !sym.isInjected) {
-      // this handles case #2
       def explode(params: List[Symbol]): List[Symbol] = {
         // TODO: we don't need to worry about throwing away param symbols, because valium-based DMT's are prohibited in valium-verify
         // we need to ban p.type types though, but that should also be done in valium-verify
         def explode(p: Symbol): List[Symbol] = {
-          p.info.valiumFields.map(f => sym.newSyntheticValueParam(p.info.memberInfo(f).finalResultType, TermName(p.name + "$" + f.name)))
+          p.info.valiumFields.map(f => sym.newSyntheticValueParam(p.info.memberInfo(f).finalResultType, nme.paramExplode(p, f)))
         }
         params.flatMap(p => if (p.isUnboxedValiumRef) explode(p) else List(p))
       }
-      // this handles case #3
       def unboxret(tpe: Type): Type = {
         if (tpe.isUnboxedValiumRef && tpe.valiumFields.length == 1) tpe.memberInfo(tpe.valiumFields.head).finalResultType
         else tpe.toBoxedValiumRef
@@ -51,9 +49,6 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
       val parents1 = parents.filter(_.typeSymbol != TypeConstraintClass)
       ClassInfoType(parents1, scope, sym)
     } else {
-      // case #1 doesn't need to be handled by an info transform
-      // we just throw away that symbol completely, so we don't care
-      // cases #4+ are about tree transformations only
       tpe
     }
   }

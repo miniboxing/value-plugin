@@ -16,10 +16,13 @@ trait ValiumVerifyTreeTransformer {
     def apply(unit: CompilationUnit): Unit = {
       object VerifyTraverser extends Traverser {
         override def traverse(tree: Tree): Unit = tree match {
-          case ClassDef(_, _, _, Template(_, _, stats)) if tree.symbol.isValiumClass =>
+          case ClassDef(_, _, tparams, Template(_, _, stats)) if tree.symbol.isValiumClass =>
             if (tree.symbol.isAbstract) unit.error(tree.pos, "`abstract' modifier cannot be used with valium classes")
-            val constParamGetters = tree.symbol.constrParamAccessors.map(field => (field, field.getterIn(field.owner)))
-            constParamGetters collect { case (field, getter) if getter == NoSymbol || !getter.isPublic => unit.error(field.pos, "there can only be public fields in valium classes") }
+            if (tparams.nonEmpty) unit.error(tree.pos, "type parameters cannot be used with valium classes")
+            val constrParamAccessors = tree.symbol.constrParamAccessors.map(field => (field, field.getterIn(field.owner), field.setter(field.owner)))
+            constrParamAccessors collect { case (field, getter, _) if getter == NoSymbol || !getter.isPublic => unit.error(field.pos, "there can only be public fields in valium classes") }
+            constrParamAccessors collect { case (field, _, setter) if setter != NoSymbol => unit.error(field.pos, "there can only be immutable fields in valium classes") }
+            constrParamAccessors collect { case (field, _, _) if field.info.typeSymbol.isValiumClass => unit.error(field.pos, "there can only be non-valiumclass fields in valium classes") }
             // TODO: this is to avoid dealing with types dependent on valium classes
             // those can be supported in valium-convert by just replacing p.T's to their upper bounds
             // (that's valid, because valium classes are final, and because typechecker has already checked that path-dependent types are ok)

@@ -71,9 +71,11 @@ trait ValiumCoerceTreeTransformer {
           // a silent(_.typed(...)) ready to catch the error and perform the correct rewriting upstream.
           case _ if tree.tpe == null || tree.tpe == ErrorType =>
             super.typed(tree, mode, pt)
-          case Select(qual, mth) if qual.isUnboxedValiumRef =>
+          case This(_) if tree.symbol.isValiumClass =>
+            tree setType tree.tpe.toUnboxedValiumRef
+          case Select(qual, meth) if qual.isTerm && qual.isUnboxedValiumRef && tree.symbol.isMethod =>
             val boxed = atPos(tree.pos)(Apply(gen.mkAttributedRef(unbox2box), List(qual)))
-            super.typed(Select(boxed, mth) setSymbol tree.symbol, mode, pt)
+            super.typed(Select(boxed, meth) setSymbol tree.symbol, mode, pt)
           case _ =>
             val oldTree = tree.duplicate
             val oldTpe = tree.tpe

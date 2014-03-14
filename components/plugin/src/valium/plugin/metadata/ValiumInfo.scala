@@ -1,6 +1,7 @@
 package valium.plugin.metadata
 
 import scala.tools.nsc.plugins.PluginComponent
+import scala.language.implicitConversions
 
 trait ValiumInfo {
   this: ValiumHelper =>
@@ -10,15 +11,11 @@ trait ValiumInfo {
 
   implicit class RichTree(tree: Tree) {
     def valiumFields = tree.tpe.valiumFields
-    def isBoxedValiumRef = tree.isTerm && tree.tpe.isBoxedValiumRef
-    def isUnboxedValiumRef = tree.isTerm && tree.tpe.isUnboxedValiumRef
-    def toUnboxedValiumRef = { assert(tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toUnboxedValiumRef) setOriginal tree }
-    def toBoxedValiumRef = { assert(tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toBoxedValiumRef) setOriginal tree }
+    def isBoxedValiumRef = tree.tpe.isBoxedValiumRef
+    def isUnboxedValiumRef = tree.tpe.isUnboxedValiumRef || (tree.isInstanceOf[This] && tree.symbol.isValiumClass)
+    def toUnboxedValiumRef = { assert(tree.isType && tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toUnboxedValiumRef) setOriginal tree }
+    def toBoxedValiumRef = { assert(tree.isType && tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toBoxedValiumRef) setOriginal tree }
     def isInjected = { assert(tree.symbol != null && tree.symbol != NoSymbol, (tree, tree.symbol)); tree.symbol.isInjected }
-    def needsPrecompute: Boolean = tree match {
-      case Applied(core, _, List(List(arg))) if core.isInjected => arg.needsPrecompute
-      case _ => !isExprSafeToInline(tree)
-    }
   }
 
   implicit class RichSymbol(sym: Symbol) {
@@ -45,5 +42,16 @@ trait ValiumInfo {
       case PolyType(tparams, tpe)     => PolyType(tparams, tpe.toBoxedValiumRef)
       case tpe                        => tpe.removeAnnotation(UnboxedClass)
     }
+  }
+
+  implicit def nme2valiumnme(nme: global.nme.type): valiumnme.type = valiumnme
+  object valiumnme {
+    private def gensym(prefix: String) = TermName(prefix + globalFreshNameCreator.newName(""))
+    def paramExplode(p: Symbol, f: Symbol): TermName = gensym(p.name + f.name.toString +"$p")
+    def valuePrecompute(v: Symbol): TermName = gensym(v.name + "$v")
+    def valueExplode(v: Symbol, f: Symbol): TermName = gensym(v.name + f.name.toString + "$v")
+    def argPrecompute(p: Symbol): TermName = gensym("$f")
+    def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString + "$f")
+    def assignPrecompute(): TermName = gensym("$a")
   }
 }
