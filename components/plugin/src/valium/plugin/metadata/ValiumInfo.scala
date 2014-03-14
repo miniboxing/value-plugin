@@ -30,8 +30,8 @@ trait ValiumInfo {
   }
 
   implicit class RichType(tpe: Type) {
-    def valiumFields = tpe.dealiasWiden.typeSymbol.valiumFields
-    def valiumField = tpe.dealiasWiden.typeSymbol.valiumField
+    def valiumFields = if (tpe != null) tpe.dealiasWiden.typeSymbol.valiumFields else Nil
+    def valiumField = if (tpe != null) tpe.dealiasWiden.typeSymbol.valiumField else throw new Exception("")
     def isBoxedValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isValiumClass && !tpe.isUnboxedValiumRef
     def isUnboxedValiumRef = tpe != null && tpe.dealiasWiden.hasAnnotation(UnboxedClass)
     def toUnboxedValiumRef: Type = tpe match {

@@ -1,6 +1,6 @@
 package valium.plugin
 package transform
-package addext
+package convert
 
 trait ValiumConvertTreeTransformer {
   this: ValiumConvertPhase =>
@@ -66,7 +66,7 @@ trait ValiumConvertTreeTransformer {
   // B06) [[ box2unbox(es) ]] => [[ es ]].x.asInstanceOf[VS @unboxed]
   // B07) [[ box2unbox(em) ]] => [[ em ]]
   // B08) [[ e.a ]] => [[ e.a$x ]]
-  // B09) [[ e.bs ]] => [[ unbox2box(e.bs).x ]]
+  // B09) [[ bs ]] => [[ bs ]].asInstanceOf[X]
   // B10) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
   // B11) [[ e.u[Ts](..., bs, ...) ]] => [[ { val $e = e; val $... = ...; val $bs: V @unboxed = bs; val $... = ...; $e.u[Ts]($..., $bs, $...) } ]]
   // B12) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
@@ -79,9 +79,9 @@ trait ValiumConvertTreeTransformer {
       case ValDef(_, _, VSu(f :: Nil), cs @ CS(_, _)) =>
         commit(temp(nme.valueExplode(tree.symbol, f), unbox2box(cs, f)))
       case DefDef(_, _, _, Vu(), _, e) =>
-        commit(newDefDef(afterConvert(tree.symbol), e)())
+        commit(newDefDef(afterConvert(tree.symbol), e)() setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
-        commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c))
+        commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case Unbox2box(Box2unbox(e)) =>
         e
       case Select(Unbox2box(A(e, a)), x) =>
@@ -90,7 +90,7 @@ trait ValiumConvertTreeTransformer {
         val args = tree.tpe.valiumFields.map(f => RefTree(e, nme.valueExplode(a, f)))
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
       case Select(Unbox2box(bs @ BS(_, _)), x) =>
-        bs setType bs.tpe.toValiumField
+        commit(bs setType bs.tpe.toValiumField)
       case Unbox2box(bs) =>
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(bs, bs.valiumField))))
       case Box2unbox(es @ ES(_, _)) =>
@@ -99,8 +99,8 @@ trait ValiumConvertTreeTransformer {
         commit(em)
       case A(e, a) =>
         commit(RefTree(e, nme.valueExplode(a, a.valiumField)))
-      case BS(e, bs) =>
-        commit(Select(unbox2box(Select(e, bs)), bs.valiumField))
+      case bs @ BS(_, _) =>
+        commit(bs setType bs.tpe.toValiumField)
       case Apply(core, args) if !core.symbol.isInjected && args.exists(_.isUnboxedValiumRef) =>
         // TODO: make sure this works with varargs
         var precomputeds = List[ValDef]()
