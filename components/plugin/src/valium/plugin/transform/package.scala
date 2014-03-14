@@ -65,7 +65,7 @@ trait ValiumConvertPhase extends
       // execute the tree transformer after all symbols have been processed
       val tree1 = afterConvert(new TreeConverter(unit).transform(tree))
       tree1.foreach(tree => if (tree.tpe == null) unit.error(tree.pos, s"tree not typed: $tree"))
-      def isDisallowed(tree: Tree) = afterConvert(tree.symbol == box2unbox || tree.symbol == unbox2box || tree.symbol.isUnboxedValiumRef)
+      def isDisallowed(tree: Tree) = afterConvert(tree.symbol == box2unbox || tree.symbol == unbox2box || tree.symbol.isUnboxedValiumRef || tree.isUnboxedValiumRef)
       tree1.collect{ case sub if isDisallowed(sub) => unit.error(sub.pos, s"unexpected leftovers after convert: $sub") }
       tree1
     }
