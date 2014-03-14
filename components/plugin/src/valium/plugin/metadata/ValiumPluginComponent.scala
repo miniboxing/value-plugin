@@ -48,7 +48,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       stats flatMap {
         case stat =>
           def commit(stats1: Result): Result = {
-            valiumlog(s"$stats -> $stats1")
+            valiumlog(s"$stat -> $stats1")
             val stats2 = stats1 match {
               case Single(stat1) => List(typed(stat1))
               case Multi(stats1) => typedStats(stats1, exprOwner)

@@ -64,7 +64,10 @@ trait ValiumInfo {
     def assignPrecompute(): TermName = gensym("$a")
   }
 
-  object Vu { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length != 0) }
+  object Vu {
+    def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length != 0)
+    def unapply(vparamss: List[List[ValDef]]): Boolean = vparamss.flatten.exists(p => Vu.unapply(p.tpt).isDefined)
+  }
   object VSu { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length == 1) }
   object VMu { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length > 1) }
   object A { def unapply(tree: Tree): Option[(Tree, Symbol)] = if (Vu.unapply(tree).isDefined && isA(tree)) Some(extractQualAndSymbol(tree)) else None }
@@ -86,7 +89,6 @@ trait ValiumInfo {
     case Ident(_) => true
     case Select(qual, _) => qual.symbol.isStable
     case Apply(_, Nil) if tree.symbol.isGetter => true
-    case Apply(_, arg :: Nil) if tree.symbol.isInjected => true
     case _ => false
   })
 
