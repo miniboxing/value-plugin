@@ -73,9 +73,13 @@ trait ValiumConvertTreeTransformer {
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
-        commit(fields.map(x => temp(nme.valueExplode(tree.symbol, x), unbox2box(am, x))))
+        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), unbox2box(am, x)))
+        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
+        commit(exploded)
       case ValDef(_, _, VSu(x :: Nil), cs @ CS(_, _)) =>
-        commit(temp(nme.valueExplode(tree.symbol, x), unbox2box(cs, x)))
+        val exploded = temp(nme.valueExplode(tree.symbol, x), unbox2box(cs, x))
+        tree.symbol.registerExploded(exploded.symbol)
+        commit(exploded)
       case DefDef(_, _, _, Vu(), _, e) =>
         commit(newDefDef(afterConvert(tree.symbol), e)() setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>

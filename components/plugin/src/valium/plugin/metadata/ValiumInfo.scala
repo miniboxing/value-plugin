@@ -27,7 +27,11 @@ trait ValiumInfo {
     def isBoxedValiumRef = sym != null && sym.info.isBoxedValiumRef
     def isUnboxedValiumRef = sym != null && sym.info.isUnboxedValiumRef
     def isInjected = sym == box2unbox || sym == unbox2box
+    def registerExploded(exploded: Symbol) = sym.updateAttachment(ExplodedSymbolsAttachment(sym.explodedSymbols :+ exploded))
+    def explodedSymbols = sym.attachments.get[ExplodedSymbolsAttachment].map(_.syms).getOrElse(Nil)
   }
+
+  case class ExplodedSymbolsAttachment(syms: List[Symbol])
 
   implicit class RichType(tpe: Type) {
     def valiumFields = if (tpe != null) tpe.dealiasWiden.typeSymbol.valiumFields else Nil
@@ -56,9 +60,11 @@ trait ValiumInfo {
   object valiumnme {
     private def gensym(prefix: String) = TermName(prefix + globalFreshNameCreator.newName(""))
     def paramExplode(p: Symbol, f: Symbol): TermName = paramExplode(p, f.name)
-    def paramExplode(p: Symbol, n: Name): TermName = gensym(p.name + n.toString +"$")
+    def paramExplode(p: Symbol, n: Name): TermName = gensym(p.name + n.toString + "$")
+    def isParamExplode(p: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name.startsWith(p.name + n.toString)
     def valueExplode(v: Symbol, f: Symbol): TermName = valueExplode(v, f.name)
     def valueExplode(v: Symbol, n: Name): TermName = gensym(v.name + n.toString + "$")
+    def isValueExplode(v: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name.startsWith(v.name + n.toString)
     def argPrecompute(p: Symbol): TermName = gensym("$")
     def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString + "$")
     def assignPrecompute(): TermName = gensym("$")
@@ -67,7 +73,9 @@ trait ValiumInfo {
   implicit def gen2valiumgen(gen: global.gen.type): valiumgen.type = valiumgen
   object valiumgen {
     def mkExplodedRef(e: Tree, a: Symbol, x: Name): Tree = {
-      RefTree(e, nme.valueExplode(a, x))
+      // can's just call nme.valueExplode(a, x) because of gensym!
+      val ax = a.explodedSymbols.find(cand => nme.isParamExplode(a, x, cand) || nme.isValueExplode(a, x, cand)).getOrElse(throw new Exception(s"$e, $a, $x"))
+      RefTree(e, ax.name) setSymbol ax
     }
   }
   object Eax {
