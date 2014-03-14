@@ -9,6 +9,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
   import Flag._
 
   val helper: ValiumHelper { val global: self.global.type }
+  import helper._
   def valiumlog(msg: => String) = if (settings.log.value.contains(phaseName)) log(msg)
 
   abstract class TreeRewriter(unit: CompilationUnit) extends TypingTransformer(unit) {

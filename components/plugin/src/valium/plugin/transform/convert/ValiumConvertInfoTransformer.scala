@@ -22,7 +22,9 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
         // TODO: we don't need to worry about throwing away param symbols, because valium-based DMT's are prohibited in valium-verify
         // we need to ban p.type types though, but that should also be done in valium-verify
         def explode(p: Symbol): List[Symbol] = {
-          p.info.valiumFields.map(f => sym.newSyntheticValueParam(p.info.memberInfo(f).finalResultType, nme.paramExplode(p, f)))
+          val exploded = p.info.valiumFields.map(f => sym.newSyntheticValueParam(p.info.memberInfo(f).finalResultType, nme.paramExplode(p, f)))
+          exploded.foreach(syme => p.registerExploded(syme))
+          exploded
         }
         params.flatMap(p => if (p.isUnboxedValiumRef) explode(p) else List(p))
       }
