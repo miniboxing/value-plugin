@@ -48,7 +48,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       stats flatMap {
         case stat =>
           def commit(stats1: Result): Result = {
-            valiumlog(s"$stats -> $stats1")
+            valiumlog(s"$stat -> $stats1")
             val stats2 = stats1 match {
               case Single(stat1) => List(typed(stat1))
               case Multi(stats1) => typedStats(stats1, exprOwner)
@@ -77,10 +77,14 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
         if (newsym.owner.info.decls != EmptyScope) newsym.owner.info.decls.enter(newsym)
         atPos(pos)(newValDef(newsym, rhs)())
       }
+      // def recur(tree: Tree): Tree = if (tree.isTerm) atOwner(owner)(transform(tree)) else transform(tree)
+      // def recur(trees: List[Tree]): List[Tree] = transformStats(trees, owner)
     }
 
     def commit(result: Result)(implicit state: State): Result = state.commit(result)
     def fallback()(implicit state: State): Result = state.fallback()
+    // def recur(tree: Tree)(implicit state: State): Tree = state.recur(tree)
+    // def recur(trees: List[Tree])(implicit state: State): List[Tree] = state.recur(trees)
     def temp(name: TermName, rhs: Tree)(implicit state: State): ValDef = state.temp(name, rhs)
     def temp(name: TermName, tpe: Type, rhs: Tree)(implicit state: State): ValDef = state.temp(name, tpe, rhs)
     def temp(name: TermName, tpt: Tree, rhs: Tree)(implicit state: State): ValDef = state.temp(name, tpt, rhs)
