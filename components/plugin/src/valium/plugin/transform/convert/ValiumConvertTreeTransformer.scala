@@ -14,18 +14,19 @@ trait ValiumConvertTreeTransformer {
   // ======= NOTES =======
   //
   //   01) Value classes are assumed to be immutable, because mutability and unboxing can't coexist
-  //   02) We also assume that users can't define custom getters for valium fields => these getters can be regarded as pure
-  //   03) When writing out the exhaustive list of syntax forms, I used http://den.sh/quasiquotes.html#syntax-overview
+  //   02) We also assume absense of side-effects in value class constructors
+  //   03) We also assume that users can't define custom getters for valium fields => these getters can be regarded as pure
+  //   04) When writing out the exhaustive list of syntax forms, I used http://den.sh/quasiquotes.html#syntax-overview
   //       (of course, one has to keep in mind that some trees are desugared during parsing/typechecking and even further in the backend)
-  //   04) TODO: support valium fields of valium class types
-  //   05) TODO: support polymorphic value classes
-  //   06) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
-  //   07) TODO: think whether our transformation needs to operate on patterns and types
-  //   08) TODO: think whether we can avoid writing those unbox2box and box2unbox explicitly and just defer to inject/coerce
-  //   09) TODO: we have to treat V.this.x references specially, because unbox2box(V.this).x doesn't typecheck. think what can be done about that
-  //   10) TODO: the rule for assignments is very sloppy, but handling of bs and bm is quite elaborate. we might want to balance that
-  //   11) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
-  //   12) TODO: do we need to transform labeldefs?
+  //   05) TODO: support valium fields of valium class types
+  //   06) TODO: support polymorphic value classes
+  //   07) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
+  //   08) TODO: think whether our transformation needs to operate on patterns and types
+  //   09) TODO: think whether we can avoid writing those unbox2box and box2unbox explicitly and just defer to inject/coerce
+  //   10) TODO: we have to treat V.this.x references specially, because unbox2box(V.this).x doesn't typecheck. think what can be done about that
+  //   11) TODO: the rule for assignments is very sloppy, but handling of bs and bm is quite elaborate. we might want to balance that
+  //   12) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
+  //   13) TODO: do we need to transform labeldefs?
   //
   // ======= NOTATION =======
   //
@@ -74,16 +75,23 @@ trait ValiumConvertTreeTransformer {
   // B15) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
-      case ValDef(_, _, Vu(fields), a @ A()) =>
-        commit(fields.map(f => temp(nme.valueExplode(tree.symbol, f), unbox2box(a, f))))
-      case ValDef(_, _, Vu(f :: Nil), bs @ BS()) =>
-        commit(temp(nme.valueExplode(tree.symbol, f), unbox2box(bs, f)))
-      case ValDef(mods, name, tpt @ Vu(fields), bm @ BM()) =>
-        val precomputed = temp(nme.valuePrecompute(tree.symbol), bm.tpe.toBoxedValiumRef, unbox2box(bm))
-        val reduced = treeCopy.ValDef(tree, mods, name, tpt, box2unbox(precomputed.symbol))
-        commit(precomputed :: reduced :: Nil)
-      case ValDef(_, _, _, _) =>
-        fallback()
+      case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
+        commit(fields.map(f => temp(nme.valueExplode(tree.symbol, f), unbox2box(am, f))))
+      case ValDef(_, _, VSu(f :: Nil), cs @ CS(_, _)) =>
+        commit(temp(nme.valueExplode(tree.symbol, f), unbox2box(cs, f)))
+      case DefDef(_, _, _, vparamss, _, e) if vparamss.flatten.exists(Vu.unapply(_).nonEmpty) =>
+         commit(newDefDef(afterConvert(tree.symbol), e)())
+      case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
+        commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c))
+      case Unbox2box(Box2unbox(e)) =>
+        e
+      case Select(Unbox2box(A(e, a)), x) =>
+        commit(RefTree(e, nme.valueExplode(a, x)))
+      case Unbox2box(A(e, a)) =>
+        val args = tree.tpe.valiumFields.map(f => RefTree(e, nme.valueExplode(a, f)))
+        commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
+      case Select(Unbox2box(bs @ BS(_, _)), x) =>
+        bs setType bs.tpe.toValiumField
     }
   }
 }
