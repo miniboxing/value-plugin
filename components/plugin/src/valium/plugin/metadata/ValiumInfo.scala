@@ -12,7 +12,7 @@ trait ValiumInfo {
   implicit class RichTree(tree: Tree) {
     def valiumFields = tree.tpe.valiumFields
     def isBoxedValiumRef = tree.tpe.isBoxedValiumRef
-    def isUnboxedValiumRef = tree.tpe.isUnboxedValiumRef || (tree.isInstanceOf[This] && tree.symbol.isValiumClass)
+    def isUnboxedValiumRef = tree.tpe.isUnboxedValiumRef
     def toUnboxedValiumRef = { assert(tree.isType && tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toUnboxedValiumRef) setOriginal tree }
     def toBoxedValiumRef = { assert(tree.isType && tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toBoxedValiumRef) setOriginal tree }
     def isInjected = { assert(tree.symbol != null && tree.symbol != NoSymbol, (tree, tree.symbol)); tree.symbol.isInjected }
@@ -55,8 +55,12 @@ trait ValiumInfo {
     def assignPrecompute(): TermName = gensym("$a")
   }
 
-  object Vu { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(_.length != 0) }
+  object Vu { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length != 0) }
+  object VSu { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length == 1) }
+  object VMu { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length > 1) }
   object A { def unapply(tree: Tree): Boolean = Vu.unapply(tree).isDefined && isA(tree) }
+  object AS { def unapply(tree: Tree): Boolean = A.unapply(tree) && tree.valiumFields.length == 1 }
+  object AM { def unapply(tree: Tree): Boolean = A.unapply(tree) && tree.valiumFields.length > 1 }
   object B { def unapply(tree: Tree): Boolean = Vu.unapply(tree).isDefined && !A.unapply(tree) }
   object BS { def unapply(tree: Tree): Boolean = B.unapply(tree) && tree.valiumFields.length == 1 }
   object BM { def unapply(tree: Tree): Boolean = B.unapply(tree) && tree.valiumFields.length > 1 }
