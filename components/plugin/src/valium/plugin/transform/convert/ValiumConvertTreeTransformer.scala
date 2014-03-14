@@ -14,18 +14,19 @@ trait ValiumConvertTreeTransformer {
   // ======= NOTES =======
   //
   //   01) Value classes are assumed to be immutable, because mutability and unboxing can't coexist
-  //   02) We also assume that users can't define custom getters for valium fields => these getters can be regarded as pure
-  //   03) When writing out the exhaustive list of syntax forms, I used http://den.sh/quasiquotes.html#syntax-overview
+  //   02) We also assume absense of side-effects in value class constructors
+  //   03) We also assume that users can't define custom getters for valium fields => these getters can be regarded as pure
+  //   04) When writing out the exhaustive list of syntax forms, I used http://den.sh/quasiquotes.html#syntax-overview
   //       (of course, one has to keep in mind that some trees are desugared during parsing/typechecking and even further in the backend)
-  //   04) TODO: support valium fields of valium class types
-  //   05) TODO: support polymorphic value classes
-  //   06) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
-  //   07) TODO: think whether our transformation needs to operate on patterns and types
-  //   08) TODO: think whether we can avoid writing those unbox2box and box2unbox explicitly and just defer to inject/coerce
-  //   09) TODO: we have to treat V.this.x references specially, because unbox2box(V.this).x doesn't typecheck. think what can be done about that
-  //   10) TODO: the rule for assignments is very sloppy, but handling of bs and bm is quite elaborate. we might want to balance that
-  //   11) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
-  //   12) TODO: do we need to transform labeldefs?
+  //   05) TODO: support valium fields of valium class types
+  //   06) TODO: support polymorphic value classes
+  //   07) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
+  //   08) TODO: think whether our transformation needs to operate on patterns and types
+  //   09) TODO: think whether we can avoid writing those unbox2box and box2unbox explicitly and just defer to inject/coerce
+  //   10) TODO: we have to treat V.this.x references specially, because unbox2box(V.this).x doesn't typecheck. think what can be done about that
+  //   11) TODO: the rule for assignments is very sloppy, but handling of bs and bm is quite elaborate. we might want to balance that
+  //   12) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
+  //   13) TODO: do we need to transform labeldefs?
   //
   // ======= NOTATION =======
   //
