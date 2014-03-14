@@ -75,12 +75,23 @@ trait ValiumConvertTreeTransformer {
   // B15) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
-      case ValDef(_, _, VMu(fields), am @ AM()) =>
+      case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
         commit(fields.map(f => temp(nme.valueExplode(tree.symbol, f), unbox2box(am, f))))
-      case ValDef(_, _, VSu(f :: Nil), cs @ CS()) =>
+      case ValDef(_, _, VSu(f :: Nil), cs @ CS(_, _)) =>
         commit(temp(nme.valueExplode(tree.symbol, f), unbox2box(cs, f)))
-      case ValDef(_, _, _, _) =>
-        fallback()
+      case DefDef(_, _, _, vparamss, _, e) if vparamss.flatten.exists(Vu.unapply(_).nonEmpty) =>
+         commit(newDefDef(afterConvert(tree.symbol), e)())
+      case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
+        commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c))
+      case Unbox2box(Box2unbox(e)) =>
+        e
+      case Select(Unbox2box(A(e, a)), x) =>
+        commit(RefTree(e, nme.valueExplode(a, x)))
+      case Unbox2box(A(e, a)) =>
+        val args = tree.tpe.valiumFields.map(f => RefTree(e, nme.valueExplode(a, f)))
+        commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
+      case Select(Unbox2box(bs @ BS(_, _)), x) =>
+        bs setType bs.tpe.toValiumField
     }
   }
 }
