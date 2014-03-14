@@ -54,4 +54,29 @@ trait ValiumInfo {
     def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString + "$f")
     def assignPrecompute(): TermName = gensym("$a")
   }
+
+  object Vu { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(_.length != 0) }
+  object A { def unapply(tree: Tree): Boolean = Vu.unapply(tree).isDefined && isA(tree) }
+  object B { def unapply(tree: Tree): Boolean = Vu.unapply(tree).isDefined && !A.unapply(tree) }
+  object BS { def unapply(tree: Tree): Boolean = B.unapply(tree) && tree.valiumFields.length == 1 }
+  object BM { def unapply(tree: Tree): Boolean = B.unapply(tree) && tree.valiumFields.length > 1 }
+  object C { def unapply(tree: Tree): Boolean = A.unapply(tree) || B.unapply(tree) }
+  object CS { def unapply(tree: Tree): Boolean = C.unapply(tree) && tree.valiumFields.length == 1 }
+  object CM { def unapply(tree: Tree): Boolean = C.unapply(tree) && tree.valiumFields.length > 1 }
+
+  //    a, as, am => V.this / an ident or a select that has stable prefix, points to a val, a var or a getter and has type V @unboxed
+  def isA(tree: Tree): Boolean = tree match {
+    case This(_) => true
+    case Ident(_) => true
+    case Select(qual, _) => qual.symbol.isStable
+    case Apply(_, Nil) if tree.symbol.isGetter => true
+    case _ => false
+  }
+
+  def box2unbox(tree: Tree): Tree = ???
+  def box2unbox(sym: Symbol): Tree = ???
+  def unbox2box(tree: Tree): Tree = ???
+  def unbox2box(tree: Tree, field: Symbol): Tree = ???
+  def unbox2box(sym: Symbol): Tree = ???
+  def unbox2box(sym: Symbol, field: Symbol): Tree = ???
 }
