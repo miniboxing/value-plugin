@@ -11,6 +11,7 @@ trait ValiumInfo {
 
   implicit class RichTree(tree: Tree) {
     def valiumFields = tree.tpe.valiumFields
+    def valiumField = tree.tpe.valiumField
     def isBoxedValiumRef = tree.tpe.isBoxedValiumRef
     def isUnboxedValiumRef = tree.tpe.isUnboxedValiumRef
     def toUnboxedValiumRef = { assert(tree.isType && tree.tpe != null, (tree, tree.tpe)); TypeTree(tree.tpe.toUnboxedValiumRef) setOriginal tree }
@@ -22,6 +23,7 @@ trait ValiumInfo {
   implicit class RichSymbol(sym: Symbol) {
     def isValiumClass = sym != null && sym.hasAnnotation(ValiumClass)
     def valiumFields = if (sym.isValiumClass || sym.isBoxedValiumRef || sym.isUnboxedValiumRef) sym.info.members.sorted.filter(sym => sym.isMethod && sym.isParamAccessor).toList else Nil
+    def valiumField = valiumFields match { case f :: Nil => f; case _ => throw new Exception(sym.toString) }
     def isBoxedValiumRef = sym != null && sym.info.isBoxedValiumRef
     def isUnboxedValiumRef = sym != null && sym.info.isUnboxedValiumRef
     def isInjected = sym == box2unbox || sym == unbox2box
@@ -29,6 +31,7 @@ trait ValiumInfo {
 
   implicit class RichType(tpe: Type) {
     def valiumFields = tpe.dealiasWiden.typeSymbol.valiumFields
+    def valiumField = tpe.dealiasWiden.typeSymbol.valiumField
     def isBoxedValiumRef = tpe != null && tpe.dealiasWiden.typeSymbol.isValiumClass && !tpe.isUnboxedValiumRef
     def isUnboxedValiumRef = tpe != null && tpe.dealiasWiden.hasAnnotation(UnboxedClass)
     def toUnboxedValiumRef: Type = tpe match {
@@ -73,16 +76,23 @@ trait ValiumInfo {
   object C { def unapply(tree: Tree): Option[(Tree, Symbol)] = A.unapply(tree).orElse(B.unapply(tree)) }
   object CS { def unapply(tree: Tree): Option[(Tree, Symbol)] = C.unapply(tree).filter(_ => tree.valiumFields.length == 1) }
   object CM { def unapply(tree: Tree): Option[(Tree, Symbol)] = C.unapply(tree).filter(_ => tree.valiumFields.length > 1) }
+  object V { def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isBoxedValiumRef && fields.length != 0) }
+  object ES { def unapply(tree: Tree): Option[(Tree, Symbol)] = if (V.unapply(tree).isDefined && tree.valiumFields.length == 1) Some(extractQualAndSymbol(tree)) else None }
+  object EM { def unapply(tree: Tree): Option[(Tree, Symbol)] = if (V.unapply(tree).isDefined && tree.valiumFields.length > 1) Some(extractQualAndSymbol(tree)) else None }
   object Unbox2box { def unapply(tree: Tree): Option[Tree] = tree match { case Apply(_, arg :: Nil) if tree.symbol == unbox2box => Some(arg); case _ => None } }
   object Box2unbox { def unapply(tree: Tree): Option[Tree] = tree match { case Apply(_, arg :: Nil) if tree.symbol == box2unbox => Some(arg); case _ => None } }
 
-  def isA(tree: Tree): Boolean = tree match {
+  def isA(tree: Tree): Boolean = isC(tree) && (tree match {
     case Ident(_) => true
     case Select(qual, _) => qual.symbol.isStable
     case Apply(_, Nil) if tree.symbol.isGetter => true
     case Apply(_, arg :: Nil) if tree.symbol.isInjected => true
     case _ => false
-  }
+  })
+
+  def isB(tree: Tree): Boolean = isC(tree) && !isA(tree)
+
+  def isC(tree: Tree): Boolean = tree.isUnboxedValiumRef
 
   def extractQualAndSymbol(tree: Tree) = tree match {
     case RefTree(qual, _) => (qual, tree.symbol)

@@ -62,17 +62,16 @@ trait ValiumConvertTreeTransformer {
   // B02) [[ unbox2box(e.a).x ]] => e.a$x
   // B03) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
   // B04) [[ unbox2box(bs).x ]] => [[ bs ]].asInstanceOf[X]
-  // B05) [[ unbox2box(bs) ]] => new V1([[ unbox2box(bs).x ]])
+  // B05) [[ unbox2box(bs) ]] => new VS([[ unbox2box(bs).x ]])
   // B06) [[ box2unbox(es) ]] => [[ es ]].x.asInstanceOf[VS @unboxed]
   // B07) [[ box2unbox(em) ]] => [[ em ]]
-  // B08) [[ is ]] => [[ is$x ]]
-  // B09) [[ e.a ]] => [[ e.a$x ]]
-  // B10) [[ e.bs ]] => [[ unbox2box(e.bs).x ]]
-  // B11) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
-  // B12) [[ e.u[Ts](..., b, ...) ]] => [[ { val $e = e; val $... = ...; val $b: @V unboxed = b; val $... = ...; $e.u[Ts]($..., $b, $...) } ]]
-  // B13) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
-  // B14) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
-  // B15) [[ return cs ]] => return [[ unbox2box(cs).x ]]
+  // B08) [[ e.a ]] => [[ e.a$x ]]
+  // B09) [[ e.bs ]] => [[ unbox2box(e.bs).x ]]
+  // B10) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
+  // B11) [[ e.u[Ts](..., bs, ...) ]] => [[ { val $e = e; val $... = ...; val $bs: V @unboxed = bs; val $... = ...; $e.u[Ts]($..., $bs, $...) } ]]
+  // B12) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
+  // B13) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
+  // B14) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
@@ -92,6 +91,38 @@ trait ValiumConvertTreeTransformer {
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
       case Select(Unbox2box(bs @ BS(_, _)), x) =>
         bs setType bs.tpe.toValiumField
+      case Unbox2box(bs) =>
+        commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(bs, bs.valiumField))))
+      case Box2unbox(es @ ES(_, _)) =>
+        commit(Select(es, es.tpe.valiumField))
+      case Box2unbox(em @ EM(_, _)) =>
+        commit(em)
+      case A(e, a) =>
+        commit(RefTree(e, nme.valueExplode(a, a.valiumField)))
+      case BS(e, bs) =>
+        commit(Select(unbox2box(Select(e, bs)), bs.valiumField))
+      case tree @ Apply(core, args) if !core.symbol.isInjected && args.exists(_.isUnboxedValiumRef) =>
+        // TODO: make sure this works with varargs
+        var precomputeds = List[ValDef]()
+        val vals = flatMap2(args, core.tpe.params)((arg, p) => {
+          if (p.isUnboxedValiumRef) {
+            val precomputed = if (isB(arg) && p.valiumFields.length > 1) List(temp(nme.argPrecompute(p), arg)) else Nil
+            precomputeds ++= precomputed
+            val arg1 = if (precomputed.nonEmpty) atPos(arg.pos)(Ident(precomputed.head.name)) else arg
+            val exploded = p.valiumFields.map(f => temp(nme.argExplode(p, f), gen.mkAttributedSelect(arg1, f)))
+            precomputed ++ exploded
+          } else {
+            List(temp(nme.EMPTY, arg))
+          }
+        })
+        def apply1(args1: List[Tree]) = treeCopy.Apply(tree, core.clearType(), args1).clearType()
+        if (precomputeds.nonEmpty) {
+          val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.name))
+          commit(vals :+ apply1(args1))
+        } else {
+          val args1 = vals.map(_.rhs).map{ case rhs @ Select(qual, _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType }
+          commit(apply1(args1))
+        }
     }
   }
 }
