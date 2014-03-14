@@ -65,7 +65,6 @@ trait ValiumInfo {
   object CM { def unapply(tree: Tree): Boolean = C.unapply(tree) && tree.valiumFields.length > 1 }
 
   def isA(tree: Tree): Boolean = tree match {
-    case This(_) => true
     case Ident(_) => true
     case Select(qual, _) => qual.symbol.isStable
     case Apply(_, Nil) if tree.symbol.isGetter => true

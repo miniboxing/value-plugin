@@ -29,86 +29,49 @@ trait ValiumConvertTreeTransformer {
   //
   // ======= NOTATION =======
   //
-  //    ... => anything
-  //    M => any module
-  //    C => any class
-  //    V => any valium class
-  //    VS, VM => single-field valium class and multi-field valium class
-  //    m => any method
-  //    u => method that has one or more of its parameters with type V @unboxed
-  //    r, rs, rm => method that returns V @unboxed
-  //    T => any type parameter
-  //    f => any field
-  //    x, y => fields of the valium class with types X and Y
-  //    e, es, em => any expression, any VS boxed expression, any VM boxed expression
-  //    i, is, im => any identifier, any VS @unboxed identifier, any VM @unboxed identifier
-  //    c, cs, cm => anything that has type V @unboxed (a val/var with an unstable prefix, a method, an if, a match, etc)
-  //    a, as, am => V.this / an ident or a select that has stable prefix, points to a val, a var or a getter and has type V @unboxed
-  //    b, bs, bm => c, but not a
+  // ... => anything
+  // C => any class
+  // V => any valium class
+  // VS, VM => single-field valium class and multi-field valium class
+  // m => any method
+  // u => method that has one or more of its parameters with type V @unboxed
+  // r, rs, rm => method that returns V @unboxed
+  // T => any type parameter
+  // f => any field
+  // x, y => fields of the valium class with types X and Y
+  // e, es, em => any expression, any VS boxed expression, any VM boxed expression
+  // i, is, im => any identifier, any VS @unboxed identifier, any VM @unboxed identifier
+  // c, cs, cm => anything that has type V @unboxed (a val/var with an unstable prefix, a method, an if, a match, etc)
+  // a, as, am => an ident or a select that has stable prefix, points to a val, a var or a getter and has type V @unboxed
+  // b, bs, bm => c, but not a
+  //
+  // INVARIANT: there is no bm (TODO: Implement this!)
+  // INVARIANT: V.this: V
   //
   // ======= (A) DEFINITIONS =========
   //
-  // A01) [[ val v: V @unboxed = a ]]                     => [[ val v$x: X = unbox2box(a).x; val v$y: Y = unbox2box(a).y ]]
-  // A02) [[ val v: V @unboxed = bs ]]                    => [[ val v$x: X = unbox2box(bs).x ]]
-  // A03) [[ val v: V @unboxed = bm ]]                    => [[ val $bm: V = unbox2box(bm); val v: V @unboxed = box2unbox($bm) ]]
-  // A04) [[ val v: C = e ]]                              => val v: C = [[ e ]]
-  // A05) [[ var v: V @unboxed = a ]]                     => [[ var v$x: X = unbox2box(a).x; var v$y: Y = unbox2box(a).y ]]
-  // A06) [[ var v: V @unboxed = bs ]]                    => [[ var v$x: X = unbox2box(bs).x ]]
-  // A07) [[ var v: V @unboxed = bm ]]                    => [[ val $bm: V = unbox2box(bm); var v: V @unboxed = box2unbox($bm) ]]
-  // A08) [[ var v: C = e ]]                              => var v: C = [[ e ]]
-  // A09) [[ def u[Ts](..., p: V @unboxed, ...): C = e ]] => [[ def u[Ts](..., p$x: X, p$y: Y, ...): C = e ]]
-  // A10) [[ def r[Ts](...): V @unboxed = c ]]            => def r[Ts](...): X = [[ c ]]
-  // A11) [[ def m[Ts](...): C = e ]]                     => def m[Ts](...): C = [[ e ]]
-  // A12) [[ type T[Ts] = ... ]]                          => type T[Ts] = ...
-  // A13) [[ class C[Ts] extends Cs { self => ... } ]]    => class C[Ts] extends Cs { self => [[ ... ]] }
-  // A14) [[ trait C[Ts] extends Cs { self => ... } ]]    => trait C[Ts] extends Cs { self => [[ ... ]] }
-  // A15) [[ object M extends Cs { self => ... } ]]       => object M extends Cs { self => [[ ... ]] }
-  // A16) [[ package p { ... } ]]                         => package p { [[ ... ]] }
+  // A01) [[ val v: VM @unboxed = am ]] => val v$x: X = [[ unbox2box(am).x ]]; val v$y: Y = [[ unbox2box(am).y ]]
+  // A02) [[ val v: VS @unboxed = cs ]] => val v$x: X = [[ unbox2box(cs).x ]]
+  // A03) [[ def u[Ts](..., p: V @unboxed, ...): C = e ]] => def u[Ts](..., p$x: X, p$y: Y, ...): C = [[ e ]]
+  // A04) [[ def r[Ts](...): VS @unboxed = c ]] => def r[Ts](...): X = [[ c ]]
   //
   // ======= (B) EXPRESSIONS =========
   //
-  // B01) [[ <empty tree> ]]                   => <empty tree>
-  // B02) [[ <literal> ]]                      => <literal>
-  // B03) [[ <new C> ]]                        => <new C>
-  // B04) [[ is ]]                             => [[ unbox2box(is).x ]]
-  // B05) [[ im ]]                             => im
-  // B06) [[ i ]]                              => i
-  // B07) [[ e.cs ]]                           => [[ e.cs$x ]]
-  // B08) [[ e.cm ]]                           => [[ unbox2box(e.cm) ]]
-  // B09) [[ c.x ]]                            => !!! // there can never be a naked selection from an unboxed expression
-  // B10) [[ unbox2box(box2unbox(e)).x ]]      => [[ e.x ]]
-  // B11) [[ unbox2box(V.this).x ]]            => V.this.x
-  // B12) [[ unbox2box(e.a).x ]]               => [[ e.a$x ]]
-  // B13) [[ unbox2box(bs).x ]]                => [[ bs.x ]]
-  // B14) [[ unbox2box(bm).x ]]                => [[ { val $b: V @unboxed = bm; unbox2box($b).x } ]]
-  // B15) [[ e.f ]]                            => [[ e ]].f
-  // B16) [[ VS.this ]]                        => VS.this.x
-  // B17) [[ VN.this ]]                        => VN.this
-  // B18) [[ rs(...) ]]                        => [[ unbox2box(rs(...)).x ]]
-  // B19) [[ rm(...) ]]                        => rm([[ ... ]])
-  // B20) [[ box2unbox(es) ]]                  => [[ es ]].x
-  // B21) [[ box2unbox(em) ]]                  => [[ em ]]
-  // B22) [[ unbox2box(box2unbox(e)) ]]        => [[ e ]]
-  // B23) [[ unbox2box(V.this) ]]              => V.this
-  // B24) [[ unbox2box(e.a) ]]                 => [[ new V(unbox2box(e.a).x, unbox2box(e.a).y) ]]
-  // B25) [[ unbox2box(bs) ]]                  => [[ new V1(unbox2box(bs).x) ]]
-  // B26) [[ unbox2box(bm) ]]                  => [[ { val $b: VN @unboxed = bm; unbox2box($b) } ]]
-  // B27) [[ e.u[Ts](..., a, ...) ]]           => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
-  // B28) [[ e.u[Ts](..., b, ...) ]]           => [[ { val $e = e; val $... = ...; val $b: @V unboxed = b; val $... = ...; $e.u[Ts]($..., $b, $...) } ]]
-  // B29) [[ e.m[Ts](...) ]]                   => [[ e ]].m[Ts]([[ ... ]])
-  // B30) [[ e1.a1 = c2 ]]                     => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
-  // B31) [[ e1.b1 = c2 ]]                     => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
-  // B32) [[ e1 = e2 ]]                        => [[ e1 ]] = [[ e2 ]]
-  // B33) [[ return cs ]]                      => [[ return c.x ]]
-  // B34) [[ return cm ]]                      => !!! // inject only changes return values of P1-returning methods
-  // B35) [[ return e ]]                       => return [[ e ]]
-  // B36) [[ throw c ]]                        => ??? // can never happen, because here c will be typechecked against Exception
-  // B37) [[ throw e ]]                        => throw [[ e ]]
-  // B38) [[ e: C ]]                           => [[ e ]]: C
-  // B39) [[ { ... } ]]                        => { [[ ... ]] }
-  // B30) [[ if (cond) c1 else c2 ]]           => if ([[ cond ]]) [[ c1 ]] else [[ c2 ]]
-  // B41) [[ try c catch { case p => e1 } finally e2 => try [[ c ]] catch { case p => [[ e1 ]] } finally [[ e2 ]]
-
+  // B01) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]
+  // B02) [[ unbox2box(e.a).x ]] => e.a$x
+  // B03) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
+  // B04) [[ unbox2box(bs).x ]] => [[ bs ]].asInstanceOf[X]
+  // B05) [[ unbox2box(bs) ]] => new V1([[ unbox2box(bs).x ]])
+  // B06) [[ box2unbox(es) ]] => [[ es ]].x.asInstanceOf[VS @unboxed]
+  // B07) [[ box2unbox(em) ]] => [[ em ]]
+  // B08) [[ is ]] => [[ is$x ]]
+  // B09) [[ e.a ]] => [[ e.a$x ]]
+  // B10) [[ e.bs ]] => [[ unbox2box(e.bs).x ]]
+  // B11) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
+  // B12) [[ e.u[Ts](..., b, ...) ]] => [[ { val $e = e; val $... = ...; val $b: @V unboxed = b; val $... = ...; $e.u[Ts]($..., $b, $...) } ]]
+  // B13) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
+  // B14) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
+  // B15) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, Vu(fields), a @ A()) =>
@@ -119,7 +82,7 @@ trait ValiumConvertTreeTransformer {
         val precomputed = temp(nme.valuePrecompute(tree.symbol), bm.tpe.toBoxedValiumRef, unbox2box(bm))
         val reduced = treeCopy.ValDef(tree, mods, name, tpt, box2unbox(precomputed.symbol))
         commit(precomputed :: reduced :: Nil)
-      case ValDef(_, _, tpt, _) =>
+      case ValDef(_, _, _, _) =>
         fallback()
     }
   }
