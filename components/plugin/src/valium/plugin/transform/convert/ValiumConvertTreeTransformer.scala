@@ -51,8 +51,9 @@ trait ValiumConvertTreeTransformer {
   //
   // A01) [[ val v: VM @unboxed = am ]] => val v$x: X = [[ unbox2box(am).x ]]; val v$y: Y = [[ unbox2box(am).y ]]
   // A02) [[ val v: VS @unboxed = cs ]] => val v$x: X = [[ unbox2box(cs).x ]]
-  // A03) [[ def u[Ts](..., p: V @unboxed, ...): C = e ]] => def u[Ts](..., p$x: X, p$y: Y, ...): C = [[ e ]]
-  // A04) [[ def r[Ts](...): VS @unboxed = c ]] => def r[Ts](...): X = [[ c ]]
+  // A03) [[ val v: V @unboxed = _ ]] => val v$x: X = _; val v$y: Y = _
+  // A04) [[ def u[Ts](..., p: V @unboxed, ...): C = e ]] => def u[Ts](..., p$x: X, p$y: Y, ...): C = [[ e ]]
+  // A05) [[ def r[Ts](...): VS @unboxed = c ]] => def r[Ts](...): X = [[ c ]]
   //
   // ======= (B) EXPRESSIONS =========
   //
@@ -80,8 +81,15 @@ trait ValiumConvertTreeTransformer {
         val exploded = temp(nme.valueExplode(tree.symbol, x), unbox2box(cs, x))
         tree.symbol.registerExploded(exploded.symbol)
         commit(exploded)
+      case ValDef(_, _, tpt @ Vu(fields), EmptyTree) =>
+        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), tpt.tpe.memberInfo(x), EmptyTree))
+        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
+        tree.symbol.owner.info.decls.unlink(tree.symbol)
+        commit(exploded)
       case DefDef(_, _, _, Vu(), _, e) =>
-        commit(newDefDef(afterConvert(tree.symbol), e)() setType NoType)
+        val tree1 = newDefDef(afterConvert(tree.symbol), e)() setType NoType
+        tree1.vparamss.flatten.foreach(_ setType NoType)
+        commit(tree1)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case Unbox2box(Box2unbox(e)) =>

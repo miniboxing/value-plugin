@@ -60,13 +60,13 @@ trait ValiumInfo {
   object valiumnme {
     private def gensym(prefix: String) = TermName(prefix + globalFreshNameCreator.newName(""))
     def paramExplode(p: Symbol, f: Symbol): TermName = paramExplode(p, f.name)
-    def paramExplode(p: Symbol, n: Name): TermName = gensym(p.name + n.toString + "$")
-    def isParamExplode(p: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name.startsWith(p.name + n.toString)
+    def paramExplode(p: Symbol, n: Name): TermName = TermName(p.name + "$" + n.toString)
+    def isParamExplode(p: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == paramExplode(p, n)
     def valueExplode(v: Symbol, f: Symbol): TermName = valueExplode(v, f.name)
-    def valueExplode(v: Symbol, n: Name): TermName = gensym(v.name + n.toString + "$")
-    def isValueExplode(v: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name.startsWith(v.name + n.toString)
+    def valueExplode(v: Symbol, n: Name): TermName = TermName(v.name + "$" + n.toString)
+    def isValueExplode(v: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == valueExplode(v, n)
     def argPrecompute(p: Symbol): TermName = gensym("$")
-    def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString + "$")
+    def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString)
     def assignPrecompute(): TermName = gensym("$")
   }
 
