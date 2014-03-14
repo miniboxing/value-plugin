@@ -21,7 +21,7 @@ trait ValiumInjectInfoTransformer extends InfoTransform {
       logTransform(tpe.toUnboxedValiumRef)
     else if (sym.isTerm && !sym.isMethod && tpe.isBoxedValiumRef)
       logTransform(tpe.toUnboxedValiumRef)
-    else if (sym.isMethod && tpe.finalResultType.isBoxedValiumRef && tpe.finalResultType.valiumFields.length == 1 && !sym.isInjected)
+    else if (sym.isMethod && !sym.isConstructor && tpe.finalResultType.isBoxedValiumRef && tpe.finalResultType.valiumFields.length == 1 && !sym.isInjected)
       logTransform(tpe.toUnboxedValiumRef)
     else
       tpe
