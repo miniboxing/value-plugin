@@ -86,12 +86,12 @@ trait ValiumConvertTreeTransformer {
         commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case Unbox2box(Box2unbox(e)) =>
         commit(e)
-      case Select(Unbox2box(A(e, a)), x) if tree.symbol.isGetter =>
+      case Select(Unbox2box(A(e, a)), x) if !tree.symbol.isMethod =>
         commit(Eax(e, a, x))
       case Unbox2box(A(e, a)) =>
         val args = tree.tpe.valiumFields.map(x => Eax(e, a, x))
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
-      case Select(Unbox2box(bs @ BS(_, _)), x) if tree.symbol.isGetter =>
+      case Select(Unbox2box(bs @ BS(_, _)), x) if !tree.symbol.isMethod =>
         commit(bs setType bs.tpe.toValiumField)
       case Unbox2box(bs) =>
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(bs, bs.valiumField))))
