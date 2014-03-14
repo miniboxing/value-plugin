@@ -82,7 +82,7 @@ trait ValiumConvertTreeTransformer {
         val precomputed = temp(nme.valuePrecompute(tree.symbol), bm.tpe.toBoxedValiumRef, unbox2box(bm))
         val reduced = treeCopy.ValDef(tree, mods, name, tpt, box2unbox(precomputed.symbol))
         commit(precomputed :: reduced :: Nil)
-      case ValDef(_, _, tpt, _) =>
+      case ValDef(_, _, _, _) =>
         fallback()
     }
   }

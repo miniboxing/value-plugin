@@ -64,19 +64,18 @@ trait ValiumInfo {
   object CS { def unapply(tree: Tree): Boolean = C.unapply(tree) && tree.valiumFields.length == 1 }
   object CM { def unapply(tree: Tree): Boolean = C.unapply(tree) && tree.valiumFields.length > 1 }
 
-  //    a, as, am => V.this / an ident or a select that has stable prefix, points to a val, a var or a getter and has type V @unboxed
   def isA(tree: Tree): Boolean = tree match {
-    case This(_) => true
     case Ident(_) => true
     case Select(qual, _) => qual.symbol.isStable
     case Apply(_, Nil) if tree.symbol.isGetter => true
+    case Apply(_, arg :: Nil) if tree.symbol.isInjected => true
     case _ => false
   }
 
-  def box2unbox(tree: Tree): Tree = ???
-  def box2unbox(sym: Symbol): Tree = ???
-  def unbox2box(tree: Tree): Tree = ???
-  def unbox2box(tree: Tree, field: Symbol): Tree = ???
-  def unbox2box(sym: Symbol): Tree = ???
-  def unbox2box(sym: Symbol, field: Symbol): Tree = ???
+  def box2unbox(tree: Tree): Tree = atPos(tree.pos)(Apply(gen.mkAttributedRef(box2unbox), List(tree)) setType tree.tpe.toUnboxedValiumRef)
+  def box2unbox(sym: Symbol): Tree = box2unbox(gen.mkAttributedRef(sym))
+  def unbox2box(tree: Tree): Tree = atPos(tree.pos)(Apply(gen.mkAttributedRef(unbox2box), List(tree)) setType tree.tpe.toBoxedValiumRef)
+  def unbox2box(tree: Tree, field: Symbol): Tree = atPos(tree.pos)(gen.mkAttributedSelect(unbox2box(tree), field) setType unbox2box(tree).tpe.memberInfo(field).finalResultType)
+  def unbox2box(sym: Symbol): Tree = unbox2box(gen.mkAttributedRef(sym))
+  def unbox2box(sym: Symbol, field: Symbol): Tree = unbox2box(gen.mkAttributedRef(sym), field)
 }
