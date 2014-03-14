@@ -93,7 +93,7 @@ trait ValiumConvertTreeTransformer {
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
       case Select(Unbox2box(bs @ BS(_, _)), x) if !tree.symbol.isMethod =>
         commit(bs setType bs.tpe.toValiumField)
-      case Unbox2box(bs) =>
+      case Unbox2box(bs @ BS(_, _)) =>
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(bs, bs.valiumField))))
       case Box2unbox(es @ ES(_, _)) =>
         commit(Select(es, es.tpe.valiumField))
