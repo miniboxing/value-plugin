@@ -1,0 +1,58 @@
+warning: 'valium' selects 3 phases
+[Now checking: valium-verify]
+[Now checking: valium-inject]
+[[syntax trees at end of             valium-coerce]] // newSource1.scala
+package valium.testsuite.coerce2 {
+  @valium class Point extends Object {
+    <paramaccessor> private[this] val x: Double = _;
+    <stable> <accessor> <paramaccessor> def x(): Double = Point.this.x;
+    <paramaccessor> private[this] val y: Double = _;
+    <stable> <accessor> <paramaccessor> def y(): Double = Point.this.y;
+    def <init>(x: Double, y: Double): valium.testsuite.coerce2.Point = {
+      Point.super.<init>();
+      ()
+    }
+  };
+  class Points extends Object {
+    <paramaccessor> private[this] val p1: valium.testsuite.coerce2.Point @unboxed = _;
+    <stable> <accessor> <paramaccessor> def p1(): valium.testsuite.coerce2.Point = scala.this.unbox2box[valium.testsuite.coerce2.Point](Points.this.p1);
+    <paramaccessor> private[this] val p2: valium.testsuite.coerce2.Point @unboxed = _;
+    <stable> <accessor> <paramaccessor> def p2(): valium.testsuite.coerce2.Point = scala.this.unbox2box[valium.testsuite.coerce2.Point](Points.this.p2);
+    def <init>(p1: valium.testsuite.coerce2.Point @unboxed, p2: valium.testsuite.coerce2.Point @unboxed): valium.testsuite.coerce2.Points = {
+      Points.super.<init>();
+      ()
+    }
+  };
+  object Test extends Object {
+    def <init>(): valium.testsuite.coerce2.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    def foo(p: valium.testsuite.coerce2.Point @unboxed): valium.testsuite.coerce2.Point = scala.this.unbox2box[valium.testsuite.coerce2.Point](p);
+    def main(args: Array[String]): Unit = {
+      val p1: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](new valium.testsuite.coerce2.Point(1.0, 2.0));
+      val p2: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](new valium.testsuite.coerce2.Point(2.0, 3.0));
+      val p3: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p1));
+      val p4: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p2));
+      val ps: valium.testsuite.coerce2.Points = new valium.testsuite.coerce2.Points(scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p1)), scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p2)));
+      val boxed: Unit = {
+        val p5: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](if (scala.this.Predef.???())
+          scala.this.unbox2box[valium.testsuite.coerce2.Point](p1)
+        else
+          scala.this.unbox2box[valium.testsuite.coerce2.Point](p2));
+        val p6: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point]({
+          scala.this.Predef.println("hi");
+          scala.this.unbox2box[valium.testsuite.coerce2.Point](p1)
+        });
+        val p7: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](Test.this.foo(scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p1))));
+        val p8: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](ps.p1());
+        val p9: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](ps.p2());
+        ()
+      };
+      ()
+    }
+  }
+}
+
+[Not checkable: valium-coerce]
+

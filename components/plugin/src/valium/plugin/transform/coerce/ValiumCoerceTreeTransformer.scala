@@ -64,11 +64,23 @@ trait ValiumCoerceTreeTransformer {
         val ind = indent
         indent += 1
         adaptdbg(ind, " <== " + tree + ": " + showRaw(pt, true, true, false, false))
+
+
         val res = tree match {
+
           case EmptyTree | TypeTree() =>
             super.typed(tree, mode, pt)
+
           case _ if tree.tpe == null =>
             super.typed(tree, mode, pt)
+
+          // intercept bm-s:
+          //  - it's a multi-param value class
+          //  - pt is marked with @unboxed
+          //  - is a b (=!isA(_))
+          case _ if (pt.valiumFields.length > 1) && pt.isUnboxedValiumRef && !isA(tree) && (tree.symbol != box2unbox) =>
+            super.typed(Apply(gen.mkAttributedRef(box2unbox), List(tree)), mode, pt)
+
           case Select(qual, meth) if qual.isTerm && tree.symbol.isMethod =>
             val qual2 = super.typed(qual.setType(null), mode, WildcardType)
             if (qual2.isUnboxedValiumRef) {
@@ -80,6 +92,7 @@ trait ValiumCoerceTreeTransformer {
               tree.clearType()
               super.typed(tree, mode, pt)
             }
+
           case _ =>
             tree.clearType()
             super.typed(tree, mode, pt)

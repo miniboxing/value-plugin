@@ -1,4 +1,4 @@
-package valium.testcases.inject1
+package valium.testcases.coerce1
 
 @valium
 class Point(val x: Double) {

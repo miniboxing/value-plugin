@@ -84,6 +84,8 @@ trait ValiumInfo {
 
   def isA(tree: Tree): Boolean = isC(tree) && (tree match {
     case Ident(_) => true
+    case Select(This(_), _) => true
+    case Select(Super(_, _), _) => true
     case Select(qual, _) => qual.symbol.isStable
     case Apply(_, Nil) if tree.symbol.isGetter => true
     case Apply(_, arg :: Nil) if tree.symbol.isInjected => true
