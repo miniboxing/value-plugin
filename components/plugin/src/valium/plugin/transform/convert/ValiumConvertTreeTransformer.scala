@@ -78,8 +78,8 @@ trait ValiumConvertTreeTransformer {
         commit(fields.map(f => temp(nme.valueExplode(tree.symbol, f), unbox2box(am, f))))
       case ValDef(_, _, VSu(f :: Nil), cs @ CS(_, _)) =>
         commit(temp(nme.valueExplode(tree.symbol, f), unbox2box(cs, f)))
-      case DefDef(_, _, _, vparamss, _, e) if vparamss.flatten.exists(Vu.unapply(_).nonEmpty) =>
-         commit(newDefDef(afterConvert(tree.symbol), e)())
+      case DefDef(_, _, _, Vu(), _, e) =>
+        commit(newDefDef(afterConvert(tree.symbol), e)())
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c))
       case Unbox2box(Box2unbox(e)) =>
