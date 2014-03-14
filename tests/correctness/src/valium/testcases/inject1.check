@@ -1,0 +1,53 @@
+warning: 'valium' selects 3 phases
+[Now checking: valium-verify]
+[Now checking: valium-inject]
+[[syntax trees at end of             valium-coerce]] // newSource1.scala
+package valium.testcases.inject1 {
+  @valium class Point extends Object {
+    <paramaccessor> private[this] val x: Double = _;
+    <stable> <accessor> <paramaccessor> def x(): Double = Point.this.x;
+    def <init>(x: Double): valium.testcases.inject1.Point @unboxed = {
+      Point.super.<init>();
+      ()
+    };
+    override def toString(): String = {
+      val p1: valium.testcases.inject1.Point @unboxed = scala.this.box2unbox[valium.testcases.inject1.Point](this);
+      new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{Point.this.x()}))
+    }
+  };
+  object Test extends Object {
+    def <init>(): valium.testcases.inject1.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    def main(args: Array[String]): Unit = {
+      def identity(p1: valium.testcases.inject1.Point @unboxed): valium.testcases.inject1.Point @unboxed = {
+        val p2: valium.testcases.inject1.Point @unboxed = p1;
+        def p3(): valium.testcases.inject1.Point @unboxed = p2;
+        scala.this.Predef.println(scala.this.unbox2box[valium.testcases.inject1.Point](p2));
+        scala.this.Predef.println(scala.this.unbox2box[valium.testcases.inject1.Point](p2).toString());
+        val p4: valium.testcases.inject1.Point @unboxed = identity(p3());
+        var p5: valium.testcases.inject1.Point @unboxed = new valium.testcases.inject1.Point(3.0);
+        p5 = p2;
+        p2
+      };
+      def identity2(p1: valium.testcases.inject1.Point @unboxed): valium.testcases.inject1.Point @unboxed = {
+        class C extends Object {
+          <paramaccessor> private[this] val p2: valium.testcases.inject1.Point @unboxed = _;
+          <stable> <accessor> <paramaccessor> def p2(): valium.testcases.inject1.Point @unboxed = C.this.p2;
+          def <init>(p2: valium.testcases.inject1.Point @unboxed): C = {
+            C.super.<init>();
+            ()
+          }
+        };
+        new C(p1).p2()
+      };
+      {
+        identity(new valium.testcases.inject1.Point(1.0));
+        ()
+      }
+    }
+  }
+}
+
+[Not checkable: valium-coerce]

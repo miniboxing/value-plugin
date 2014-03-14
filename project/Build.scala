@@ -52,7 +52,7 @@ object ValiumBuild extends Build {
     fork in Test := true,
     scalacOptions in Compile <++= (Keys.`package` in (plugin, Compile)) map { (jar: File) =>
       System.setProperty("valium.plugin.jar", jar.getAbsolutePath)
-      val addPlugin = "-Xplugin:" + jar.getAbsolutePath
+      val addPlugin = "" // disabled: "-Xplugin:" + jar.getAbsolutePath
       // Thanks Jason for this cool idea (taken from https://github.com/retronym/boxer)
       // add plugin timestamp to compiler options to trigger recompile of
       // main after editing the plugin. (Otherwise a 'clean' is needed.)
@@ -69,7 +69,7 @@ object ValiumBuild extends Build {
     javaOptions in Test <+= (dependencyClasspath in Runtime, packageBin in Compile in plugin) map { (path, _) =>
       def isBoot(file: java.io.File) =
         ((file.getName() startsWith "scala-") && (file.getName() endsWith ".jar")) ||
-        (file.toString contains "target/scala-2.10") // this makes me cry, seriously sbt...
+        (file.toString contains "target/scala-2.11") // this makes me cry, seriously sbt...
 
       val cp = "-Xbootclasspath/a:"+path.map(_.data).filter(isBoot).mkString(":")
       // println(cp)
