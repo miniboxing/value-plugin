@@ -109,6 +109,18 @@ trait ValiumConvertTreeTransformer {
   // B30) [[ if (cond) c1 else c2 ]]           => if ([[ cond ]]) [[ c1 ]] else [[ c2 ]]
   // B41) [[ try c catch { case p => e1 } finally e2 => try [[ c ]] catch { case p => [[ e1 ]] } finally [[ e2 ]]
 
-  class TreeConverter(unit: CompilationUnit) extends ValuimTypingTransformer(unit) {
+  class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
+    override def rewrite(tree: Tree)(implicit state: State) = {
+      case ValDef(_, _, Vu(fields), a @ A()) =>
+        commit(fields.map(f => temp(nme.valueExplode(tree.symbol, f), unbox2box(a, f))))
+      case ValDef(_, _, Vu(f :: Nil), bs @ BS()) =>
+        commit(temp(nme.valueExplode(tree.symbol, f), unbox2box(bs, f)))
+      case ValDef(mods, name, tpt @ Vu(fields), bm @ BM()) =>
+        val precomputed = temp(nme.valuePrecompute(tree.symbol), bm.tpe.toBoxedValiumRef, unbox2box(bm))
+        val reduced = treeCopy.ValDef(tree, mods, name, tpt, box2unbox(precomputed.symbol))
+        commit(precomputed :: reduced :: Nil)
+      case ValDef(_, _, tpt, _) =>
+        fallback()
+    }
   }
 }
