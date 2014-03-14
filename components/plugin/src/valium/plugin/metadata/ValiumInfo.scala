@@ -56,12 +56,23 @@ trait ValiumInfo {
   object valiumnme {
     private def gensym(prefix: String) = TermName(prefix + globalFreshNameCreator.newName(""))
     def paramExplode(p: Symbol, f: Symbol): TermName = paramExplode(p, f.name)
-    def paramExplode(p: Symbol, n: Name): TermName = gensym(p.name + n.toString +"$p")
+    def paramExplode(p: Symbol, n: Name): TermName = gensym(p.name + n.toString +"$")
     def valueExplode(v: Symbol, f: Symbol): TermName = valueExplode(v, f.name)
-    def valueExplode(v: Symbol, n: Name): TermName = gensym(v.name + n.toString + "$v")
-    def argPrecompute(p: Symbol): TermName = gensym("$f")
-    def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString + "$f")
-    def assignPrecompute(): TermName = gensym("$a")
+    def valueExplode(v: Symbol, n: Name): TermName = gensym(v.name + n.toString + "$")
+    def argPrecompute(p: Symbol): TermName = gensym("$")
+    def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString + "$")
+    def assignPrecompute(): TermName = gensym("$")
+  }
+
+  implicit def gen2valiumgen(gen: global.gen.type): valiumgen.type = valiumgen
+  object valiumgen {
+    def mkExplodedRef(e: Tree, a: Symbol, x: Name): Tree = {
+      RefTree(e, nme.valueExplode(a, x))
+    }
+  }
+  object Eax {
+    def apply(e: Tree, a: Symbol, x: Symbol): Tree = apply(e, a, x.name)
+    def apply(e: Tree, a: Symbol, x: Name): Tree = gen.mkExplodedRef(e, a, x)
   }
 
   object Vu {

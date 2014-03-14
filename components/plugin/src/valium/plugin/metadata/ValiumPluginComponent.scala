@@ -25,10 +25,10 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
 
     override def transform(tree: Tree): Tree = {
       def commit(tree1: Result): Result = {
-        valiumlog(s"$tree -> $tree1")
+        def log() = valiumlog(s"$tree -> $tree1")
         val tree2 = tree1 match {
-          case Single(tree1) => typed(tree1)
-          case Multi(trees1) => typed(Block(trees1: _*))
+          case Single(tree1) => if (tree ne tree1) log(); typed(tree1)
+          case Multi(trees1) => log(); typed(Block(trees1: _*))
         }
         transform(tree2)
       }
@@ -48,10 +48,10 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       stats flatMap {
         case stat =>
           def commit(stats1: Result): Result = {
-            valiumlog(s"$stat -> $stats1")
+            def log() = valiumlog(s"$stat -> $stats1")
             val stats2 = stats1 match {
-              case Single(stat1) => List(typed(stat1))
-              case Multi(stats1) => typedStats(stats1, exprOwner)
+              case Single(stat1) => log(); List(typed(stat1))
+              case Multi(stats1) => if (stats ne stats1) log(); typedStats(stats1, exprOwner)
             }
             transformStats(stats2, exprOwner)
           }
