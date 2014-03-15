@@ -70,7 +70,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
     }
 
     case class State(tree: Tree, owner: Symbol, commit: (String, Result) => Result, fallback: () => Result) {
-      def temp(name: TermName, rhs: Tree): ValDef = temp(name, rhs.tpe, rhs)
+      def temp(name: TermName, rhs: Tree): ValDef = temp(name, rhs.tpe.widen, rhs)
       def temp(name: TermName, tpt: Tree, rhs: Tree): ValDef = temp(name, tpt.tpe, rhs)
       def temp(name: TermName, tpe: Type, rhs: Tree): ValDef = {
         val pos = tree.pos
