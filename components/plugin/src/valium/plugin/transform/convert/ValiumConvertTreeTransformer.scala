@@ -89,7 +89,7 @@ trait ValiumConvertTreeTransformer {
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         tree.symbol.owner.info.decls.unlink(tree.symbol)
         commit("A3", exploded)
-      case DefDef(_, _, _, Vu(), _, e) =>
+      case DefDef(_, _, _, Vuss(), _, e) =>
         val tree1 = newDefDef(afterConvert(tree.symbol), e)() setType NoType
         tree1.vparamss.flatten.foreach(_ setType NoType)
         commit("A4", tree1)
@@ -116,7 +116,8 @@ trait ValiumConvertTreeTransformer {
         commit("B09", Eax(e, a, a.valiumField))
       case bs @ BS(_, _) =>
         commit("B10", bs setType bs.tpe.toValiumField)
-      case Apply(core, args) if !core.symbol.isInjected && args.exists(_.isUnboxedValiumRef) =>
+      case U(core, args) =>
+        // TODO: implement prefix precomputation
         // TODO: make sure this works with varargs
         var precomputeds = List[ValDef]()
         val vals = flatMap2(args, core.tpe.params)((arg, p) => {
