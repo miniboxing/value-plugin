@@ -41,9 +41,9 @@ class TestSuite {
   @Test def testCompileOutput() = {
     var failed = false
     val pluginFlag = pluginCompilerFlag()
-    var UPDATE_CHECKFILE = sys.env.get("UPDATE_CHECKFILE").isDefined
+    var UPDATE_CHECKFILES = sys.env.get("UPDATE_CHECKFILES").isDefined
     // use carefully:
-//    UPDATE_CHECKFILE = true
+//    UPDATE_CHECKFILES = true
 
     for (source <- files(List("src", "valium", "testcases"), ".scala", "tests")) {
       System.err.print(f"Compiling ${source.getName()}%-60s ... ")
@@ -62,7 +62,7 @@ class TestSuite {
       val udiff = DiffUtils.generateUnifiedDiff("output", "expected", expect_lines, sdiff, 2)
 
       if (sdiff.getDeltas().size() != 0) {
-        if (UPDATE_CHECKFILE) {
+        if (UPDATE_CHECKFILES) {
           System.err.println("[ UP ] " + "\n" + check_file + "\n")
           Some(new PrintWriter(check_file)).foreach{p => p.write(output_lines.mkString("\n")); p.close}
         } else
@@ -79,6 +79,6 @@ class TestSuite {
         System.err.println("[ OK ]")
     }
 
-    assert(!UPDATE_CHECKFILE && !failed, "Some tests failed. (or UPDATE_CHECKFILE is on)")
+    assert(!UPDATE_CHECKFILES && !failed, "Some tests failed. (or UPDATE_CHECKFILES is on)")
   }
 }
