@@ -70,7 +70,7 @@ trait ValiumInfo {
     def isValueExplode(v: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == valueExplode(v, n)
     def valuePrecompute(v: Symbol): TermName = gensym("$")
     def argPrecompute(p: Symbol): TermName = gensym("$")
-    def argExplode(p: Symbol, f: Symbol): TermName = TermName(p.name + "$" + f.name)
+    def argExplode(p: Symbol, f: Symbol): TermName = TermName("arg$" + p.name + "$" + f.name)
     def assignPrecompute(): TermName = gensym("$")
   }
 
@@ -214,6 +214,14 @@ trait ValiumInfo {
   }
 
   object Selectx {
+    def apply(tree: Tree, x: Symbol): Tree = {
+      // TODO: this is a really fishy thing, because we should be emitting Apply(result, Nil)
+      // because in most cases x is a getter symbol
+      // I learned this the hard way, having accidentally forgetten to do setType to mkAttributedSelect
+      // when this logic was still spread across multiple disparate code locations
+      // however I'm not sure how exactly to typecheck such a tree, so I'm leaving this as is, because it works if we do do setType
+      gen.mkAttributedSelect(tree, x) setType tree.tpe.memberInfo(x).finalResultType
+    }
     def unapply(tree: Tree): Option[(Tree, Symbol)] = tree match {
       case Select(qual, _) if qual.valiumFields.contains(tree.symbol) => Some((qual, tree.symbol.getter))
       case Select(qual, _) if qual.valiumFields.map(_.accessed).contains(tree.symbol) => Some((qual, tree.symbol.getter))
@@ -225,7 +233,7 @@ trait ValiumInfo {
   def box2unbox(tree: Tree): Tree = atPos(tree.pos)(Apply(gen.mkAttributedRef(box2unbox), List(tree)) setType tree.tpe.toUnboxedValiumRef)
   def box2unbox(sym: Symbol): Tree = box2unbox(gen.mkAttributedRef(sym))
   def unbox2box(tree: Tree): Tree = atPos(tree.pos)(Apply(gen.mkAttributedRef(unbox2box), List(tree)) setType tree.tpe.toBoxedValiumRef)
-  def unbox2box(tree: Tree, field: Symbol): Tree = atPos(tree.pos)(gen.mkAttributedSelect(unbox2box(tree), field) setType unbox2box(tree).tpe.memberInfo(field).finalResultType)
+  def unbox2box(tree: Tree, x: Symbol): Tree = atPos(tree.pos)(Selectx(unbox2box(tree), x))
   def unbox2box(sym: Symbol): Tree = unbox2box(gen.mkAttributedRef(sym))
-  def unbox2box(sym: Symbol, field: Symbol): Tree = unbox2box(gen.mkAttributedRef(sym), field)
+  def unbox2box(sym: Symbol, x: Symbol): Tree = unbox2box(gen.mkAttributedRef(sym), x)
 }

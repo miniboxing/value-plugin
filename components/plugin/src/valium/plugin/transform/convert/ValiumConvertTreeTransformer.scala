@@ -89,7 +89,7 @@ trait ValiumConvertTreeTransformer {
         commit("A02", exploded)
       case ValDef(_, _, VMu(fields), Box2unbox(em @ EM(_, _))) =>
         val precomputed = temp(nme.valuePrecompute(tree.symbol), em)
-        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), gen.mkAttributedSelect(gen.mkAttributedIdent(precomputed.symbol), x)))
+        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), Selectx(gen.mkAttributedRef(precomputed.symbol), x)))
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         commit("A03", precomputed +: exploded)
       case ValDef(_, _, VMu(fields), bm @ BM(_, _)) =>

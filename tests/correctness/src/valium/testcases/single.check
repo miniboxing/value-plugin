@@ -3,11 +3,11 @@ warning: 'valium' selects 4 phases
 [Now checking: valium-inject]
 [Not checkable: valium-coerce]
 [[syntax trees at end of            valium-convert]] // newSource1.scala
-package valium.testcases.basic {
+package valium.testcases.single {
   @valium class Point extends Object {
     <paramaccessor> private[this] val x: Double = _;
     <stable> <accessor> <paramaccessor> def x(): Double = Point.this.x;
-    def <init>(x: Double): valium.testcases.basic.Point = {
+    def <init>(x: Double): valium.testcases.single.Point = {
       Point.super.<init>();
       ()
     };
@@ -17,7 +17,7 @@ package valium.testcases.basic {
     }
   };
   object Test extends Object {
-    def <init>(): valium.testcases.basic.Test.type = {
+    def <init>(): valium.testcases.single.Test.type = {
       Test.super.<init>();
       ()
     };
@@ -25,8 +25,8 @@ package valium.testcases.basic {
       def identity(p1$x: Double): Double = {
         <synthetic> val p2$x: Double = p1$x;
         def p3(): Double = p2$x;
-        scala.this.Predef.println(new valium.testcases.basic.Point(p2$x));
-        scala.this.Predef.println(new valium.testcases.basic.Point(p2$x).toString());
+        scala.this.Predef.println(new valium.testcases.single.Point(p2$x));
+        scala.this.Predef.println(new valium.testcases.single.Point(p2$x).toString());
         <synthetic> val p4$x: Double = identity2(p3());
         <synthetic> var p5$x: Double = 3.0;
         p5$x = p2$x;
@@ -47,7 +47,7 @@ package valium.testcases.basic {
           <synthetic> def productElement(x$1: Int): Any = {
             case <synthetic> val x1: Int = x$1;
             x1 match {
-              case 0 => new valium.testcases.basic.Point(C1.this.p2())
+              case 0 => new valium.testcases.single.Point(C1.this.p2())
               case _ => throw new IndexOutOfBoundsException(x$1.toString())
             }
           };
@@ -71,20 +71,20 @@ package valium.testcases.basic {
   }
 }.&&({
             <synthetic> val C1$1: C1 = x$1.asInstanceOf[C1]();
-            new valium.testcases.basic.Point(C1.this.p2()).==(new valium.testcases.basic.Point(C1$1.p2())).&&(C1$1.canEqual(C1.this))
+            new valium.testcases.single.Point(C1.this.p2()).==(new valium.testcases.single.Point(C1$1.p2())).&&(C1$1.canEqual(C1.this))
           }))
         };
-        <synthetic> object C1 extends scala.runtime.AbstractFunction1[valium.testcases.basic.Point,C1] with Serializable {
+        <synthetic> object C1 extends scala.runtime.AbstractFunction1[valium.testcases.single.Point,C1] with Serializable {
           def <init>(): C1.type = {
             C1.super.<init>();
             ()
           };
           final override <synthetic> def toString(): String = "C1";
           case <synthetic> def apply(p2$x: Double): C1 = new C1(p2$x);
-          case <synthetic> def unapply(x$0: C1): Option[valium.testcases.basic.Point] = if (x$0.==(null))
+          case <synthetic> def unapply(x$0: C1): Option[valium.testcases.single.Point] = if (x$0.==(null))
             scala.this.None
           else
-            new Some[valium.testcases.basic.Point](new valium.testcases.basic.Point(x$0.p2()));
+            new Some[valium.testcases.single.Point](new valium.testcases.single.Point(x$0.p2()));
           <synthetic> private def readResolve(): Object = C1()
         };
         @volatile var C1$module: C1.type = _;
@@ -105,9 +105,9 @@ package valium.testcases.basic {
         };
         new C2(p1$x).y()
       };
-      scala.this.Predef.println(new valium.testcases.basic.Point(identity(1.0)));
-      scala.this.Predef.println(new valium.testcases.basic.Point(identity(2.0)));
-      scala.this.Predef.println(new valium.testcases.basic.Point(identity(3.0)))
+      scala.this.Predef.println(new valium.testcases.single.Point(identity(1.0)));
+      scala.this.Predef.println(new valium.testcases.single.Point(identity(2.0)));
+      scala.this.Predef.println(new valium.testcases.single.Point(identity(3.0)))
     }
   }
 }
