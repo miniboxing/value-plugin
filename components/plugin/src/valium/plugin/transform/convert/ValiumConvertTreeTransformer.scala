@@ -134,10 +134,10 @@ trait ValiumConvertTreeTransformer {
         def apply1(args1: List[Tree]) = treeCopy.Apply(tree, core.clearType(), args1).clearType()
         if (precomputeds.nonEmpty) {
           val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.name))
-          commit("B11", vals :+ apply1(args1))
+          commit("B12", vals :+ apply1(args1))
         } else {
           val args1 = vals.map(_.rhs).map{ case rhs @ Select(qual, _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType }
-          commit("B12", apply1(args1))
+          commit("B11", apply1(args1))
         }
       case Assign(A(e1, a1), a2 @ A(_, _)) =>
         commit("B13", a2.valiumFields.map(x => Assign(Eax(e1, a1, x), unbox2box(a2, x))))
