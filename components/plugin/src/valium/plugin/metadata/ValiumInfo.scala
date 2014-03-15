@@ -68,6 +68,7 @@ trait ValiumInfo {
       if (nme.isLocalName(v.name)) mangled.localName else mangled
     }
     def isValueExplode(v: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == valueExplode(v, n)
+    def valuePrecompute(v: Symbol): TermName = gensym("$")
     def argPrecompute(p: Symbol): TermName = gensym("$")
     def argExplode(p: Symbol, f: Symbol): TermName = TermName(p.name + "$" + f.name)
     def assignPrecompute(): TermName = gensym("$")

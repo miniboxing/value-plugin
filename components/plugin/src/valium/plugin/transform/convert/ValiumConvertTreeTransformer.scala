@@ -81,23 +81,28 @@ trait ValiumConvertTreeTransformer {
         val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), unbox2box(am, x)))
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         commit("A1", exploded)
+      case ValDef(_, _, VMu(fields), Box2unbox(em @ EM(_, _))) =>
+        val precomputed = temp(nme.valuePrecompute(tree.symbol), em)
+        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), gen.mkAttributedSelect(gen.mkAttributedIdent(precomputed.symbol), x)))
+        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
+        commit("A2", precomputed +: exploded)
       case ValDef(_, _, VMu(fields), bm @ BM(_, _)) =>
         error(s"unauthorized bm detected: $tree")
       case ValDef(_, _, VSu(x :: Nil), cs @ CS(_, _)) =>
         val exploded = temp(nme.valueExplode(tree.symbol, x), unbox2box(cs, x))
         tree.symbol.registerExploded(exploded.symbol)
-        commit("A2", exploded)
+        commit("A3", exploded)
       case ValDef(_, _, tpt @ Vu(fields), EmptyTree) =>
         val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), tpt.tpe.memberInfo(x).finalResultType, EmptyTree))
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         tree.symbol.owner.info.decls.unlink(tree.symbol)
-        commit("A3", exploded)
+        commit("A4", exploded)
       case DefDef(_, _, _, Vuss(), _, e) =>
         val tree1 = newDefDef(afterConvert(tree.symbol), e)() setType NoType
         tree1.vparamss.flatten.foreach(_ setType NoType)
-        commit("A4", tree1)
+        commit("A5", tree1)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
-        commit("A5", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
+        commit("A6", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VMu(_), c) =>
         error(s"unauthorized bm detected: $tree")
       case Selectf(Unbox2box(Box2unbox(e)), f) =>
