@@ -37,7 +37,8 @@ trait ValiumConvertTreeTransformer {
   // u => method that has one or more of its parameters with type V @unboxed
   // r => method that returns V @unboxed
   // T => any type parameter
-  // x, y => fields of the valium class with types X and Y
+  // x, y => underlying fields or getters of the valium class with types X and Y
+  // f => any selector
   // e, es, em => any expression, any VS boxed expression, any VM boxed expression
   // i, is, im => any identifier, any VS @unboxed identifier, any VM @unboxed identifier
   // c, cs, cm => anything that has type V @unboxed (a val/var with an unstable prefix, a method, an if, a match, etc)
@@ -57,7 +58,7 @@ trait ValiumConvertTreeTransformer {
   //
   // ======= (B) EXPRESSIONS =========
   //
-  // B01) [[ unbox2box(box2unbox(e)).x ]] => [[ e ]].x
+  // B01) [[ unbox2box(box2unbox(e)).f ]] => [[ e ]].f
   // B02) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]
   // B03) [[ unbox2box(e.a).x ]] => e.a$x
   // B04) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
@@ -72,6 +73,7 @@ trait ValiumConvertTreeTransformer {
   // B13) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
   // B14) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
   // B15) [[ return cs ]] => return [[ unbox2box(cs).x ]]
+  // B16) [[ new V(e1, e2).x ]] => [[ e1 ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
@@ -93,16 +95,16 @@ trait ValiumConvertTreeTransformer {
         commit(tree1)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
-      case Select(Unbox2box(Box2unbox(e)), x) =>
-        commit(Select(e, x))
+      case Selectf(Unbox2box(Box2unbox(e)), f) =>
+        commit(Select(e, f))
       case Unbox2box(Box2unbox(e)) =>
         commit(e)
-      case Select(Unbox2box(A(e, a)), x) if !tree.symbol.isMethod =>
+      case Selectx(Unbox2box(A(e, a)), x) =>
         commit(Eax(e, a, x))
       case Unbox2box(A(e, a)) =>
         val args = tree.tpe.valiumFields.map(x => Eax(e, a, x))
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
-      case Select(Unbox2box(cs @ CS(_, _)), x) =>
+      case Selectx(Unbox2box(cs @ CS(_, _)), x) =>
         commit(cs setType cs.tpe.toValiumField)
       case Unbox2box(cs @ CS(_, _)) =>
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(cs, cs.valiumField))))
@@ -144,6 +146,8 @@ trait ValiumConvertTreeTransformer {
         commit(List(precomputed, Assign(Select(Ident(precomputed.symbol), b1), c2)))
       case Return(cs @ CS(_, _)) =>
         commit(Select(unbox2box(cs), cs.valiumField))
+      case Selectx(Apply(Select(New(V(fields)), nme.CONSTRUCTOR), args), x) =>
+        commit(args(fields.indexOf(x)))
     }
   }
 }

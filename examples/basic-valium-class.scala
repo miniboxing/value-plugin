@@ -1,5 +1,3 @@
-package valium.examples
-
 @valium
 class Point(val x: Double) {
   override def toString: String = {
