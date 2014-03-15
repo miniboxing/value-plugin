@@ -63,7 +63,10 @@ trait ValiumInfo {
     def paramExplode(p: Symbol, n: Name): TermName = TermName(p.name + "$" + n.toString)
     def isParamExplode(p: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == paramExplode(p, n)
     def valueExplode(v: Symbol, f: Symbol): TermName = valueExplode(v, f.name)
-    def valueExplode(v: Symbol, n: Name): TermName = TermName(v.name + "$" + n.toString)
+    def valueExplode(v: Symbol, n: Name): TermName = {
+      val mangled = TermName(v.name.dropLocal + "$" + n.toString)
+      if (nme.isLocalName(v.name)) mangled.localName else mangled
+    }
     def isValueExplode(v: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == valueExplode(v, n)
     def argPrecompute(p: Symbol): TermName = gensym("$")
     def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString)

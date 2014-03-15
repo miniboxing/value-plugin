@@ -24,9 +24,8 @@ trait ValiumConvertTreeTransformer {
   //   08) TODO: think whether our transformation needs to operate on patterns and types
   //   09) TODO: think whether we can avoid writing those unbox2box and box2unbox explicitly and just defer to inject/coerce
   //   10) TODO: we have to treat V.this.x references specially, because unbox2box(V.this).x doesn't typecheck. think what can be done about that
-  //   11) TODO: the rule for assignments is very sloppy, but handling of bs and bm is quite elaborate. we might want to balance that
-  //   12) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
-  //   13) TODO: do we need to transform labeldefs?
+  //   11) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
+  //   12) TODO: do we need to transform labeldefs?
   //
   // ======= NOTATION =======
   //
@@ -70,10 +69,11 @@ trait ValiumConvertTreeTransformer {
   // B10) [[ bs ]] => [[ bs ]].asInstanceOf[X]
   // B11) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
   // B12) [[ e.u[Ts](..., bs, ...) ]] => [[ { val $e = e; val $... = ...; val $bs: V @unboxed = bs; val $... = ...; $e.u[Ts]($..., $bs, $...) } ]]
-  // B13) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
-  // B14) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
-  // B15) [[ return cs ]] => return [[ unbox2box(cs).x ]]
-  // B16) [[ new V(e1, e2).x ]] => [[ e1 ]]
+  // B13) [[ e1.a1 = a2 ]] => [[ { e1.a1$x = unbox2box(a2).x; e1.a1$y = unbox2box(a2).y } ]]
+  // B14) [[ e1.a1 = b2 ]] => [[ { val $b2: V @unboxed = b2; e1.a1 = $b2 } ]]
+  // B15) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
+  // B16) [[ return cs ]] => return [[ unbox2box(cs).x ]]
+  // B17) [[ new V(e1, e2).x ]] => [[ e1 ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
@@ -138,9 +138,11 @@ trait ValiumConvertTreeTransformer {
           val args1 = vals.map(_.rhs).map{ case rhs @ Select(qual, _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType }
           commit(apply1(args1))
         }
-      case Assign(A(e1, a1), c2 @ C(_, _)) =>
-        val precomputed = temp(nme.assignPrecompute(), c2)
-        commit(precomputed +: c2.valiumFields.map(x => Assign(Eax(e1, a1, x), unbox2box(precomputed.symbol, x))))
+      case Assign(A(e1, a1), a2 @ A(_, _)) =>
+        commit(a2.valiumFields.map(x => Assign(Eax(e1, a1, x), unbox2box(a2, x))))
+      case Assign(lhs @ A(e1, a1), b2 @ B(_, _)) =>
+        val precomputed = temp(nme.assignPrecompute(), b2)
+        commit(List(precomputed, lhs, Ident(precomputed.symbol)))
       case Assign(A(e1, b1), c2 @ C(_, _)) =>
         val precomputed = temp(nme.assignPrecompute(), e1)
         commit(List(precomputed, Assign(Select(Ident(precomputed.symbol), b1), c2)))
