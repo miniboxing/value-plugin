@@ -32,9 +32,9 @@ package valium.testsuite.coerce2 {
     def main(args: Array[String]): Unit = {
       val p1: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](new valium.testsuite.coerce2.Point(1.0, 2.0));
       val p2: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](new valium.testsuite.coerce2.Point(2.0, 3.0));
-      val p3: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p1));
-      val p4: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p2));
-      val ps: valium.testsuite.coerce2.Points = new valium.testsuite.coerce2.Points(scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p1)), scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p2)));
+      val p3: valium.testsuite.coerce2.Point @unboxed = p1;
+      val p4: valium.testsuite.coerce2.Point @unboxed = p2;
+      val ps: valium.testsuite.coerce2.Points = new valium.testsuite.coerce2.Points(p1, p2);
       val boxed: Unit = {
         val p5: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](if (scala.this.Predef.???())
           scala.this.unbox2box[valium.testsuite.coerce2.Point](p1)
@@ -44,7 +44,7 @@ package valium.testsuite.coerce2 {
           scala.this.Predef.println("hi");
           scala.this.unbox2box[valium.testsuite.coerce2.Point](p1)
         });
-        val p7: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](Test.this.foo(scala.this.box2unbox[valium.testsuite.coerce2.Point](scala.this.unbox2box[valium.testsuite.coerce2.Point](p1))));
+        val p7: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](Test.this.foo(p1));
         val p8: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](ps.p1());
         val p9: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](ps.p2());
         ()

@@ -106,13 +106,18 @@ trait ValiumInfo {
     def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length > 1)
   }
 
-  def isA(tree: Tree): Boolean = isC(tree) && (tree match {
+  // during the coercion phase, types may be inconsistent, thus
+  // checking tree.tpe.isUnboxed in isC is too restrictive.
+  def looksLikeA(tree: Tree): Boolean = tree match {
+    case This(_) => true
     case Ident(_) => true
     case Select(This(_), _) if !tree.symbol.isMethod => true
     case Select(Super(_, _), _) if !tree.symbol.isMethod => true
     case Select(qual, _) if !tree.symbol.isMethod => qual.symbol.isStable
     case _ => false
-  })
+  }
+
+  def isA(tree: Tree): Boolean = isC(tree) && looksLikeA(tree)
 
   def isB(tree: Tree): Boolean = isC(tree) && !isA(tree)
 

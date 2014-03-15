@@ -53,6 +53,7 @@ trait ValiumCoerceTreeTransformer {
           val conversion = if (oldTpe.isUnboxedValiumRef) unbox2box else box2unbox
           val tree1 = atPos(tree.pos)(Apply(gen.mkAttributedRef(conversion), List(tree)))
           val tree2 = super.typed(tree1, mode, pt)
+//          println("adapted: " + tree + " to " + tree2 + "  tpe = " + oldTpe + " pt = " + pt)
           assert(tree2.tpe != ErrorType, tree2)
           tree2
         } else {
@@ -78,7 +79,10 @@ trait ValiumCoerceTreeTransformer {
           //  - it's a multi-param value class
           //  - pt is marked with @unboxed
           //  - is a b (=!isA(_))
-          case _ if (pt.valiumFields.length > 1) && pt.isUnboxedValiumRef && !isA(tree) && (tree.symbol != box2unbox) =>
+          case _ if (pt.valiumFields.length > 1) && pt.isUnboxedValiumRef && !looksLikeA(tree) && (tree.symbol != box2unbox) =>
+//            println()
+//            println("starting: " + tree)
+            val tree2 = super.typed(tree.clearType(), mode, WildcardType)
             super.typed(Apply(gen.mkAttributedRef(box2unbox), List(tree)), mode, pt)
 
           case Select(qual, meth) if qual.isTerm && tree.symbol.isMethod =>
