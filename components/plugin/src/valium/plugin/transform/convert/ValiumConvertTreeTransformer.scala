@@ -26,6 +26,7 @@ trait ValiumConvertTreeTransformer {
   //   10) TODO: we have to treat V.this.x references specially, because unbox2box(V.this).x doesn't typecheck. think what can be done about that
   //   11) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
   //   12) TODO: do we need to transform labeldefs?
+  //   13) TODO: make sure that varargs in method calls and constructor invocations work fine
   //
   // ======= NOTATION =======
   //
@@ -50,11 +51,12 @@ trait ValiumConvertTreeTransformer {
   // ======= (A) DEFINITIONS =========
   //
   // A01) [[ val v: VM @unboxed = am ]] => val v$x: X = [[ unbox2box(am).x ]]; val v$y: Y = [[ unbox2box(am).y ]]
-  // A02) [[ val v: VM @unboxed = box2unbox(em) ]] => val $em: VM = [[ em ]]; val v$x: X = $em.x; val v$y: Y = $em.y
-  // A03) [[ val v: VS @unboxed = cs ]] => val v$x: X = [[ unbox2box(cs).x ]]
-  // A04) [[ val v: V @unboxed = _ ]] => val v$x: X = _; val v$y: Y = _
-  // A05) [[ def u[Ts](..., p: V @unboxed, ...): C = e ]] => def u[Ts](..., p$x: X, p$y: Y, ...): C = [[ e ]]
-  // A06) [[ def r[Ts](...): VS @unboxed = c ]] => def r[Ts](...): X = [[ c ]]
+  // A02) [[ val v: VM @unboxed = box2unbox(new V(e1, e2)) ]] => val v$x: X = [[ e1 ]]; val v$y: Y = [[ e2 ]]
+  // A03) [[ val v: VM @unboxed = box2unbox(em) ]] => val $em: VM = [[ em ]]; val v$x: X = $em.x; val v$y: Y = $em.y
+  // A04) [[ val v: VS @unboxed = cs ]] => val v$x: X = [[ unbox2box(cs).x ]]
+  // A05) [[ val v: V @unboxed = _ ]] => val v$x: X = _; val v$y: Y = _
+  // A06) [[ def u[Ts](..., p: V @unboxed, ...): C = e ]] => def u[Ts](..., p$x: X, p$y: Y, ...): C = [[ e ]]
+  // A07) [[ def r[Ts](...): VS @unboxed = c ]] => def r[Ts](...): X = [[ c ]]
   //
   // ======= (B) EXPRESSIONS =========
   //
@@ -80,29 +82,33 @@ trait ValiumConvertTreeTransformer {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
         val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), unbox2box(am, x)))
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
-        commit("A1", exploded)
+        commit("A01", exploded)
+      case ValDef(_, _, VMu(fields), Box2unbox(Apply(Select(New(V(_)), nme.CONSTRUCTOR), args))) =>
+        val exploded = fields.zip(args).map{ case (x, e) => temp(nme.valueExplode(tree.symbol, x), e) }
+        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
+        commit("A02", exploded)
       case ValDef(_, _, VMu(fields), Box2unbox(em @ EM(_, _))) =>
         val precomputed = temp(nme.valuePrecompute(tree.symbol), em)
         val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), gen.mkAttributedSelect(gen.mkAttributedIdent(precomputed.symbol), x)))
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
-        commit("A2", precomputed +: exploded)
+        commit("A03", precomputed +: exploded)
       case ValDef(_, _, VMu(fields), bm @ BM(_, _)) =>
         error(s"unauthorized bm detected: $tree")
       case ValDef(_, _, VSu(x :: Nil), cs @ CS(_, _)) =>
         val exploded = temp(nme.valueExplode(tree.symbol, x), unbox2box(cs, x))
         tree.symbol.registerExploded(exploded.symbol)
-        commit("A3", exploded)
+        commit("A04", exploded)
       case ValDef(_, _, tpt @ Vu(fields), EmptyTree) =>
         val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), tpt.tpe.memberInfo(x).finalResultType, EmptyTree))
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         tree.symbol.owner.info.decls.unlink(tree.symbol)
-        commit("A4", exploded)
+        commit("A05", exploded)
       case DefDef(_, _, _, Vuss(), _, e) =>
         val tree1 = newDefDef(afterConvert(tree.symbol), e)() setType NoType
         tree1.vparamss.flatten.foreach(_ setType NoType)
-        commit("A5", tree1)
+        commit("A06", tree1)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
-        commit("A6", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
+        commit("A07", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VMu(_), c) =>
         error(s"unauthorized bm detected: $tree")
       case Selectf(Unbox2box(Box2unbox(e)), f) =>
@@ -132,7 +138,6 @@ trait ValiumConvertTreeTransformer {
         error(s"unauthorized bm detected: $tree")
       case U(core, args) =>
         // TODO: implement prefix precomputation
-        // TODO: make sure this works with varargs
         var precomputeds = List[ValDef]()
         val vals = flatMap2(args, core.tpe.params)((arg, p) => {
           if (p.isUnboxedValiumRef) {
