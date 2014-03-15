@@ -1,8 +1,10 @@
+package valium.testcases.basic
+
 @valium
-class Point(val x: Double, val y: Double) {
+class Point(val x: Double) {
   override def toString: String = {
     val p1 = this
-    s"Point($x, $y)"
+    s"Point($x)"
   }
 }
 
@@ -29,8 +31,8 @@ object Test {
       new C2(p1).y
     }
 
-    println(identity(new Point(1.0, 1.1)))
-    println(identity(new Point(2.0, 2.1)))
-    println(identity(new Point(3.0, 3.1)))
+    println(identity(new Point(1.0)))
+    println(identity(new Point(2.0)))
+    println(identity(new Point(3.0)))
   }
 }

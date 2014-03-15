@@ -6,7 +6,7 @@ package valium.testcases.coerce1 {
   @valium class Point extends Object {
     <paramaccessor> private[this] val x: Double = _;
     <stable> <accessor> <paramaccessor> def x(): Double = Point.this.x;
-    def <init>(x: Double): valium.testcases.coerce1.Point @unboxed = {
+    def <init>(x: Double): valium.testcases.coerce1.Point = {
       Point.super.<init>();
       ()
     };
@@ -27,7 +27,7 @@ package valium.testcases.coerce1 {
         scala.this.Predef.println(scala.this.unbox2box[valium.testcases.coerce1.Point](p2));
         scala.this.Predef.println(scala.this.unbox2box[valium.testcases.coerce1.Point](p2).toString());
         val p4: valium.testcases.coerce1.Point @unboxed = identity(p3());
-        var p5: valium.testcases.coerce1.Point @unboxed = new valium.testcases.coerce1.Point(3.0);
+        var p5: valium.testcases.coerce1.Point @unboxed = scala.this.box2unbox[valium.testcases.coerce1.Point](new valium.testcases.coerce1.Point(3.0));
         p5 = p2;
         p2
       };
@@ -43,7 +43,7 @@ package valium.testcases.coerce1 {
         new C(p1).p2()
       };
       {
-        identity(new valium.testcases.coerce1.Point(1.0));
+        identity(scala.this.box2unbox[valium.testcases.coerce1.Point](new valium.testcases.coerce1.Point(1.0)));
         ()
       }
     }
