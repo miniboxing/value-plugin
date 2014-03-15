@@ -89,7 +89,7 @@ trait ValiumConvertTreeTransformer {
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         tree.symbol.owner.info.decls.unlink(tree.symbol)
         commit("A3", exploded)
-      case DefDef(_, _, _, Vu(), _, e) =>
+      case DefDef(_, _, _, Vuss(), _, e) =>
         val tree1 = newDefDef(afterConvert(tree.symbol), e)() setType NoType
         tree1.vparamss.flatten.foreach(_ setType NoType)
         commit("A4", tree1)
@@ -116,7 +116,8 @@ trait ValiumConvertTreeTransformer {
         commit("B09", Eax(e, a, a.valiumField))
       case bs @ BS(_, _) =>
         commit("B10", bs setType bs.tpe.toValiumField)
-      case Apply(core, args) if !core.symbol.isInjected && args.exists(_.isUnboxedValiumRef) =>
+      case U(core, args) =>
+        // TODO: implement prefix precomputation
         // TODO: make sure this works with varargs
         var precomputeds = List[ValDef]()
         val vals = flatMap2(args, core.tpe.params)((arg, p) => {
@@ -124,7 +125,7 @@ trait ValiumConvertTreeTransformer {
             val precomputed = if (isB(arg) && p.valiumFields.length > 1) List(temp(nme.argPrecompute(p), arg)) else Nil
             precomputeds ++= precomputed
             val arg1 = if (precomputed.nonEmpty) atPos(arg.pos)(Ident(precomputed.head.name)) else arg
-            val exploded = p.valiumFields.map(x => temp(nme.argExplode(p, x), gen.mkAttributedSelect(arg1, x)))
+            val exploded = p.valiumFields.map(x => temp(nme.argExplode(p, x), unbox2box(arg1, x)))
             precomputed ++ exploded
           } else {
             List(temp(nme.EMPTY, arg))
@@ -133,10 +134,10 @@ trait ValiumConvertTreeTransformer {
         def apply1(args1: List[Tree]) = treeCopy.Apply(tree, core.clearType(), args1).clearType()
         if (precomputeds.nonEmpty) {
           val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.name))
-          commit("B11", vals :+ apply1(args1))
+          commit("B12", vals :+ apply1(args1))
         } else {
           val args1 = vals.map(_.rhs).map{ case rhs @ Select(qual, _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType }
-          commit("B12", apply1(args1))
+          commit("B11", apply1(args1))
         }
       case Assign(A(e1, a1), a2 @ A(_, _)) =>
         commit("B13", a2.valiumFields.map(x => Assign(Eax(e1, a1, x), unbox2box(a2, x))))

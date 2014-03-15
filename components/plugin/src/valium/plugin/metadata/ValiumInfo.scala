@@ -92,6 +92,9 @@ trait ValiumInfo {
 
   object Vu {
     def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length != 0)
+  }
+
+  object Vuss {
     def unapply(vparamss: List[List[ValDef]]): Boolean = vparamss.flatten.exists(p => Vu.unapply(p.tpt).isDefined)
   }
 
@@ -173,6 +176,13 @@ trait ValiumInfo {
     def unapply(tree: Tree): Option[(Tree, Symbol)] = {
       if (V.unapply(tree).isDefined && tree.valiumFields.length > 1) Some(extractQualAndSymbol(tree))
       else None
+    }
+  }
+
+  object U {
+    def unapply(tree: Tree): Option[(Tree, List[Tree])] = tree match {
+      case Apply(core, args) if !core.symbol.isInjected && args.exists(_.isUnboxedValiumRef) => Some((core, args))
+      case _ => None
     }
   }
 
