@@ -87,8 +87,6 @@ trait ValiumCoerceTreeTransformer {
           //  - pt is marked with @unboxed
           //  - is a b (=!isA(_))
           case _ if (pt.valiumFields.length > 1) && pt.isUnboxedValiumRef && !looksLikeA(tree) && (tree.symbol != box2unbox) =>
-//            println()
-//            println("starting: " + tree)
             val tree2 = super.typed(tree.clearType(), mode, WildcardType)
             super.typed(Apply(gen.mkAttributedRef(box2unbox), List(tree)), mode, pt)
 

@@ -50,15 +50,16 @@ trait ValiumConvertTreeTransformer {
   // ======= (A) DEFINITIONS =========
   //
   // A01) [[ val v: VM @unboxed = am ]] => val v$x: X = [[ unbox2box(am).x ]]; val v$y: Y = [[ unbox2box(am).y ]]
-  // A02) [[ val v: VS @unboxed = cs ]] => val v$x: X = [[ unbox2box(cs).x ]]
-  // A03) [[ val v: V @unboxed = _ ]] => val v$x: X = _; val v$y: Y = _
-  // A04) [[ def u[Ts](..., p: V @unboxed, ...): C = e ]] => def u[Ts](..., p$x: X, p$y: Y, ...): C = [[ e ]]
-  // A05) [[ def r[Ts](...): VS @unboxed = c ]] => def r[Ts](...): X = [[ c ]]
+  // A02) [[ val v: VM @unboxed = box2unbox(em) ]] => val $em: VM = [[ em ]]; val v$x: X = $em.x; val v$y: Y = $em.y
+  // A03) [[ val v: VS @unboxed = cs ]] => val v$x: X = [[ unbox2box(cs).x ]]
+  // A04) [[ val v: V @unboxed = _ ]] => val v$x: X = _; val v$y: Y = _
+  // A05) [[ def u[Ts](..., p: V @unboxed, ...): C = e ]] => def u[Ts](..., p$x: X, p$y: Y, ...): C = [[ e ]]
+  // A06) [[ def r[Ts](...): VS @unboxed = c ]] => def r[Ts](...): X = [[ c ]]
   //
   // ======= (B) EXPRESSIONS =========
   //
-  // B01) [[ unbox2box(box2unbox(e)).f ]] => [[ e ]].f
-  // B02) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]
+  // B01) [[ unbox2box(box2unbox(e)).f ]] => [[ e ]].f // shouldn't appear
+  // B02) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]     // shouldn't appear
   // B03) [[ unbox2box(e.a).x ]] => e.a$x
   // B04) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
   // B05) [[ unbox2box(cs).x ]] => [[ cs ]].asInstanceOf[X]
@@ -68,7 +69,7 @@ trait ValiumConvertTreeTransformer {
   // B09) [[ e.a ]] => [[ e.a$x ]]
   // B10) [[ bs ]] => [[ bs ]].asInstanceOf[X]
   // B11) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
-  // B12) [[ e.u[Ts](..., bs, ...) ]] => [[ { val $e = e; val $... = ...; val $bs: V @unboxed = bs; val $... = ...; $e.u[Ts]($..., $bs, $...) } ]]
+  // B12) [[ e.u[Ts](..., b, ...) ]] => [[ { val $e = e; val $... = ...; val $b: V @unboxed = b; val $... = ...; $e.u[Ts]($..., $b, $...) } ]]
   // B13) [[ e1.a1 = a2 ]] => [[ { e1.a1$x = unbox2box(a2).x; e1.a1$y = unbox2box(a2).y } ]]
   // B14) [[ e1.a1 = b2 ]] => [[ { val $b2: V @unboxed = b2; e1.a1 = $b2 } ]]
   // B15) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
