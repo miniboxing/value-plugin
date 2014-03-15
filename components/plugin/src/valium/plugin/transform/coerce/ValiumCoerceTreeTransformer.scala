@@ -20,6 +20,13 @@ trait ValiumCoerceTreeTransformer {
     def apply(unit: CompilationUnit): Unit = {
       val tree = afterCoerce(new TreeAdapters().adapt(unit))
       tree.foreach(node => assert(node.tpe != null, node))
+      def isFlapping(tree: Tree) = tree match {
+        case Unbox2box(Box2unbox(_)) => true
+        case Box2unbox(Unbox2box(_)) => true
+        case _ => false
+      }
+      tree.collect{ case sub if isFlapping(sub) => unit.error(sub.pos, s"unexpected leftovers after convert: $sub") }
+
     }
   }
 
