@@ -63,18 +63,17 @@ trait ValiumConvertTreeTransformer {
   // B04) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
   // B05) [[ unbox2box(cs).x ]] => [[ cs ]].asInstanceOf[X]
   // B06) [[ unbox2box(cs) ]] => new VS([[ unbox2box(cs).x ]])
-  // B07) [[ box2unbox(unbox2box(c)) ]] => [[ c ]]
-  // B08) [[ box2unbox(es) ]] => [[ es ]].x.asInstanceOf[VS @unboxed]
-  // B09) [[ box2unbox(em) ]] => [[ em ]]
-  // B10) [[ e.a ]] => [[ e.a$x ]]
-  // B11) [[ bs ]] => [[ bs ]].asInstanceOf[X]
-  // B12) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
-  // B13) [[ e.u[Ts](..., bs, ...) ]] => [[ { val $e = e; val $... = ...; val $bs: V @unboxed = bs; val $... = ...; $e.u[Ts]($..., $bs, $...) } ]]
-  // B14) [[ e1.a1 = a2 ]] => [[ { e1.a1$x = unbox2box(a2).x; e1.a1$y = unbox2box(a2).y } ]]
-  // B15) [[ e1.a1 = b2 ]] => [[ { val $b2: V @unboxed = b2; e1.a1 = $b2 } ]]
-  // B16) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
-  // B17) [[ return cs ]] => return [[ unbox2box(cs).x ]]
-  // B18) [[ new V(e1, e2).x ]] => [[ e1 ]]
+  // B07) [[ box2unbox(es) ]] => [[ es ]].x.asInstanceOf[VS @unboxed]
+  // B08) [[ box2unbox(em) ]] => [[ em ]]
+  // B09) [[ e.a ]] => [[ e.a$x ]]
+  // B10) [[ bs ]] => [[ bs ]].asInstanceOf[X]
+  // B11) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
+  // B12) [[ e.u[Ts](..., bs, ...) ]] => [[ { val $e = e; val $... = ...; val $bs: V @unboxed = bs; val $... = ...; $e.u[Ts]($..., $bs, $...) } ]]
+  // B13) [[ e1.a1 = a2 ]] => [[ { e1.a1$x = unbox2box(a2).x; e1.a1$y = unbox2box(a2).y } ]]
+  // B14) [[ e1.a1 = b2 ]] => [[ { val $b2: V @unboxed = b2; e1.a1 = $b2 } ]]
+  // B15) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
+  // B16) [[ return cs ]] => return [[ unbox2box(cs).x ]]
+  // B17) [[ new V(e1, e2).x ]] => [[ e1 ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
@@ -109,16 +108,17 @@ trait ValiumConvertTreeTransformer {
         commit("B05", cs setType cs.tpe.toValiumField)
       case Unbox2box(cs @ CS(_, _)) =>
         commit("B06", Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(cs, cs.valiumField))))
-      case Box2unbox(Unbox2box(e)) =>
-        commit("B07", e)
+      case Box2unbox(Unbox2box(_)) =>
+        unit.error(tree.pos, s"valium-coerce has messed the tree up: $tree")
+        fallback()
       case Box2unbox(es @ ES(_, _)) =>
-        commit("B08", Select(es, es.tpe.valiumField))
+        commit("B07", Select(es, es.tpe.valiumField))
       case Box2unbox(em @ EM(_, _)) =>
-        commit("B09", em)
+        commit("B08", em)
       case A(e, a) =>
-        commit("B10", Eax(e, a, a.valiumField))
+        commit("B09", Eax(e, a, a.valiumField))
       case bs @ BS(_, _) =>
-        commit("B11", bs setType bs.tpe.toValiumField)
+        commit("B10", bs setType bs.tpe.toValiumField)
       case U(core, args) =>
         // TODO: implement prefix precomputation
         // TODO: make sure this works with varargs
@@ -139,23 +139,23 @@ trait ValiumConvertTreeTransformer {
         def apply1(args1: List[Tree]) = treeCopy.Apply(tree, core.clearType(), args1).clearType()
         if (precomputeds.nonEmpty) {
           val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.name))
-          commit("B13", vals :+ apply1(args1))
+          commit("B12", vals :+ apply1(args1))
         } else {
           val args1 = vals.map(_.rhs).map{ case rhs @ Select(qual, _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType }
-          commit("B12", apply1(args1))
+          commit("B11", apply1(args1))
         }
       case Assign(A(e1, a1), a2 @ A(_, _)) =>
-        commit("B14", a2.valiumFields.map(x => Assign(Eax(e1, a1, x), unbox2box(a2, x))))
+        commit("B13", a2.valiumFields.map(x => Assign(Eax(e1, a1, x), unbox2box(a2, x))))
       case Assign(lhs @ A(e1, a1), b2 @ B(_, _)) =>
         val precomputed = temp(nme.assignPrecompute(), b2)
-        commit("B15", List(precomputed, lhs, Ident(precomputed.symbol)))
+        commit("B14", List(precomputed, lhs, Ident(precomputed.symbol)))
       case Assign(A(e1, b1), c2 @ C(_, _)) =>
         val precomputed = temp(nme.assignPrecompute(), e1)
-        commit("B16", List(precomputed, Assign(Select(Ident(precomputed.symbol), b1), c2)))
+        commit("B15", List(precomputed, Assign(Select(Ident(precomputed.symbol), b1), c2)))
       case Return(cs @ CS(_, _)) =>
-        commit("B17", Select(unbox2box(cs), cs.valiumField))
+        commit("B16", Select(unbox2box(cs), cs.valiumField))
       case Selectx(Apply(Select(New(V(fields)), nme.CONSTRUCTOR), args), x) =>
-        commit("B18", args(fields.indexOf(x)))
+        commit("B17", args(fields.indexOf(x)))
     }
   }
 }
