@@ -82,10 +82,12 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       }
       // def recur(tree: Tree): Tree = if (tree.isTerm) atOwner(owner)(transform(tree)) else transform(tree)
       // def recur(trees: List[Tree]): List[Tree] = transformStats(trees, owner)
+      def error(msg: String): Result = { unit.error(tree.pos, msg); fallback() }
     }
 
     def commit(rule: String, result: Result)(implicit state: State): Result = state.commit(rule, result)
     def fallback()(implicit state: State): Result = state.fallback()
+    def error(msg: String)(implicit state: State): Result = state.error(msg)
     // def recur(tree: Tree)(implicit state: State): Tree = state.recur(tree)
     // def recur(trees: List[Tree])(implicit state: State): List[Tree] = state.recur(trees)
     def temp(name: TermName, rhs: Tree)(implicit state: State): ValDef = state.temp(name, rhs)

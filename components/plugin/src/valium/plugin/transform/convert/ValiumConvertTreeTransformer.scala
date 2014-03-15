@@ -58,8 +58,8 @@ trait ValiumConvertTreeTransformer {
   //
   // ======= (B) EXPRESSIONS =========
   //
-  // B01) [[ unbox2box(box2unbox(e)).f ]] => [[ e ]].f // shouldn't appear
-  // B02) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]     // shouldn't appear
+  // B01) [[ unbox2box(box2unbox(e)).f ]] => [[ e ]].f
+  // B02) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]
   // B03) [[ unbox2box(e.a).x ]] => e.a$x
   // B04) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
   // B05) [[ unbox2box(cs).x ]] => [[ cs ]].asInstanceOf[X]
@@ -81,6 +81,8 @@ trait ValiumConvertTreeTransformer {
         val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), unbox2box(am, x)))
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         commit("A1", exploded)
+      case ValDef(_, _, VMu(fields), bm @ BM(_, _)) =>
+        error(s"unauthorized bm detected: $tree")
       case ValDef(_, _, VSu(x :: Nil), cs @ CS(_, _)) =>
         val exploded = temp(nme.valueExplode(tree.symbol, x), unbox2box(cs, x))
         tree.symbol.registerExploded(exploded.symbol)
@@ -96,6 +98,8 @@ trait ValiumConvertTreeTransformer {
         commit("A4", tree1)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit("A5", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
+      case DefDef(mods, name, tparams, vparamss, tpt @ VMu(_), c) =>
+        error(s"unauthorized bm detected: $tree")
       case Selectf(Unbox2box(Box2unbox(e)), f) =>
         commit("B01", Select(e, f))
       case Unbox2box(Box2unbox(e)) =>
@@ -109,9 +113,8 @@ trait ValiumConvertTreeTransformer {
         commit("B05", cs setType cs.tpe.toValiumField)
       case Unbox2box(cs @ CS(_, _)) =>
         commit("B06", Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(cs, cs.valiumField))))
-      case Box2unbox(Unbox2box(_)) =>
-        unit.error(tree.pos, s"valium-coerce has messed the tree up: $tree")
-        fallback()
+      case Unbox2box(bm @ BM(_, _)) =>
+        error(s"unauthorized bm detected: $tree")
       case Box2unbox(es @ ES(_, _)) =>
         commit("B07", Select(es, es.tpe.valiumField))
       case Box2unbox(em @ EM(_, _)) =>
@@ -120,6 +123,8 @@ trait ValiumConvertTreeTransformer {
         commit("B09", Eax(e, a, a.valiumField))
       case bs @ BS(_, _) =>
         commit("B10", bs setType bs.tpe.toValiumField)
+      case bm @ BM(_, _) =>
+        error(s"unauthorized bm detected: $tree")
       case U(core, args) =>
         // TODO: implement prefix precomputation
         // TODO: make sure this works with varargs
