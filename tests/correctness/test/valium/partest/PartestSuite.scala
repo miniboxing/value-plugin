@@ -41,7 +41,7 @@ class TestSuite {
   @Test def testCompileOutput() = {
     var failed = false
     val pluginFlag = pluginCompilerFlag()
-    var UPDATE_CHECKFILE = false
+    var UPDATE_CHECKFILE = sys.env.get("UPDATE_CHECKFILE").isDefined
     // use carefully:
 //    UPDATE_CHECKFILE = true
 
