@@ -73,6 +73,7 @@ trait ValiumConvertTreeTransformer {
   // B13) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
   // B14) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
   // B15) [[ return cs ]] => return [[ unbox2box(cs).x ]]
+  // B16) [[ new V(e1, e2).x ]] => [[ e1 ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
@@ -145,6 +146,8 @@ trait ValiumConvertTreeTransformer {
         commit(List(precomputed, Assign(Select(Ident(precomputed.symbol), b1), c2)))
       case Return(cs @ CS(_, _)) =>
         commit(Select(unbox2box(cs), cs.valiumField))
+      case Selectx(Apply(Select(New(V(fields)), nme.CONSTRUCTOR), args), x) =>
+        commit(args(fields.indexOf(x)))
     }
   }
 }
