@@ -108,8 +108,9 @@ trait ValiumConvertTreeTransformer {
         commit("B05", cs setType cs.tpe.toValiumField)
       case Unbox2box(cs @ CS(_, _)) =>
         commit("B06", Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(cs, cs.valiumField))))
-      case Box2unbox(Unbox2unbox(_)) =>
+      case Box2unbox(Unbox2box(_)) =>
         unit.error(tree.pos, s"valium-coerce has messed the tree up: $tree")
+        fallback()
       case Box2unbox(es @ ES(_, _)) =>
         commit("B07", Select(es, es.tpe.valiumField))
       case Box2unbox(em @ EM(_, _)) =>
