@@ -60,7 +60,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
             if (exprOwner != currentOwner && stat.isTerm) atOwner(exprOwner)(super.transform(stat))
             else super.transform(stat)
           }
-          rewrite(stat)(State(stat, exprOwner, commit _, fallback _)).lift(stat).getOrElse(fallback()) match {
+          rewrite(stat)(State(stat, if (stat.isTerm) exprOwner else currentOwner, commit _, fallback _)).lift(stat).getOrElse(fallback()) match {
             case Single(stat1) => List(stat1)
             case Multi(stats1) => stats1
           }
