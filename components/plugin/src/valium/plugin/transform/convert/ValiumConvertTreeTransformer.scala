@@ -37,7 +37,8 @@ trait ValiumConvertTreeTransformer {
   // u => method that has one or more of its parameters with type V @unboxed
   // r => method that returns V @unboxed
   // T => any type parameter
-  // x, y => fields of the valium class with types X and Y
+  // x, y => underlying fields or getters of the valium class with types X and Y
+  // f => any selector
   // e, es, em => any expression, any VS boxed expression, any VM boxed expression
   // i, is, im => any identifier, any VS @unboxed identifier, any VM @unboxed identifier
   // c, cs, cm => anything that has type V @unboxed (a val/var with an unstable prefix, a method, an if, a match, etc)
@@ -57,7 +58,7 @@ trait ValiumConvertTreeTransformer {
   //
   // ======= (B) EXPRESSIONS =========
   //
-  // B01) [[ unbox2box(box2unbox(e)).x ]] => [[ e ]].x
+  // B01) [[ unbox2box(box2unbox(e)).f ]] => [[ e ]].f
   // B02) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]
   // B03) [[ unbox2box(e.a).x ]] => e.a$x
   // B04) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
@@ -93,16 +94,16 @@ trait ValiumConvertTreeTransformer {
         commit(tree1)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
-      case Select(Unbox2box(Box2unbox(e)), x) =>
-        commit(Select(e, x))
+      case Selectf(Unbox2box(Box2unbox(e)), f) =>
+        commit(Select(e, f))
       case Unbox2box(Box2unbox(e)) =>
         commit(e)
-      case Select(Unbox2box(A(e, a)), x) if !tree.symbol.isMethod =>
+      case Selectx(Unbox2box(A(e, a)), x) =>
         commit(Eax(e, a, x))
       case Unbox2box(A(e, a)) =>
         val args = tree.tpe.valiumFields.map(x => Eax(e, a, x))
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), args))
-      case Select(Unbox2box(cs @ CS(_, _)), x) =>
+      case Selectx(Unbox2box(cs @ CS(_, _)), x) =>
         commit(cs setType cs.tpe.toValiumField)
       case Unbox2box(cs @ CS(_, _)) =>
         commit(Apply(Select(New(TypeTree(tree.tpe)), nme.CONSTRUCTOR), List(unbox2box(cs, cs.valiumField))))

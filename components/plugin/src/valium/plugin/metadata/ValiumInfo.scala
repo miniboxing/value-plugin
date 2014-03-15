@@ -103,6 +103,8 @@ trait ValiumInfo {
   object EM { def unapply(tree: Tree): Option[(Tree, Symbol)] = if (V.unapply(tree).isDefined && tree.valiumFields.length > 1) Some(extractQualAndSymbol(tree)) else None }
   object Unbox2box { def unapply(tree: Tree): Option[Tree] = tree match { case Apply(_, arg :: Nil) if tree.symbol == unbox2box => Some(arg); case _ => None } }
   object Box2unbox { def unapply(tree: Tree): Option[Tree] = tree match { case Apply(_, arg :: Nil) if tree.symbol == box2unbox => Some(arg); case _ => None } }
+  object Selectf { def unapply(tree: Tree): Option[(Tree, Symbol)] = tree match { case Select(qual, _) => Some((qual, tree.symbol)); case _ => None } }
+  object Selectx { def unapply(tree: Tree): Option[(Tree, Symbol)] = Selectf.unapply(tree).filter(_ => tree.symbol.isGetter || !tree.symbol.isMethod) }
 
   def isA(tree: Tree): Boolean = isC(tree) && (tree match {
     case Ident(_) => true
