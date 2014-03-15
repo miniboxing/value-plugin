@@ -13,7 +13,7 @@ object Test {
       def p3 = p2
       println(p2)
       println(p2.toString)
-      val p4 = identity(p3)
+      val p4 = identity2(p3)
       var p5 = new Point(3.0)
       p5 = p2
       p2
