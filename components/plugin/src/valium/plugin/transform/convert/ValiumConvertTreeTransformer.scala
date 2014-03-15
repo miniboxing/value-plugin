@@ -128,9 +128,7 @@ trait ValiumConvertTreeTransformer {
           if (p.isUnboxedValiumRef) {
             val precomputed = if (isB(arg) && p.valiumFields.length > 1) List(temp(nme.argPrecompute(p), arg)) else Nil
             precomputeds ++= precomputed
-            val arg1 = if (precomputed.nonEmpty) atPos(arg.pos)(Ident(precomputed.head.name)) else arg
-            if (arg1.tpe == null)
-              unit.error(arg.pos, "No type assigned to arg1 => failure in unbox2box")
+            val arg1 = if (precomputed.nonEmpty) atPos(arg.pos)(gen.mkAttributedIdent(precomputed.head.symbol)) else arg
             val exploded = p.valiumFields.map(x => temp(nme.argExplode(p, x), unbox2box(arg1, x)))
             precomputed ++ exploded
           } else {
@@ -139,7 +137,7 @@ trait ValiumConvertTreeTransformer {
         })
         def apply1(args1: List[Tree]) = treeCopy.Apply(tree, core.clearType(), args1).clearType()
         if (precomputeds.nonEmpty) {
-          val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.name))
+          val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.symbol))
           commit("B12", vals :+ apply1(args1))
         } else {
           val args1 = vals.map(_.rhs).map{ case rhs @ Select(qual, _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType }
