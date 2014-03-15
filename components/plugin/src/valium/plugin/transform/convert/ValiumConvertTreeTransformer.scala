@@ -82,7 +82,7 @@ trait ValiumConvertTreeTransformer {
         tree.symbol.registerExploded(exploded.symbol)
         commit(exploded)
       case ValDef(_, _, tpt @ Vu(fields), EmptyTree) =>
-        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), tpt.tpe.memberInfo(x), EmptyTree))
+        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), tpt.tpe.memberInfo(x).finalResultType, EmptyTree))
         exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         tree.symbol.owner.info.decls.unlink(tree.symbol)
         commit(exploded)

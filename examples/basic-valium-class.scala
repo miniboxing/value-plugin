@@ -22,10 +22,17 @@ object Test {
     }
 
     def identity2(p1: Point): Point = {
-      case class C(p2: Point)
-      C(p1).p2
+      case class C1(p2: Point)
+      C1(p1).p2
     }
 
-    identity(new Point(1.0))
+    def identity3(p1: Point): Point = {
+      class C2(private[this] val p2: Point) { def y = p2 }
+      new C2(p1).y
+    }
+
+    println(identity(new Point(1.0)))
+    println(identity(new Point(2.0)))
+    println(identity(new Point(3.0)))
   }
 }
