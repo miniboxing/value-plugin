@@ -69,7 +69,7 @@ trait ValiumInfo {
     }
     def isValueExplode(v: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == valueExplode(v, n)
     def argPrecompute(p: Symbol): TermName = gensym("$")
-    def argExplode(p: Symbol, f: Symbol): TermName = gensym(f.name.toString)
+    def argExplode(p: Symbol, f: Symbol): TermName = TermName(p.name + "$" + f.name)
     def assignPrecompute(): TermName = gensym("$")
   }
 
