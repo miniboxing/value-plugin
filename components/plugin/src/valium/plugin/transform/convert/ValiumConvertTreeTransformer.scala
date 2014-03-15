@@ -57,20 +57,21 @@ trait ValiumConvertTreeTransformer {
   //
   // ======= (B) EXPRESSIONS =========
   //
-  // B01) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]
-  // B02) [[ unbox2box(e.a).x ]] => e.a$x
-  // B03) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
-  // B04) [[ unbox2box(cs).x ]] => [[ cs ]].asInstanceOf[X]
-  // B05) [[ unbox2box(cs) ]] => new VS([[ unbox2box(cs).x ]])
-  // B06) [[ box2unbox(es) ]] => [[ es ]].x.asInstanceOf[VS @unboxed]
-  // B07) [[ box2unbox(em) ]] => [[ em ]]
-  // B08) [[ e.a ]] => [[ e.a$x ]]
-  // B09) [[ bs ]] => [[ bs ]].asInstanceOf[X]
-  // B10) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
-  // B11) [[ e.u[Ts](..., bs, ...) ]] => [[ { val $e = e; val $... = ...; val $bs: V @unboxed = bs; val $... = ...; $e.u[Ts]($..., $bs, $...) } ]]
-  // B12) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
-  // B13) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
-  // B14) [[ return cs ]] => return [[ unbox2box(cs).x ]]
+  // B01) [[ unbox2box(box2unbox(e)).x ]] => [[ e ]].x
+  // B02) [[ unbox2box(box2unbox(e)) ]] => [[ e ]]
+  // B03) [[ unbox2box(e.a).x ]] => e.a$x
+  // B04) [[ unbox2box(e.a) ]] => new V(e.a$x, e.a$y)
+  // B05) [[ unbox2box(cs).x ]] => [[ cs ]].asInstanceOf[X]
+  // B06) [[ unbox2box(cs) ]] => new VS([[ unbox2box(cs).x ]])
+  // B07) [[ box2unbox(es) ]] => [[ es ]].x.asInstanceOf[VS @unboxed]
+  // B08) [[ box2unbox(em) ]] => [[ em ]]
+  // B09) [[ e.a ]] => [[ e.a$x ]]
+  // B10) [[ bs ]] => [[ bs ]].asInstanceOf[X]
+  // B11) [[ e.u[Ts](..., a, ...) ]] => [[ e.u[Ts](..., unbox2box(a).x, unbox2box(a).y, ...) ]]
+  // B12) [[ e.u[Ts](..., bs, ...) ]] => [[ { val $e = e; val $... = ...; val $bs: V @unboxed = bs; val $... = ...; $e.u[Ts]($..., $bs, $...) } ]]
+  // B13) [[ e1.a1 = c2 ]] => [[ { val $c2: V @unboxed = c2; e1.a1$x = unbox2box($c2).x; e1.a1$y = unbox2box($c2).y } ]]
+  // B14) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
+  // B15) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
@@ -92,6 +93,8 @@ trait ValiumConvertTreeTransformer {
         commit(tree1)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit(treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
+      case Select(Unbox2box(Box2unbox(e)), x) =>
+        commit(Select(e, x))
       case Unbox2box(Box2unbox(e)) =>
         commit(e)
       case Select(Unbox2box(A(e, a)), x) if !tree.symbol.isMethod =>
