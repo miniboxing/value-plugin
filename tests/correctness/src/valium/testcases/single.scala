@@ -1,4 +1,4 @@
-package valium.testcases.basic
+package valium.testcases.single
 
 @valium
 class Point(val x: Double) {
