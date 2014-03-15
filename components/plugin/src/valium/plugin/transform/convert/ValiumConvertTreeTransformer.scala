@@ -125,7 +125,7 @@ trait ValiumConvertTreeTransformer {
             val precomputed = if (isB(arg) && p.valiumFields.length > 1) List(temp(nme.argPrecompute(p), arg)) else Nil
             precomputeds ++= precomputed
             val arg1 = if (precomputed.nonEmpty) atPos(arg.pos)(Ident(precomputed.head.name)) else arg
-            val exploded = p.valiumFields.map(x => temp(nme.argExplode(p, x), gen.mkAttributedSelect(arg1, x)))
+            val exploded = p.valiumFields.map(x => temp(nme.argExplode(p, x), unbox2box(arg1, x)))
             precomputed ++ exploded
           } else {
             List(temp(nme.EMPTY, arg))
