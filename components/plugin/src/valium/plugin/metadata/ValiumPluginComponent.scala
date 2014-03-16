@@ -89,6 +89,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       def explode(v: Symbol, x: Symbol, tpe: Type, rhs: Tree): ValDef = {
         val name = nme.valueExplode(tree.symbol, x)
         val exploded = temp(name, tpe, rhs)
+        valiumlog(s"EXPLODE: ${tree.symbol} -> ${exploded.symbol}")
         v.registerExploded(exploded.symbol)
         exploded
       }
