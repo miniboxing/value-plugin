@@ -87,17 +87,20 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       def explode(v: Symbol, x: Symbol, rhs: Tree): ValDef = explode(v, x, rhs.tpe.widen, rhs)
       def explode(v: Symbol, x: Symbol, tpt: Tree, rhs: Tree): ValDef = explode(v, x, tpt.tpe, rhs)
       def explode(v: Symbol, x: Symbol, tpe: Type, rhs: Tree): ValDef = {
+        assert(!v.explodedSymbols.contains(x.name), s"$v, $x, ${v.explodedSymbols}")
         val name = nme.valueExplode(v, x)
         val exploded = temp(name, tpe, rhs)
         valiumlog(s"VALDEF: $v -> ${exploded.symbol}")
-        v.registerExploded(exploded.symbol)
+        v.registerExploded(x, exploded.symbol)
         exploded
       }
       def explode(p: Symbol, x: Symbol): Symbol = {
-        val exploded = p.owner.newSyntheticValueParam(p.info.memberInfo(x).finalResultType, nme.paramExplode(p, x))
-        p.registerExploded(exploded)
-        valiumlog(s"PARAMDEF: $p -> $exploded")
-        exploded
+        p.explodedSymbols.get(x.name) getOrElse {
+          val exploded = p.owner.newSyntheticValueParam(p.info.memberInfo(x).finalResultType, nme.paramExplode(p, x))
+          p.registerExploded(x, exploded)
+          valiumlog(s"PARAMDEF: $p -> $exploded")
+          exploded
+        }
       }
       // def recur(tree: Tree): Tree = if (tree.isTerm) atOwner(owner)(transform(tree)) else transform(tree)
       // def recur(trees: List[Tree]): List[Tree] = transformStats(trees, owner)

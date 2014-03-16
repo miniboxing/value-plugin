@@ -28,11 +28,11 @@ trait ValiumInfo {
     def isBoxedValiumRef = sym != null && sym.info.isBoxedValiumRef
     def isUnboxedValiumRef = sym != null && sym.info.isUnboxedValiumRef
     def isInjected = sym == box2unbox || sym == unbox2box
-    def registerExploded(exploded: Symbol) = sym.updateAttachment(ExplodedSymbolsAttachment(sym.explodedSymbols :+ exploded))
-    def explodedSymbols = sym.attachments.get[ExplodedSymbolsAttachment].map(_.syms).getOrElse(Nil)
+    def registerExploded(x: Symbol, exploded: Symbol) = sym.updateAttachment(ExplodedSymbolsAttachment(sym.explodedSymbols + (x.name -> exploded)))
+    def explodedSymbols = sym.attachments.get[ExplodedSymbolsAttachment].map(_.syms).getOrElse(Map())
   }
 
-  case class ExplodedSymbolsAttachment(syms: List[Symbol])
+  case class ExplodedSymbolsAttachment(syms: Map[Name, Symbol])
 
   implicit class RichType(tpe: Type) {
     def valiumFields = if (tpe != null) tpe.dealiasWiden.typeSymbol.valiumFields else Nil
@@ -62,13 +62,11 @@ trait ValiumInfo {
     private def gensym(prefix: String) = TermName(prefix + globalFreshNameCreator.newName(""))
     def paramExplode(p: Symbol, f: Symbol): TermName = paramExplode(p, f.name)
     def paramExplode(p: Symbol, n: Name): TermName = TermName(p.name + "$" + n.toString)
-    def isParamExplode(p: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == paramExplode(p, n)
     def valueExplode(v: Symbol, f: Symbol): TermName = valueExplode(v, f.name)
     def valueExplode(v: Symbol, n: Name): TermName = {
       val mangled = TermName(v.name.dropLocal + "$" + n.toString)
       if (nme.isLocalName(v.name)) mangled.localName else mangled
     }
-    def isValueExplode(v: Symbol, n: Name, candidate: Symbol): Boolean = candidate.name == valueExplode(v, n)
     def valuePrecompute(v: Symbol): TermName = gensym("$")
     def argPrecompute(p: Symbol): TermName = gensym("$")
     def argExplode(p: Symbol, f: Symbol): TermName = TermName("arg$" + p.name + "$" + f.name)
@@ -80,7 +78,7 @@ trait ValiumInfo {
     def mkExplodedRef(e: Tree, a: Symbol, x: Name): Tree = {
       // can's just call nme.valueExplode(a, x) because of gensym!
       def fail() = throw new Exception(s"can't resolve $e.${a.name}$$$x (exploded symbols of $a (flags = ${a.flags}) are ${a.explodedSymbols})")
-      val ax = a.explodedSymbols.find(cand => nme.isParamExplode(a, x, cand) || nme.isValueExplode(a, x, cand)).getOrElse(fail())
+      val ax = a.explodedSymbols.get(x).getOrElse(fail())
       RefTree(e, ax.name) setSymbol ax
     }
   }
