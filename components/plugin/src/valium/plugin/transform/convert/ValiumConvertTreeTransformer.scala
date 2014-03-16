@@ -80,29 +80,20 @@ trait ValiumConvertTreeTransformer {
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
-        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), unbox2box(am, x)))
-        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
-        commit("A01", exploded)
+        commit("A01", fields.map(x => explode(tree.symbol, x, unbox2box(am, x))))
       case ValDef(_, _, VMu(fields), Box2unbox(Apply(Select(New(V(_)), nme.CONSTRUCTOR), args))) =>
-        val exploded = fields.zip(args).map{ case (x, e) => temp(nme.valueExplode(tree.symbol, x), e) }
-        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
-        commit("A02", exploded)
+        commit("A02", fields.zip(args).map{ case (x, e) => explode(tree.symbol, x, e) })
       case ValDef(_, _, VMu(fields), Box2unbox(em @ EM(_, _))) =>
         val precomputed = temp(nme.valuePrecompute(tree.symbol), em)
-        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), Selectx(gen.mkAttributedRef(precomputed.symbol), x)))
-        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
+        val exploded = fields.map(x => explode(tree.symbol, x, Selectx(gen.mkAttributedRef(precomputed.symbol), x)))
         commit("A03", precomputed +: exploded)
       case ValDef(_, _, VMu(fields), bm @ BM(_, _)) =>
         error(s"unauthorized bm detected: $tree")
       case ValDef(_, _, VSu(x :: Nil), cs @ CS(_, _)) =>
-        val exploded = temp(nme.valueExplode(tree.symbol, x), unbox2box(cs, x))
-        tree.symbol.registerExploded(exploded.symbol)
-        commit("A04", exploded)
+        commit("A04", explode(tree.symbol, x, unbox2box(cs, x)))
       case ValDef(_, _, tpt @ Vu(fields), EmptyTree) =>
-        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), tpt.tpe.memberInfo(x).finalResultType, EmptyTree))
-        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         tree.symbol.owner.info.decls.unlink(tree.symbol)
-        commit("A05", exploded)
+        commit("A05", fields.map(x => explode(tree.symbol, x, tpt.tpe.memberInfo(x).finalResultType, EmptyTree)))
       case DefDef(_, _, _, Vuss(), _, e) =>
         val tree1 = newDefDef(afterConvert(tree.symbol), e)() setType NoType
         tree1.vparamss.flatten.foreach(_ setType NoType)

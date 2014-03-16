@@ -84,6 +84,14 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
         if (newsym.owner.info.decls != EmptyScope) newsym.owner.info.decls.enter(newsym)
         atPos(pos)(newValDef(newsym, rhs)())
       }
+      def explode(v: Symbol, x: Symbol, rhs: Tree): ValDef = explode(v, x, rhs.tpe.widen, rhs)
+      def explode(v: Symbol, x: Symbol, tpt: Tree, rhs: Tree): ValDef = explode(v, x, tpt.tpe, rhs)
+      def explode(v: Symbol, x: Symbol, tpe: Type, rhs: Tree): ValDef = {
+        val name = nme.valueExplode(tree.symbol, x)
+        val exploded = temp(name, tpe, rhs)
+        v.registerExploded(exploded.symbol)
+        exploded
+      }
       // def recur(tree: Tree): Tree = if (tree.isTerm) atOwner(owner)(transform(tree)) else transform(tree)
       // def recur(trees: List[Tree]): List[Tree] = transformStats(trees, owner)
       def error(msg: String): Result = { unit.error(tree.pos, msg); fallback() }
@@ -97,6 +105,9 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
     def temp(name: TermName, rhs: Tree)(implicit state: State): ValDef = state.temp(name, rhs)
     def temp(name: TermName, tpe: Type, rhs: Tree)(implicit state: State): ValDef = state.temp(name, tpe, rhs)
     def temp(name: TermName, tpt: Tree, rhs: Tree)(implicit state: State): ValDef = state.temp(name, tpt, rhs)
+    def explode(v: Symbol, x: Symbol, rhs: Tree)(implicit state: State): ValDef = state.explode(v, x, rhs)
+    def explode(v: Symbol, x: Symbol, tpe: Type, rhs: Tree)(implicit state: State): ValDef = state.explode(v, x, tpe, rhs)
+    def explode(v: Symbol, x: Symbol, tpt: Tree, rhs: Tree)(implicit state: State): ValDef = state.explode(v, x, tpt, rhs)
 
     def rewrite(tree: Tree)(implicit state: State): PartialFunction[Tree, Result]
   }
