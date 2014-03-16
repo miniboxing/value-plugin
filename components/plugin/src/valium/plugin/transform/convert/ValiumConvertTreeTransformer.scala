@@ -20,8 +20,7 @@ trait ValiumConvertTreeTransformer {
   //       (of course, one has to keep in mind that some trees are desugared during parsing/typechecking and even further in the backend)
   //   05) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
   //   06) TODO: support valium fields of valium class types
-  //   07) TODO: support LabelDefs - I've no idea how this works
-  //   08) TODO: make sure that varargs in method calls and constructor invocations work fine
+  //   07) TODO: make sure that varargs in method calls and constructor invocations work fine
   //
   // ======= NOTATION =======
   //
@@ -97,6 +96,12 @@ trait ValiumConvertTreeTransformer {
         def explode(p: Symbol) = p.valiumFields.map(x => newValDef(self.explode(p, x), EmptyTree)() setType NoType)
         val vparamss1 = vparamss.map(_.flatMap { case vdef @ ValDef(_, _, Vu(_), _) => explode(vdef.symbol); case vparam => List(vparam) })
         commit("A06", treeCopy.DefDef(tree, mods, name, tparams, vparamss1, tpt, e) setType NoType)
+      case LabelDef(name, params @ Vus(), rhs) =>
+        val params1 = params.zip(tree.symbol.paramss.flatten).map {
+          case (ptree @ Vu(_), psym) => Ident(psym) setType psym.info
+          case (ptree, psym) => ptree
+        }
+        commit("A06", treeCopy.LabelDef(tree, name, params1, rhs))
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit("A07", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VMu(_), c) =>
@@ -151,7 +156,10 @@ trait ValiumConvertTreeTransformer {
           val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.symbol))
           commit("B12", vals :+ apply1(args1))
         } else {
-          val args1 = vals.map(_.rhs).map{ case rhs @ Select(qual, _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType }
+          val args1 = vals.map(_.rhs).map{
+            case rhs @ Select(qual @ V(_), _) => rhs setType qual.tpe.memberInfo(rhs.symbol).finalResultType
+            case rhs => rhs
+          }
           commit("B11", apply1(args1))
         }
       case Assign(A(e1, a1), a2 @ A(_, _)) =>
