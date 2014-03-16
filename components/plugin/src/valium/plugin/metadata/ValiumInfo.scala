@@ -78,7 +78,8 @@ trait ValiumInfo {
   object valiumgen {
     def mkExplodedRef(e: Tree, a: Symbol, x: Name): Tree = {
       // can's just call nme.valueExplode(a, x) because of gensym!
-      val ax = a.explodedSymbols.find(cand => nme.isParamExplode(a, x, cand) || nme.isValueExplode(a, x, cand)).getOrElse(throw new Exception(s"$e, $a, $x"))
+      def fail() = throw new Exception(s"can't resolve $e.${a.name}$$$x (exploded symbols of $a are ${a.explodedSymbols})")
+      val ax = a.explodedSymbols.find(cand => nme.isParamExplode(a, x, cand) || nme.isValueExplode(a, x, cand)).getOrElse(fail())
       RefTree(e, ax.name) setSymbol ax
     }
   }
