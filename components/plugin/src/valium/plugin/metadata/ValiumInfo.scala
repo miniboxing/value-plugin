@@ -96,6 +96,10 @@ trait ValiumInfo {
     def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isUnboxedValiumRef && fields.length != 0)
   }
 
+  object Vus {
+    def unapply(vparams: List[Ident]): Boolean = vparams.exists(p => Vu.unapply(p).isDefined)
+  }
+
   object Vuss {
     def unapply(vparamss: List[List[ValDef]]): Boolean = vparamss.flatten.exists(p => Vu.unapply(p.tpt).isDefined)
   }

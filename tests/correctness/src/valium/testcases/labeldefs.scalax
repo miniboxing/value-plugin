@@ -1,0 +1,98 @@
+@valium class C(val x: Int)
+
+object Test {
+  def f(c: C): C = f(c)
+}
+
+=======
+
+[[syntax trees at end of            valium-convert]] // Test.scala
+package <empty> {
+  @valium class C extends Object {
+    <paramaccessor> private[this] val x: Int = _;
+    <stable> <accessor> <paramaccessor> def x(): Int = C.this.x;
+    def <init>(x: Int): C = {
+      C.super.<init>();
+      ()
+    }
+  };
+  object Test extends Object {
+    def <init>(): Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    def f(c$x: Int): Int = {
+      <synthetic> val _$this: Test.type = Test.this;
+      _f(_$this: Test.type, c$x: Int){
+        new C(_f(Test.this, new C(c$x).asInstanceOf[C]().x())).asInstanceOf[C]().x()
+      }
+    }
+  }
+}
+
+=======
+
+object Test extends Object {
+  // fields:
+
+  // methods
+  def f(c$x: Int (INT)): Int {
+  locals: value c$x, value _$this
+  startBlock: 1
+  blocks: [1,2]
+
+  1:
+    4 JUMP 2
+
+  2:
+    4 NEW REF(class C)
+    4 DUP(REF(class C))
+    4 NEW REF(class C)
+    4 DUP(REF(class C))
+    4 LOAD_LOCAL(value c$x)
+    4 CALL_METHOD C.<init> (static-instance)
+    ? CALL_METHOD C.x (dynamic)
+    ? STORE_LOCAL(value c$x)
+    ? JUMP 2
+
+  }
+  Exception handlers:
+
+  def <init>(): Test.type {
+  locals:
+  startBlock: 1
+  blocks: [1]
+
+  1:
+    5 THIS(Test)
+    5 CALL_METHOD java.lang.Object.<init> (super())
+    5 RETURN(UNIT)
+
+  }
+  Exception handlers:
+
+
+}
+
+=======
+
+error: java.lang.ArrayIndexOutOfBoundsException: 0
+  at scala.tools.asm.Frame.merge(Frame.java:1397)
+  at scala.tools.asm.Frame.merge(Frame.java:1374)
+  at scala.tools.asm.MethodWriter.visitMaxs(MethodWriter.java:1303)
+  at scala.tools.nsc.backend.jvm.GenASM$JPlainBuilder.genMethod(GenASM.scala:1450)
+  at scala.tools.nsc.backend.jvm.GenASM$JPlainBuilder$$anonfun$genClass$5.apply(GenASM.scala:1279)
+  at scala.tools.nsc.backend.jvm.GenASM$JPlainBuilder$$anonfun$genClass$5.apply(GenASM.scala:1279)
+  at scala.collection.immutable.List.foreach(List.scala:383)
+  at scala.tools.nsc.backend.jvm.GenASM$JPlainBuilder.genClass(GenASM.scala:1279)
+  at scala.tools.nsc.backend.jvm.GenASM$AsmPhase.emitFor$1(GenASM.scala:135)
+  at scala.tools.nsc.backend.jvm.GenASM$AsmPhase.run(GenASM.scala:141)
+  at scala.tools.nsc.Global$Run.compileUnitsInternal(Global.scala:1625)
+  at scala.tools.nsc.Global$Run.compileUnits(Global.scala:1610)
+  at scala.tools.nsc.Global$Run.compileSources(Global.scala:1605)
+  at scala.tools.nsc.Global$Run.compile(Global.scala:1703)
+  at scala.tools.nsc.Driver.doCompile(Driver.scala:34)
+  at scala.tools.nsc.MainClass.doCompile(Main.scala:23)
+  at scala.tools.nsc.Driver.process(Driver.scala:55)
+  at scala.tools.nsc.Driver.main(Driver.scala:68)
+  at scala.tools.nsc.Main.main(Main.scala)
