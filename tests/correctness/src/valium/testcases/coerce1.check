@@ -3,7 +3,7 @@ warning: 'valium' selects 3 phases
 [Now checking: valium-inject]
 [[syntax trees at end of             valium-coerce]] // newSource1.scala
 package valium.testcases.coerce1 {
-  @valium class Point extends Object {
+  @valium final class Point extends Object {
     <paramaccessor> private[this] val x: Double = _;
     <stable> <accessor> <paramaccessor> def x(): Double = Point.this.x;
     def <init>(x: Double): valium.testcases.coerce1.Point = {
