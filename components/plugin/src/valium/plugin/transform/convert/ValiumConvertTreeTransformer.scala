@@ -7,7 +7,7 @@ trait ValiumConvertTreeTransformer {
 
   import global._
   import definitions._
-  import treeInfo._
+  import treeInfo.{AsInstanceOf => _, _}
   import helper._
   import Flag._
 
@@ -77,6 +77,7 @@ trait ValiumConvertTreeTransformer {
   // B15) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
   // B16) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   // B17) [[ new V(e1, e2).x ]] => [[ e1 ]]
+  // B18) [[ null.asInstanceOf[V] ]] => [[ new V(null.asInstanceOf[X], null.asInstanceOf[Y]) ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) { self =>
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
@@ -170,6 +171,9 @@ trait ValiumConvertTreeTransformer {
         commit("B16", Select(unbox2box(cs), cs.valiumField))
       case Selectx(Apply(Select(New(V(fields)), nme.CONSTRUCTOR), args), x) =>
         commit("B17", args(fields.indexOf(x)))
+      case AsInstanceOf(Literal(Constant(null)), tpt @ V(fields)) =>
+        val fields1 = fields.map(x => gen.mkAsInstanceOf(Literal(Constant(null)), tpt.tpe.memberInfo(x).finalResultType))
+        commit("B18", Apply(Select(New(tpt), nme.CONSTRUCTOR), fields1))
     }
   }
 }

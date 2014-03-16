@@ -26,7 +26,6 @@ trait ValiumCoerceTreeTransformer {
         case _ => false
       }
       tree.collect{ case sub if isFlapping(sub) => unit.error(sub.pos, s"unexpected leftovers after convert: $sub") }
-
     }
   }
 
@@ -58,9 +57,9 @@ trait ValiumCoerceTreeTransformer {
         def dontAdapt = tree.isType || pt.isWildcard
         if (typeMismatch && !dontAdapt) {
           val conversion = if (oldTpe.isUnboxedValiumRef) unbox2box else box2unbox
-          val tree1 = atPos(tree.pos)(Apply(gen.mkAttributedRef(conversion), List(tree)))
+          val convertee = if (oldTpe.typeSymbol.isBottomClass) gen.mkAttributedCast(tree, newTpe.toBoxedValiumRef) else tree
+          val tree1 = atPos(tree.pos)(Apply(gen.mkAttributedRef(conversion), List(convertee)))
           val tree2 = super.typed(tree1, mode, pt)
-//          println("adapted: " + tree + " to " + tree2 + "  tpe = " + oldTpe + " pt = " + pt)
           assert(tree2.tpe != ErrorType, tree2)
           tree2
         } else {
@@ -72,10 +71,7 @@ trait ValiumCoerceTreeTransformer {
         val ind = indent
         indent += 1
         adaptdbg(ind, " <== " + tree + ": " + showRaw(pt, true, true, false, false))
-
-
         val res = tree match {
-
           case EmptyTree | TypeTree() =>
             super.typed(tree, mode, pt)
 
