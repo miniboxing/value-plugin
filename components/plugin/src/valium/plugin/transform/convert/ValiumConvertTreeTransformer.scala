@@ -18,15 +18,10 @@ trait ValiumConvertTreeTransformer {
   //   03) We also assume that users can't define custom getters for valium fields => these getters can be regarded as pure
   //   04) When writing out the exhaustive list of syntax forms, I used http://den.sh/quasiquotes.html#syntax-overview
   //       (of course, one has to keep in mind that some trees are desugared during parsing/typechecking and even further in the backend)
-  //   05) TODO: support valium fields of valium class types
-  //   06) TODO: support polymorphic value classes
-  //   07) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
-  //   08) TODO: think whether our transformation needs to operate on patterns and types
-  //   09) TODO: think whether we can avoid writing those unbox2box and box2unbox explicitly and just defer to inject/coerce
-  //   10) TODO: we have to treat V.this.x references specially, because unbox2box(V.this).x doesn't typecheck. think what can be done about that
-  //   11) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
-  //   12) TODO: do we need to transform labeldefs?
-  //   13) TODO: make sure that varargs in method calls and constructor invocations work fine
+  //   05) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
+  //   06) TODO: support valium fields of valium class types
+  //   07) TODO: support LabelDefs - I've no idea how this works
+  //   08) TODO: make sure that varargs in method calls and constructor invocations work fine
   //
   // ======= NOTATION =======
   //
