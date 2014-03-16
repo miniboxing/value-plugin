@@ -15,6 +15,11 @@ trait ValiumInjectTreeTransformer {
         commit(treeCopy.ValDef(tree, mods, name, tpt.toUnboxedValiumRef, rhs))
       case tree @ DefDef(mods, name, tparams, vparamss, tpt @ V(_), rhs) if tree.symbol.info.finalResultType.isUnboxedValiumRef =>
         commit(treeCopy.DefDef(tree, mods, name, tparams, super.transformValDefss(vparamss), tpt.toUnboxedValiumRef, rhs))
+      case tree @ DefDef(_, _, _, _, _, _) if tree.symbol.info.params.exists(_.isUnboxedValiumRef) || tree.symbol.info.finalResultType.isUnboxedValiumRef =>
+        val hasBridges = tree.symbol.owner.info.decl(tree.symbol.name).alternatives.exists(_.isBridge)
+        lazy val bridges = beforeInject(tree.symbol.allOverriddenSymbols).flatMap(base => Nil)
+        if (hasBridges || bridges.isEmpty) fallback()
+        else ???
     }
   }
 }
