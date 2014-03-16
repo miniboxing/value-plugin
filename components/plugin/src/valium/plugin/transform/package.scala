@@ -11,11 +11,19 @@ import addext._
 /** Makes sure that valium class definitions satisfy certain preconditions. */
 trait ValiumVerifyPhase extends
     ValiumPluginComponent
+    with scala.tools.nsc.transform.Transform
     with ValiumVerifyTreeTransformer { self =>
   import global._
   def valiumVerifyPhase: StdPhase
   def afterVerify[T](op: => T): T = global.exitingPhase(valiumVerifyPhase)(op)
   def beforeVerify[T](op: => T): T = global.enteringPhase(valiumVerifyPhase)(op)
+
+  override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
+    override def transform(tree: Tree) = {
+      new TreeVerifier(unit).traverse(tree)
+      tree
+    }
+  }
 }
 
 /** Transforms `C` to `C @value` where appropriate (arguments of methods, local and field values, returns types of 1-param valium classes) */
