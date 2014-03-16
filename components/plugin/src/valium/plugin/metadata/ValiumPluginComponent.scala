@@ -25,9 +25,11 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
     }
 
     override def transform(tree: Tree): Tree = {
+      val treeString = if (settings.log.value.contains(phaseName)) enteringPhase(globalPhase)(tree.toString) else ""
+      val treeTpeString = if (settings.log.value.contains(phaseName)) s"${tree.tpe}" else ""
       def commit(rule: String, tree1: Result): Result = {
-        def logRewrite() = valiumlog(s"$rule) $tree -> $tree1")
-        def logRetype() = valiumlog(s"$rule) $tree: ${tree.tpe} -> ${tree1.asInstanceOf[Single].tree.tpe}")
+        def logRewrite() = valiumlog(s"$rule) $treeString -> $tree1")
+        def logRetype() = valiumlog(s"$rule) $treeString: $treeTpeString -> ${tree1.asInstanceOf[Single].tree.tpe}")
         val tree2 = tree1 match {
           case Single(tree1) => if (tree ne tree1) logRewrite(); if ((tree eq tree1) && (tree.tpe ne tree1.tpe)) logRetype(); typed(tree1)
           case Multi(trees1) => logRewrite(); typed(Block(trees1: _*))
@@ -49,9 +51,11 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
     override def transformStats(stats: List[Tree], exprOwner: Symbol): List[Tree] = {
       stats flatMap {
         case stat =>
+          val statString = if (settings.log.value.contains(phaseName)) enteringPhase(globalPhase)(stat.toString) else ""
+          val statTpeString = if (settings.log.value.contains(phaseName)) s"${stat.tpe}" else ""
           def commit(rule: String, stats1: Result): Result = {
-            def logRewrite() = valiumlog(s"$rule) $stat -> $stats1")
-            def logRetype() = valiumlog(s"$rule) $stat: ${stat.tpe} -> ${stats1.asInstanceOf[Single].tree.tpe}")
+            def logRewrite() = valiumlog(s"$rule) $statString -> $stats1")
+            def logRetype() = valiumlog(s"$rule) $statString: $statTpeString -> ${stats1.asInstanceOf[Single].tree.tpe}")
             val stats2 = stats1 match {
               case Single(stat1) => if (stat ne stat1) logRewrite(); if ((stat eq stat1) && (stat.tpe ne stat1.tpe)) logRetype(); List(typed(stat1))
               case Multi(stats1) => logRewrite(); typedStats(stats1, exprOwner)
