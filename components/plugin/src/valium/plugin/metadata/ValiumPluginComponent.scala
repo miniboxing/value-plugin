@@ -21,7 +21,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
 
     def typed(tree: Tree) = {
       try localTyper.typed(tree)
-      catch { case err: TypeError => println(tree); throw err }
+      catch { case err: TypeError => println(tree); println(showRaw(tree, printIds = true, printTypes = true)); throw err }
     }
 
     override def transform(tree: Tree): Tree = {
@@ -45,7 +45,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
 
     def typedStats(stats: List[Tree], exprOwner: Symbol) = {
       try localTyper.typedStats(stats, exprOwner)
-      catch { case err: TypeError => println(stats); throw err }
+      catch { case err: TypeError => println(stats); println(showRaw(stats, printIds = true, printTypes = true)); throw err }
     }
 
     override def transformStats(stats: List[Tree], exprOwner: Symbol): List[Tree] = {
