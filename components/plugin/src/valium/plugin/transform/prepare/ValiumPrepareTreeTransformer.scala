@@ -21,7 +21,7 @@ trait ValiumPrepareTreeTransformer {
         valiumlog("  tree.tpe: " + tree.tpe)
         valiumlog("  expr.tpe: " + expr.tpe)
         valiumlog("  tpe.tpe: " + tpe.tpe)
-        expr
+        transform(expr)
       case _ =>
         super.transform(tree)
     }
