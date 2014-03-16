@@ -15,6 +15,7 @@ class Valium(val global: Global) extends Plugin { plugin =>
   val description = "provides value class functionality"
 
   val components = List[PluginComponent](
+    ValiumPreparePhaseObj,
     ValiumVerifyPhaseObj,
     ValiumInjectPhaseObj,
     ValiumCoercePhaseObj,
@@ -33,10 +34,26 @@ class Valium(val global: Global) extends Plugin { plugin =>
     }
   }
 
-  private object ValiumVerifyPhaseObj extends ValiumVerifyPhase { self =>
+  private object ValiumPreparePhaseObj extends ValiumPreparePhase { self =>
     val global: Valium.this.global.type = Valium.this.global
     val runsAfter = List("refchecks")
     override val runsRightAfter = Some("specialize")
+    val phaseName = Valium.this.name + "-prepare"
+
+    import global._
+    val helper: plugin.helper.type = plugin.helper
+
+    var valiumPreparePhase : StdPhase = _
+    override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
+      valiumPreparePhase = new Phase(prev)
+      valiumPreparePhase
+    }
+  }
+
+  private object ValiumVerifyPhaseObj extends ValiumVerifyPhase { self =>
+    val global: Valium.this.global.type = Valium.this.global
+    val runsAfter = List()
+    override val runsRightAfter = Some(ValiumPreparePhaseObj.phaseName)
     val phaseName = Valium.this.name + "-verify"
 
     import global._

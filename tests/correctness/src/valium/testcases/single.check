@@ -1,4 +1,5 @@
-warning: 'valium' selects 4 phases
+warning: 'valium' selects 5 phases
+[Now checking: valium-prepare]
 [Now checking: valium-verify]
 [Now checking: valium-inject]
 [Not checkable: valium-coerce]

@@ -8,6 +8,31 @@ import coerce._
 import convert._
 import addext._
 
+/** Removes the known problems in the Scala ASTs that cause the plugin
+ *  to malfunction. For example: tailcall introduces .asInstancOf-s that
+ *  prevent proper transformation and thus crash in the backend. */
+trait ValiumPreparePhase extends
+    ValiumPluginComponent
+    with scala.tools.nsc.transform.Transform
+    with ValiumPrepareTreeTransformer { self =>
+  import global._
+  def valiumPreparePhase: StdPhase
+  def afterPrepare[T](op: => T): T = global.exitingPhase(valiumPreparePhase)(op)
+  def beforePrepare[T](op: => T): T = global.enteringPhase(valiumPreparePhase)(op)
+
+  override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
+    override def transform(tree: Tree) = {
+      // [error] /Users/xeno_by/Projects/valium/tests/correctness/test/valium/partest/CompileTest.scala:30: [valium-verify] tree not typed: $anonfun.this.apply$mcV$sp()
+      // [error]       Console.withErr(pa) {
+      // [error]                           ^
+      // [error] one error found
+      // TODO: I've no idea why this happens - looks like an invalid tree produced by scalac
+      tree.foreach(tree => if (tree.tpe == null && !tree.toString.contains("apply$mcV$sp")) unit.error(tree.pos, s"[valium-verify] tree not typed: $tree"))
+      new TreePreparer(unit).transform(tree)
+    }
+  }
+}
+
 /** Makes sure that valium class definitions satisfy certain preconditions. */
 trait ValiumVerifyPhase extends
     ValiumPluginComponent

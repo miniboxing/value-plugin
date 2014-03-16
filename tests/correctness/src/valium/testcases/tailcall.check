@@ -1,0 +1,197 @@
+[Not checkable: parser]
+[Not checkable: namer]
+[Not checkable: packageobjects]
+[Now checking: typer]
+[Now checking: patmat]
+[Now checking: superaccessors]
+[Now checking: extmethods]
+[Now checking: pickler]
+[Now checking: refchecks]
+[Now checking: uncurry]
+[[syntax trees at end of                 tailcalls]] // newSource1.scala
+package valium.testcases.tailcalls {
+  @valium class C extends Object {
+    <paramaccessor> private[this] val i: Int = _;
+    <stable> <accessor> <paramaccessor> def i(): Int = C.this.i;
+    def <init>(i: Int): valium.testcases.tailcalls.C = {
+      C.super.<init>();
+      ()
+    }
+  };
+  @valium class D extends Object {
+    <paramaccessor> private[this] val i: Int = _;
+    <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
+    <paramaccessor> private[this] val d: Double = _;
+    <stable> <accessor> <paramaccessor> def d(): Double = D.this.d;
+    def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
+      D.super.<init>();
+      ()
+    }
+  };
+  object Test extends Object {
+    def <init>(): valium.testcases.tailcalls.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    @scala.annotation.tailrec def foo1(c: valium.testcases.tailcalls.C): valium.testcases.tailcalls.C = {
+      <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
+      _foo1(_$this: valium.testcases.tailcalls.Test.type, c: valium.testcases.tailcalls.C){
+        _foo1(Test.this, c.asInstanceOf[valium.testcases.tailcalls.C]()).asInstanceOf[valium.testcases.tailcalls.C]()
+      }
+    };
+    @scala.annotation.tailrec def foo2(d: valium.testcases.tailcalls.D): valium.testcases.tailcalls.D = {
+      <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
+      _foo2(_$this: valium.testcases.tailcalls.Test.type, d: valium.testcases.tailcalls.D){
+        _foo2(Test.this, d.asInstanceOf[valium.testcases.tailcalls.D]()).asInstanceOf[valium.testcases.tailcalls.D]()
+      }
+    }
+  }
+}
+
+[Now checking: tailcalls]
+[Not checkable: specialize]
+[[syntax trees at end of            valium-prepare]] // newSource1.scala
+package valium.testcases.tailcalls {
+  @valium class C extends Object {
+    <paramaccessor> private[this] val i: Int = _;
+    <stable> <accessor> <paramaccessor> def i(): Int = C.this.i;
+    def <init>(i: Int): valium.testcases.tailcalls.C = {
+      C.super.<init>();
+      ()
+    }
+  };
+  @valium class D extends Object {
+    <paramaccessor> private[this] val i: Int = _;
+    <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
+    <paramaccessor> private[this] val d: Double = _;
+    <stable> <accessor> <paramaccessor> def d(): Double = D.this.d;
+    def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
+      D.super.<init>();
+      ()
+    }
+  };
+  object Test extends Object {
+    def <init>(): valium.testcases.tailcalls.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    @scala.annotation.tailrec def foo1(c: valium.testcases.tailcalls.C): valium.testcases.tailcalls.C = {
+      <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
+      _foo1(_$this: valium.testcases.tailcalls.Test.type, c: valium.testcases.tailcalls.C){
+        _foo1(Test.this, c.asInstanceOf[valium.testcases.tailcalls.C]())
+      }
+    };
+    @scala.annotation.tailrec def foo2(d: valium.testcases.tailcalls.D): valium.testcases.tailcalls.D = {
+      <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
+      _foo2(_$this: valium.testcases.tailcalls.Test.type, d: valium.testcases.tailcalls.D){
+        _foo2(Test.this, d.asInstanceOf[valium.testcases.tailcalls.D]())
+      }
+    }
+  }
+}
+
+[Now checking: valium-prepare]
+[Now checking: valium-verify]
+[Now checking: valium-inject]
+[[syntax trees at end of             valium-coerce]] // newSource1.scala
+package valium.testcases.tailcalls {
+  @valium final class C extends Object {
+    <paramaccessor> private[this] val i: Int = _;
+    <stable> <accessor> <paramaccessor> def i(): Int = C.this.i;
+    def <init>(i: Int): valium.testcases.tailcalls.C = {
+      C.super.<init>();
+      ()
+    }
+  };
+  @valium final class D extends Object {
+    <paramaccessor> private[this] val i: Int = _;
+    <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
+    <paramaccessor> private[this] val d: Double = _;
+    <stable> <accessor> <paramaccessor> def d(): Double = D.this.d;
+    def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
+      D.super.<init>();
+      ()
+    }
+  };
+  object Test extends Object {
+    def <init>(): valium.testcases.tailcalls.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    @scala.annotation.tailrec def foo1(c: valium.testcases.tailcalls.C @unboxed): valium.testcases.tailcalls.C @unboxed = {
+      <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
+      _foo1(_$this: valium.testcases.tailcalls.Test.type, c: valium.testcases.tailcalls.C @unboxed){
+        _foo1(Test.this, scala.this.box2unbox[valium.testcases.tailcalls.C](scala.this.unbox2box[valium.testcases.tailcalls.C](c).asInstanceOf[valium.testcases.tailcalls.C]()))
+      }
+    };
+    @scala.annotation.tailrec def foo2(d: valium.testcases.tailcalls.D @unboxed): valium.testcases.tailcalls.D = {
+      <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
+      _foo2(_$this: valium.testcases.tailcalls.Test.type, d: valium.testcases.tailcalls.D @unboxed){
+        _foo2(Test.this, scala.this.box2unbox[valium.testcases.tailcalls.D](scala.this.unbox2box[valium.testcases.tailcalls.D](d).asInstanceOf[valium.testcases.tailcalls.D]()))
+      }
+    }
+  }
+}
+
+[Not checkable: valium-coerce]
+[[syntax trees at end of            valium-convert]] // newSource1.scala
+package valium.testcases.tailcalls {
+  @valium final class C extends Object {
+    <paramaccessor> private[this] val i: Int = _;
+    <stable> <accessor> <paramaccessor> def i(): Int = C.this.i;
+    def <init>(i: Int): valium.testcases.tailcalls.C = {
+      C.super.<init>();
+      ()
+    }
+  };
+  @valium final class D extends Object {
+    <paramaccessor> private[this] val i: Int = _;
+    <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
+    <paramaccessor> private[this] val d: Double = _;
+    <stable> <accessor> <paramaccessor> def d(): Double = D.this.d;
+    def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
+      D.super.<init>();
+      ()
+    }
+  };
+  object Test extends Object {
+    def <init>(): valium.testcases.tailcalls.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    @scala.annotation.tailrec def foo1(c$i: Int): Int = {
+      <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
+      _foo1(_$this: valium.testcases.tailcalls.Test.type, c$i: Int){
+        _foo1(Test.this, new valium.testcases.tailcalls.C(c$i).asInstanceOf[valium.testcases.tailcalls.C]().i())
+      }
+    };
+    @scala.annotation.tailrec def foo2(d$i: Int, d$d: Double): valium.testcases.tailcalls.D = {
+      <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
+      _foo2(_$this: valium.testcases.tailcalls.Test.type, d$i: Int){
+        <synthetic> val : valium.testcases.tailcalls.Test.type = Test.this;
+        <synthetic> val $2: valium.testcases.tailcalls.D = new valium.testcases.tailcalls.D(d$i, d$d).asInstanceOf[valium.testcases.tailcalls.D]();
+        <synthetic> val $1$i: Int = $2.i;
+        <synthetic> val $1$d: Double = $2.d;
+        <synthetic> val arg$d$i: Int = $1$i;
+        <synthetic> val arg$d$d: Double = $1$d;
+        _foo2(, arg$d$i, arg$d$d)
+      }
+    }
+  }
+}
+
+[Now checking: valium-convert]
+[Now checking: valium-addext]
+[Not checkable: explicitouter]
+[Now checking: erasure]
+[Now checking: posterasure]
+[Now checking: lazyvals]
+[Now checking: lambdalift]
+[Now checking: constructors]
+[Now checking: flatten]
+[Now checking: mixin]
+[Now checking: cleanup]
+[Now checking: delambdafy]
+[Now checking: icode]
+[Now checking: jvm]
+
