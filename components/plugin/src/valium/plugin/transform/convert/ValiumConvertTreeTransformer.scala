@@ -77,7 +77,7 @@ trait ValiumConvertTreeTransformer {
   // B15) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
   // B16) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   // B17) [[ new V(e1, e2).x ]] => [[ e1 ]]
-  class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
+  class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) { self =>
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
         commit("A01", fields.map(x => explode(tree.symbol, x, unbox2box(am, x))))
@@ -94,10 +94,13 @@ trait ValiumConvertTreeTransformer {
       case ValDef(_, _, tpt @ Vu(fields), EmptyTree) =>
         tree.symbol.owner.info.decls.unlink(tree.symbol)
         commit("A05", fields.map(x => explode(tree.symbol, x, tpt.tpe.memberInfo(x).finalResultType, EmptyTree)))
-      case DefDef(_, _, _, Vuss(), _, e) =>
-        val tree1 = newDefDef(afterConvert(tree.symbol), e)() setType NoType
-        tree1.vparamss.flatten.foreach(_ setType NoType)
-        commit("A06", tree1)
+      case DefDef(mods, name, tparams, vparamss @ Vuss(), tpt, e) =>
+        // note that we explode default parameters into non-default parameters
+        // we do that because handling that properly would require to also explode default getters, which would be a huge pain
+        // luckily this is completely unnecessary, because typer's desugaring of default arguments works with us out of the box
+        def explode(p: Symbol) = p.valiumFields.map(x => newValDef(self.explode(p, x), EmptyTree)() setType NoType)
+        val vparamss1 = vparamss.map(_.flatMap { case vdef @ ValDef(_, _, Vu(_), _) => explode(vdef.symbol); case vparam => List(vparam) })
+        commit("A06", treeCopy.DefDef(tree, mods, name, tparams, vparamss1, tpt, e) setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit("A07", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VMu(_), c) =>

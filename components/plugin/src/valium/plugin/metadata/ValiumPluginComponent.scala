@@ -87,10 +87,16 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       def explode(v: Symbol, x: Symbol, rhs: Tree): ValDef = explode(v, x, rhs.tpe.widen, rhs)
       def explode(v: Symbol, x: Symbol, tpt: Tree, rhs: Tree): ValDef = explode(v, x, tpt.tpe, rhs)
       def explode(v: Symbol, x: Symbol, tpe: Type, rhs: Tree): ValDef = {
-        val name = nme.valueExplode(tree.symbol, x)
+        val name = nme.valueExplode(v, x)
         val exploded = temp(name, tpe, rhs)
-        valiumlog(s"EXPLODE: ${tree.symbol} -> ${exploded.symbol}")
+        valiumlog(s"EXPLODE: $v -> ${exploded.symbol}")
         v.registerExploded(exploded.symbol)
+        exploded
+      }
+      def explode(p: Symbol, x: Symbol): Symbol = {
+        val exploded = p.owner.newSyntheticValueParam(p.info.memberInfo(x).finalResultType, nme.paramExplode(p, x))
+        p.registerExploded(exploded)
+        valiumlog(s"EXPLODE: $p -> $exploded")
         exploded
       }
       // def recur(tree: Tree): Tree = if (tree.isTerm) atOwner(owner)(transform(tree)) else transform(tree)
@@ -106,6 +112,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
     def temp(name: TermName, rhs: Tree)(implicit state: State): ValDef = state.temp(name, rhs)
     def temp(name: TermName, tpe: Type, rhs: Tree)(implicit state: State): ValDef = state.temp(name, tpe, rhs)
     def temp(name: TermName, tpt: Tree, rhs: Tree)(implicit state: State): ValDef = state.temp(name, tpt, rhs)
+    def explode(p: Symbol, x: Symbol)(implicit state: State): Symbol = state.explode(p, x)
     def explode(v: Symbol, x: Symbol, rhs: Tree)(implicit state: State): ValDef = state.explode(v, x, rhs)
     def explode(v: Symbol, x: Symbol, tpe: Type, rhs: Tree)(implicit state: State): ValDef = state.explode(v, x, tpe, rhs)
     def explode(v: Symbol, x: Symbol, tpt: Tree, rhs: Tree)(implicit state: State): ValDef = state.explode(v, x, tpt, rhs)
