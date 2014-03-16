@@ -150,7 +150,13 @@ trait ValiumConvertTreeTransformer {
             List(temp(nme.EMPTY, arg))
           }
         })
-        def apply1(args1: List[Tree]) = treeCopy.Apply(tree, core.clearType(), args1).clearType()
+        def apply1(args1: List[Tree]) = {
+          val core1 = core match {
+            case tapp @ TypeApply(core, targs) => treeCopy.TypeApply(tapp, core.clearType(), targs).clearType()
+            case _ => core.clearType()
+          }
+          treeCopy.Apply(tree, core1, args1).clearType()
+        }
         if (precomputeds.nonEmpty) {
           val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.symbol))
           commit("B12", vals :+ apply1(args1))
