@@ -52,7 +52,7 @@ object ValiumBuild extends Build {
     fork in Test := true,
     scalacOptions in Compile <++= (Keys.`package` in (plugin, Compile)) map { (jar: File) =>
       System.setProperty("valium.plugin.jar", jar.getAbsolutePath)
-      val addPlugin = "" // disabled: "-Xplugin:" + jar.getAbsolutePath
+      val addPlugin = "-Xplugin:" + jar.getAbsolutePath
       // Thanks Jason for this cool idea (taken from https://github.com/retronym/boxer)
       // add plugin timestamp to compiler options to trigger recompile of
       // main after editing the plugin. (Otherwise a 'clean' is needed.)

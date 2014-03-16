@@ -5,6 +5,7 @@ package coerce
 import scala.tools.nsc.typechecker.Analyzer
 import scala.tools.nsc.Phase
 import scala.reflect.internal.Mode
+import scala.reflect.internal.Mode._
 import scala.util.DynamicVariable
 
 trait ValiumCoerceTreeTransformer {
@@ -19,14 +20,13 @@ trait ValiumCoerceTreeTransformer {
     override def checkable = false
     def apply(unit: CompilationUnit): Unit = {
       val tree = afterCoerce(new TreeAdapters().adapt(unit))
-      tree.foreach(node => assert(node.tpe != null, node))
+      tree.foreach(node => if (node.tpe == null) unit.error(node.pos, s"[valium-coerce] tree not typed: $tree"))
       def isFlapping(tree: Tree) = tree match {
         case Unbox2box(Box2unbox(_)) => true
         case Box2unbox(Unbox2box(_)) => true
         case _ => false
       }
-      tree.collect{ case sub if isFlapping(sub) => unit.error(sub.pos, s"unexpected leftovers after convert: $sub") }
-
+      tree.collect{ case sub if isFlapping(sub) => unit.error(sub.pos, s"unexpected leftovers after coerce: $sub") }
     }
   }
 
@@ -58,9 +58,9 @@ trait ValiumCoerceTreeTransformer {
         def dontAdapt = tree.isType || pt.isWildcard
         if (typeMismatch && !dontAdapt) {
           val conversion = if (oldTpe.isUnboxedValiumRef) unbox2box else box2unbox
-          val tree1 = atPos(tree.pos)(Apply(gen.mkAttributedRef(conversion), List(tree)))
+          val convertee = if (oldTpe.typeSymbol.isBottomClass) gen.mkAttributedCast(tree, newTpe.toBoxedValiumRef) else tree
+          val tree1 = atPos(tree.pos)(Apply(gen.mkAttributedRef(conversion), List(convertee)))
           val tree2 = super.typed(tree1, mode, pt)
-//          println("adapted: " + tree + " to " + tree2 + "  tpe = " + oldTpe + " pt = " + pt)
           assert(tree2.tpe != ErrorType, tree2)
           tree2
         } else {
@@ -73,42 +73,41 @@ trait ValiumCoerceTreeTransformer {
         indent += 1
         adaptdbg(ind, " <== " + tree + ": " + showRaw(pt, true, true, false, false))
 
+        def fallback() = super.typed(tree, mode, pt)
+        def retypecheck() = super.typed(tree.clearType(), mode, pt)
 
         val res = tree match {
-
           case EmptyTree | TypeTree() =>
-            super.typed(tree, mode, pt)
+            fallback()
 
           case _ if tree.tpe == null =>
-            super.typed(tree, mode, pt)
+            fallback()
 
           // intercept bm-s:
           //  - it's a multi-param value class
           //  - pt is marked with @unboxed
           //  - is a b (=!isA(_))
-          case _ if (pt.valiumFields.length > 1) && pt.isUnboxedValiumRef && !looksLikeA(tree) && (tree.symbol != box2unbox) =>
+          case _ if pt.valiumFields.length > 1 && pt.isUnboxedValiumRef && !looksLikeA(tree) && tree.symbol != box2unbox =>
             val tree2 = super.typed(tree.clearType(), mode, WildcardType)
             super.typed(Apply(gen.mkAttributedRef(box2unbox), List(tree)), mode, pt)
 
           case Select(qual, meth) if qual.isTerm && tree.symbol.isMethod =>
-            val qual2 = super.typed(qual.setType(null), mode, WildcardType)
+            val qual2 = super.typed(qual.clearType(), mode | QUALmode, WildcardType)
             if (qual2.isUnboxedValiumRef) {
               val tpe2 = if (qual2.tpe.hasAnnotation(UnboxedClass)) qual2.tpe else qual2.tpe.widen
               val tpe3 = tpe2.toBoxedValiumRef
-              val qual3 = super.typed(qual.setType(null), mode, tpe3)
+              val qual3 = super.typed(qual.clearType(), mode, tpe3)
               super.typed(Select(qual3, meth) setSymbol tree.symbol, mode, pt)
             } else {
-              tree.clearType()
-              super.typed(tree, mode, pt)
+              retypecheck()
             }
 
           case _ =>
-            tree.clearType()
-            super.typed(tree, mode, pt)
+            retypecheck()
         }
+
         adaptdbg(ind, " ==> " + res + ": " + res.tpe)
-        if (res.tpe == ErrorType)
-          adaptdbg(ind, "ERRORS: " + context.errors)
+        if (res.tpe == ErrorType) adaptdbg(ind, "ERRORS: " + context.errors)
         indent -= 1
         res
       }

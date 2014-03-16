@@ -1,0 +1,37 @@
+warning: 'valium' selects 4 phases
+[Now checking: valium-verify]
+[Now checking: valium-inject]
+[Not checkable: valium-coerce]
+[[syntax trees at end of            valium-convert]] // newSource1.scala
+package <empty> {
+  @valium class VS extends Object {
+    <paramaccessor> private[this] val x1: Int = _;
+    <stable> <accessor> <paramaccessor> def x1(): Int = VS.this.x1;
+    def <init>(x1: Int): VS = {
+      VS.super.<init>();
+      ()
+    }
+  };
+  @valium class VM extends Object {
+    <paramaccessor> private[this] val x1: Int = _;
+    <stable> <accessor> <paramaccessor> def x1(): Int = VM.this.x1;
+    <paramaccessor> private[this] val x2: Int = _;
+    <stable> <accessor> <paramaccessor> def x2(): Int = VM.this.x2;
+    def <init>(x1: Int, x2: Int): VM = {
+      VM.super.<init>();
+      ()
+    }
+  };
+  object Test extends Object {
+    def <init>(): Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    def foos(): Int = scala.this.Predef.???().asInstanceOf[VS]().x1();
+    def bars(): Int = new VS(null.asInstanceOf[Int]()).x1();
+    def foom(): VM = scala.this.Predef.???();
+    def barm(): VM = null
+  }
+}
+
+[Now checking: valium-convert]

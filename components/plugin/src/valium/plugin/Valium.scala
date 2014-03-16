@@ -44,7 +44,7 @@ class Valium(val global: Global) extends Plugin { plugin =>
 
     var valiumVerifyPhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
-      valiumVerifyPhase = new VerifyPhase(prev)
+      valiumVerifyPhase = new Phase(prev)
       valiumVerifyPhase
     }
   }

@@ -9,6 +9,7 @@ trait ValiumInfo {
 
   import global._
   import treeInfo._
+  import definitions._
 
   implicit class RichTree(tree: Tree) {
     def valiumFields = tree.tpe.valiumFields
@@ -226,6 +227,13 @@ trait ValiumInfo {
       case Select(qual, _) if qual.valiumFields.contains(tree.symbol) => Some((qual, tree.symbol.getter))
       case Select(qual, _) if qual.valiumFields.map(_.accessed).contains(tree.symbol) => Some((qual, tree.symbol.getter))
       case Apply(Select(qual, _), Nil) if qual.valiumFields.contains(tree.symbol) => Some((qual, tree.symbol))
+      case _ => None
+    }
+  }
+
+  object AsInstanceOf {
+    def unapply(tree: Tree): Option[(Tree, Tree)] = tree match {
+      case Apply(TypeApplyOp(tree, Any_asInstanceOf, tpe :: Nil), Nil) => Some((tree, TypeTree(tpe)))
       case _ => None
     }
   }

@@ -7,7 +7,7 @@ trait ValiumConvertTreeTransformer {
 
   import global._
   import definitions._
-  import treeInfo._
+  import treeInfo.{AsInstanceOf => _, _}
   import helper._
   import Flag._
 
@@ -18,15 +18,10 @@ trait ValiumConvertTreeTransformer {
   //   03) We also assume that users can't define custom getters for valium fields => these getters can be regarded as pure
   //   04) When writing out the exhaustive list of syntax forms, I used http://den.sh/quasiquotes.html#syntax-overview
   //       (of course, one has to keep in mind that some trees are desugared during parsing/typechecking and even further in the backend)
-  //   05) TODO: support valium fields of valium class types
-  //   06) TODO: support polymorphic value classes
-  //   07) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
-  //   08) TODO: think whether our transformation needs to operate on patterns and types
-  //   09) TODO: think whether we can avoid writing those unbox2box and box2unbox explicitly and just defer to inject/coerce
-  //   10) TODO: we have to treat V.this.x references specially, because unbox2box(V.this).x doesn't typecheck. think what can be done about that
-  //   11) TODO: complex expressions (blocks, ifs, try) simply fall through, but we have to remember to update their types
-  //   12) TODO: do we need to transform labeldefs?
-  //   13) TODO: make sure that varargs in method calls and constructor invocations work fine
+  //   05) TODO: avoid boxing in cases like `val v: V @unboxed = if (cond) cl else cr`
+  //   06) TODO: support valium fields of valium class types
+  //   07) TODO: support LabelDefs - I've no idea how this works
+  //   08) TODO: make sure that varargs in method calls and constructor invocations work fine
   //
   // ======= NOTATION =======
   //
@@ -77,6 +72,7 @@ trait ValiumConvertTreeTransformer {
   // B15) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
   // B16) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   // B17) [[ new V(e1, e2).x ]] => [[ e1 ]]
+  // B18) [[ null.asInstanceOf[V] ]] => [[ new V(null.asInstanceOf[X], null.asInstanceOf[Y]) ]]
   class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) { self =>
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
@@ -170,6 +166,9 @@ trait ValiumConvertTreeTransformer {
         commit("B16", Select(unbox2box(cs), cs.valiumField))
       case Selectx(Apply(Select(New(V(fields)), nme.CONSTRUCTOR), args), x) =>
         commit("B17", args(fields.indexOf(x)))
+      case AsInstanceOf(Literal(Constant(null)), tpt @ V(fields)) =>
+        val fields1 = fields.map(x => gen.mkAsInstanceOf(Literal(Constant(null)), tpt.tpe.memberInfo(x).finalResultType))
+        commit("B18", Apply(Select(New(tpt), nme.CONSTRUCTOR), fields1))
     }
   }
 }
