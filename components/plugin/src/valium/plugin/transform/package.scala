@@ -32,7 +32,7 @@ trait ValiumInjectPhase extends
     override def transform(tree: Tree) = {
       // execute the tree transformer after all symbols have been processed
       val tree1 = afterInject(new TreeInjector(unit).transform(tree))
-      tree1.foreach(tree => if (tree.tpe == null) unit.error(tree.pos, s"tree not typed: $tree"))
+      tree1.foreach(tree => if (tree.tpe == null) unit.error(tree.pos, s"[valium-inject] tree not typed: $tree"))
       tree1
     }
   }
@@ -64,7 +64,7 @@ trait ValiumConvertPhase extends
     override def transform(tree: Tree) = {
       // execute the tree transformer after all symbols have been processed
       val tree1 = afterConvert(new TreeConverter(unit).transform(tree))
-      tree1.foreach(tree => if (tree.tpe == null) unit.error(tree.pos, s"tree not typed: $tree"))
+      tree1.foreach(tree => if (tree.tpe == null) unit.error(tree.pos, s"[valium-convert] tree not typed: $tree"))
       def isDisallowed(tree: Tree) = afterConvert(tree.symbol == box2unbox || tree.symbol == unbox2box || tree.symbol.isUnboxedValiumRef || tree.isUnboxedValiumRef)
       tree1.collect{ case sub if isDisallowed(sub) => unit.error(sub.pos, s"unexpected leftovers after convert: $sub") }
       tree1
@@ -86,7 +86,7 @@ trait ValiumAddExtensionMethodsPhase extends
     override def transform(tree: Tree) = {
       // execute the tree transformer after all symbols have been processed
       val tree1 = afterAddExt(new TreeTransformer(unit).transform(tree))
-      tree1.foreach(tree => if (tree.tpe == null) unit.error(tree.pos, s"tree not typed: $tree"))
+      tree1.foreach(tree => if (tree.tpe == null) unit.error(tree.pos, s"[valium-addext] tree not typed: $tree"))
       tree1
     }
   }
