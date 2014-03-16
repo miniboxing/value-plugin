@@ -4,7 +4,7 @@ warning: 'valium' selects 4 phases
 [Not checkable: valium-coerce]
 [[syntax trees at end of            valium-convert]] // newSource1.scala
 package valium.testcases.multi {
-  @valium class Point extends Object {
+  @valium final class Point extends Object {
     <paramaccessor> private[this] val x: Double = _;
     <stable> <accessor> <paramaccessor> def x(): Double = Point.this.x;
     <paramaccessor> private[this] val y: Double = _;
