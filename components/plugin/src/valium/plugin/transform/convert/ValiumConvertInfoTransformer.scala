@@ -24,7 +24,7 @@ trait ValiumConvertInfoTransformer extends InfoTransform {
         def explode(p: Symbol) = p.info.valiumFields.map(f => {
           val exploded = sym.newSyntheticValueParam(p.info.memberInfo(f).finalResultType, nme.paramExplode(p, f))
           p.registerExploded(exploded)
-          valiumlog(s"EXPLODE: $p -> $exploded")
+          valiumlog(s"PARAMSYM: $p -> $exploded")
           exploded
         })
         params.flatMap(p => if (p.isUnboxedValiumRef) explode(p) else List(p))
