@@ -77,36 +77,30 @@ trait ValiumConvertTreeTransformer {
   // B15) [[ e1.b1 = c2 ]] => [[ { val $e1 = e1; $e1.b1 = c2 } ]]
   // B16) [[ return cs ]] => return [[ unbox2box(cs).x ]]
   // B17) [[ new V(e1, e2).x ]] => [[ e1 ]]
-  class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) {
+  class TreeConverter(unit: CompilationUnit) extends TreeRewriter(unit) { self =>
     override def rewrite(tree: Tree)(implicit state: State) = {
       case ValDef(_, _, VMu(fields), am @ AM(_, _)) =>
-        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), unbox2box(am, x)))
-        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
-        commit("A01", exploded)
+        commit("A01", fields.map(x => explode(tree.symbol, x, unbox2box(am, x))))
       case ValDef(_, _, VMu(fields), Box2unbox(Apply(Select(New(V(_)), nme.CONSTRUCTOR), args))) =>
-        val exploded = fields.zip(args).map{ case (x, e) => temp(nme.valueExplode(tree.symbol, x), e) }
-        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
-        commit("A02", exploded)
+        commit("A02", fields.zip(args).map{ case (x, e) => explode(tree.symbol, x, e) })
       case ValDef(_, _, VMu(fields), Box2unbox(em @ EM(_, _))) =>
         val precomputed = temp(nme.valuePrecompute(tree.symbol), em)
-        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), Selectx(gen.mkAttributedRef(precomputed.symbol), x)))
-        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
+        val exploded = fields.map(x => explode(tree.symbol, x, Selectx(gen.mkAttributedRef(precomputed.symbol), x)))
         commit("A03", precomputed +: exploded)
       case ValDef(_, _, VMu(fields), bm @ BM(_, _)) =>
         error(s"unauthorized bm detected: $tree")
       case ValDef(_, _, VSu(x :: Nil), cs @ CS(_, _)) =>
-        val exploded = temp(nme.valueExplode(tree.symbol, x), unbox2box(cs, x))
-        tree.symbol.registerExploded(exploded.symbol)
-        commit("A04", exploded)
+        commit("A04", explode(tree.symbol, x, unbox2box(cs, x)))
       case ValDef(_, _, tpt @ Vu(fields), EmptyTree) =>
-        val exploded = fields.map(x => temp(nme.valueExplode(tree.symbol, x), tpt.tpe.memberInfo(x).finalResultType, EmptyTree))
-        exploded.foreach(treee => tree.symbol.registerExploded(treee.symbol))
         tree.symbol.owner.info.decls.unlink(tree.symbol)
-        commit("A05", exploded)
-      case DefDef(_, _, _, Vuss(), _, e) =>
-        val tree1 = newDefDef(afterConvert(tree.symbol), e)() setType NoType
-        tree1.vparamss.flatten.foreach(_ setType NoType)
-        commit("A06", tree1)
+        commit("A05", fields.map(x => explode(tree.symbol, x, tpt.tpe.memberInfo(x).finalResultType, EmptyTree)))
+      case DefDef(mods, name, tparams, vparamss @ Vuss(), tpt, e) =>
+        // note that we explode default parameters into non-default parameters
+        // we do that because handling that properly would require to also explode default getters, which would be a huge pain
+        // luckily this is completely unnecessary, because typer's desugaring of default arguments works with us out of the box
+        def explode(p: Symbol) = p.valiumFields.map(x => newValDef(self.explode(p, x), EmptyTree)() setType NoType)
+        val vparamss1 = vparamss.map(_.flatMap { case vdef @ ValDef(_, _, Vu(_), _) => explode(vdef.symbol); case vparam => List(vparam) })
+        commit("A06", treeCopy.DefDef(tree, mods, name, tparams, vparamss1, tpt, e) setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit("A07", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VMu(_), c) =>
@@ -150,7 +144,13 @@ trait ValiumConvertTreeTransformer {
             List(temp(nme.EMPTY, arg))
           }
         })
-        def apply1(args1: List[Tree]) = treeCopy.Apply(tree, core.clearType(), args1).clearType()
+        def apply1(args1: List[Tree]) = {
+          val core1 = core match {
+            case tapp @ TypeApply(core, targs) => treeCopy.TypeApply(tapp, core.clearType(), targs).clearType()
+            case _ => core.clearType()
+          }
+          treeCopy.Apply(tree, core1, args1).clearType()
+        }
         if (precomputeds.nonEmpty) {
           val args1 = vals.diff(precomputeds).map(vdef => Ident(vdef.symbol))
           commit("B12", vals :+ apply1(args1))
