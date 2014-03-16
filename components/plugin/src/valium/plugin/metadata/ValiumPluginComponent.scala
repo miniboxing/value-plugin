@@ -27,9 +27,10 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
     override def transform(tree: Tree): Tree = {
       val treeString = if (settings.log.value.contains(phaseName)) enteringPhase(globalPhase)(tree.toString) else ""
       val treeTpeString = if (settings.log.value.contains(phaseName)) s"${tree.tpe}" else ""
-      def commit(rule: String, tree1: Result): Result = {
-        def logRewrite() = valiumlog(s"$rule) $treeString -> $tree1")
-        def logRetype() = valiumlog(s"$rule) $treeString: $treeTpeString -> ${tree1.asInstanceOf[Single].tree.tpe}")
+      def commit(rule: Option[String], tree1: Result): Result = {
+        val rulePrefix = rule.map(rule => s"$rule) ").getOrElse("")
+        def logRewrite() = valiumlog(s"$rulePrefix$treeString -> $tree1")
+        def logRetype() = valiumlog(s"$rulePrefix$treeString: $treeTpeString -> ${tree1.asInstanceOf[Single].tree.tpe}")
         val tree2 = tree1 match {
           case Single(tree1) => if (tree ne tree1) logRewrite(); if ((tree eq tree1) && (tree.tpe ne tree1.tpe)) logRetype(); typed(tree1)
           case Multi(trees1) => logRewrite(); typed(Block(trees1: _*))
@@ -53,9 +54,10 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
         case stat =>
           val statString = if (settings.log.value.contains(phaseName)) enteringPhase(globalPhase)(stat.toString) else ""
           val statTpeString = if (settings.log.value.contains(phaseName)) s"${stat.tpe}" else ""
-          def commit(rule: String, stats1: Result): Result = {
-            def logRewrite() = valiumlog(s"$rule) $statString -> $stats1")
-            def logRetype() = valiumlog(s"$rule) $statString: $statTpeString -> ${stats1.asInstanceOf[Single].tree.tpe}")
+          def commit(rule: Option[String], stats1: Result): Result = {
+            val rulePrefix = rule.map(rule => s"$rule) ").getOrElse("")
+            def logRewrite() = valiumlog(s"$rulePrefix$statString -> $stats1")
+            def logRetype() = valiumlog(s"$rulePrefix$statString: $statTpeString -> ${stats1.asInstanceOf[Single].tree.tpe}")
             val stats2 = stats1 match {
               case Single(stat1) => if (stat ne stat1) logRewrite(); if ((stat eq stat1) && (stat.tpe ne stat1.tpe)) logRetype(); List(typed(stat1))
               case Multi(stats1) => logRewrite(); typedStats(stats1, exprOwner)
@@ -73,7 +75,7 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       }
     }
 
-    case class State(tree: Tree, owner: Symbol, commit: (String, Result) => Result, fallback: () => Result) {
+    case class State(tree: Tree, owner: Symbol, commit: (Option[String], Result) => Result, fallback: () => Result) {
       def temp(name: TermName, rhs: Tree): ValDef = temp(name, rhs.tpe.widen, rhs)
       def temp(name: TermName, tpt: Tree, rhs: Tree): ValDef = temp(name, tpt.tpe, rhs)
       def temp(name: TermName, tpe: Type, rhs: Tree): ValDef = {
@@ -107,7 +109,8 @@ trait ValiumPluginComponent extends PluginComponent with TypingTransformers { se
       def error(msg: String): Result = { unit.error(tree.pos, msg); fallback() }
     }
 
-    def commit(rule: String, result: Result)(implicit state: State): Result = state.commit(rule, result)
+    def commit(result: Result)(implicit state: State): Result = state.commit(None, result)
+    def commit(rule: String, result: Result)(implicit state: State): Result = state.commit(Some(rule), result)
     def fallback()(implicit state: State): Result = state.fallback()
     def error(msg: String)(implicit state: State): Result = state.error(msg)
     // def recur(tree: Tree)(implicit state: State): Tree = state.recur(tree)
