@@ -21,9 +21,19 @@ trait ValiumDefs {
     //     class unboxed extends Annotation with TypeConstraint
     //   }
     // ```
-    val UnboxedSym = ScalaPackageClass.newClassSymbol(TypeName("unboxed"), NoPosition, 0L)
-    UnboxedSym setInfoAndEnter ClassInfoType(List(AnnotationClass.tpe, TypeConstraintClass.tpe), newScope, UnboxedSym)
-    UnboxedSym
+    val sym = ScalaPackageClass.newClassSymbol(TypeName("unboxed"), NoPosition, 0L)
+    sym setInfoAndEnter ClassInfoType(List(AnnotationClass.tpe, TypeConstraintClass.tpe), newScope, sym)
+  }
+
+  lazy val ValiumBridgeClass = {
+    // This is what is should look like:
+    // ```
+    //   package __root__.valiumBridge {
+    //     class unboxed extends Annotation
+    //   }
+    // ```
+    val sym = ScalaPackageClass.newClassSymbol(TypeName("valiumBridge"), NoPosition, 0L)
+    sym setInfoAndEnter ClassInfoType(List(AnnotationClass.tpe), newScope, sym)
   }
 
   // artificially created marker methods

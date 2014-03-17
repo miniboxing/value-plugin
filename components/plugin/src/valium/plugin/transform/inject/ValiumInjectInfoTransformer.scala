@@ -17,7 +17,9 @@ trait ValiumInjectInfoTransformer extends InfoTransform {
     // 2) val x: C = ???      => val x: C @value = ???
     // 3) def foo: C = ???    => def foo: C @value = ??? (only for 1-arg value classes)
     def logTransform(tpe1: Type): Type = { valiumlog(s"$sym: $tpe -> $tpe1"); tpe1 }
-    if (sym.isTerm && sym.isParameter && tpe.isBoxedValiumRef)
+    if (sym.isValiumBridge)
+      tpe
+    else if (sym.isTerm && sym.isParameter && tpe.isBoxedValiumRef)
       logTransform(tpe.toUnboxedValiumRef)
     else if (sym.isTerm && !sym.isMethod && tpe.isBoxedValiumRef)
       logTransform(tpe.toUnboxedValiumRef)
