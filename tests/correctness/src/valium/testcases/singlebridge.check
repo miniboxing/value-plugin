@@ -1,0 +1,55 @@
+warning: 'valium' selects 5 phases
+[Now checking: valium-prepare]
+[Now checking: valium-verify]
+[Now checking: valium-inject]
+[Not checkable: valium-coerce]
+[[syntax trees at end of            valium-convert]] // newSource1.scala
+package valium.testcases.singlebridge {
+  @valium final class C extends Object {
+    <paramaccessor> private[this] val x1: Int = _;
+    <stable> <accessor> <paramaccessor> def x1(): Int = C.this.x1;
+    def <init>(x1: Int): valium.testcases.singlebridge.C = {
+      C.super.<init>();
+      ()
+    };
+    override def toString(): String = new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"C(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{C.this.x1()}))
+  };
+  abstract trait Foo[X] extends Object {
+    def foo(foox: X, fooy$x1: Int): X
+  };
+  abstract trait Bar[Y] extends Object {
+    def foo(barx$x1: Int, bary: Y): Y
+  };
+  abstract trait IntForC extends Object {
+    def foo(forcx$x1: Int, forcy$x1: Int): Int
+  };
+  class FooForC extends Object with valium.testcases.singlebridge.Foo[valium.testcases.singlebridge.C] with valium.testcases.singlebridge.Bar[valium.testcases.singlebridge.C] with valium.testcases.singlebridge.IntForC {
+    def <init>(): valium.testcases.singlebridge.FooForC = {
+      FooForC.super.<init>();
+      ()
+    };
+    override def foo(x$x1: Int, y$x1: Int): Int = {
+      scala.this.Predef.println(new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"", ", ", ""})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{new valium.testcases.singlebridge.C(x$x1), new valium.testcases.singlebridge.C(y$x1)})));
+      x$x1
+    };
+    @scala.annotation.bridge override def foo(barx$x1: Int, @scala.annotation.bridge bary: valium.testcases.singlebridge.C): valium.testcases.singlebridge.C = new valium.testcases.singlebridge.C(foo(barx$x1, bary.x1()));
+    @scala.annotation.bridge override def foo(@scala.annotation.bridge foox: valium.testcases.singlebridge.C, fooy$x1: Int): valium.testcases.singlebridge.C = new valium.testcases.singlebridge.C(foo(foox.x1(), fooy$x1))
+  };
+  object Test extends Object {
+    def <init>(): valium.testcases.singlebridge.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    def main(args: Array[String]): Unit = {
+      (new valium.testcases.singlebridge.FooForC(): valium.testcases.singlebridge.Foo[valium.testcases.singlebridge.C]).foo(new valium.testcases.singlebridge.C(0), 1);
+      (new valium.testcases.singlebridge.FooForC(): valium.testcases.singlebridge.Bar[valium.testcases.singlebridge.C]).foo(2, new valium.testcases.singlebridge.C(3));
+      (new valium.testcases.singlebridge.FooForC(): valium.testcases.singlebridge.IntForC).foo(4, 5);
+      {
+        new valium.testcases.singlebridge.FooForC().foo(6, 7);
+        ()
+      }
+    }
+  }
+}
+
+[Now checking: valium-convert]
