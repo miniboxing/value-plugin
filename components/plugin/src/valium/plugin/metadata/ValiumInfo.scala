@@ -31,6 +31,8 @@ trait ValiumInfo {
     def isInjected = sym == box2unbox || sym == unbox2box
     def registerExploded(x: Symbol, exploded: Symbol) = sym.updateAttachment(ExplodedSymbolsAttachment(sym.explodedSymbols + (x.name -> exploded)))
     def explodedSymbols = sym.attachments.get[ExplodedSymbolsAttachment].map(_.syms).getOrElse(Map())
+    def isValiumBridge = sym != null && sym.hasAnnotation(BridgeClass)
+    def markValiumBridge = { if (sym != null) sym.addAnnotation(AnnotationInfo.marker(BridgeClass.tpe)); sym }
   }
 
   case class ExplodedSymbolsAttachment(syms: Map[Name, Symbol])
@@ -102,6 +104,10 @@ trait ValiumInfo {
 
   object Vuss {
     def unapply(vparamss: List[List[ValDef]]): Boolean = vparamss.flatten.exists(p => Vu.unapply(p.tpt).isDefined)
+  }
+
+  object VS {
+    def unapply(tree: Tree): Option[List[Symbol]] = Some(tree.valiumFields).filter(fields => tree.isBoxedValiumRef && fields.length == 1)
   }
 
   object VSu {

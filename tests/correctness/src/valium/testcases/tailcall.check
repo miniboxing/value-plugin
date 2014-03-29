@@ -161,13 +161,13 @@ package valium.testcases.tailcalls {
     };
     @scala.annotation.tailrec def foo1(c$i: Int): Int = {
       <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
-      _foo1(_$this: valium.testcases.tailcalls.Test.type, c$i: Int){
+      _foo1(x$1: valium.testcases.tailcalls.Test.type, c$i: Int){
         _foo1(Test.this, c$i)
       }
     };
     @scala.annotation.tailrec def foo2(d$i: Int, d$d: Double): valium.testcases.tailcalls.D = {
       <synthetic> val _$this: valium.testcases.tailcalls.Test.type = Test.this;
-      _foo2(_$this: valium.testcases.tailcalls.Test.type, d$i: Int){
+      _foo2(x$1: valium.testcases.tailcalls.Test.type, d$i: Int, d$d: Double){
         _foo2(Test.this, d$i, d$d)
       }
     }

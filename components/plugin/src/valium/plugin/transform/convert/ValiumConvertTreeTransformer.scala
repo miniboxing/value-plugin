@@ -96,12 +96,8 @@ trait ValiumConvertTreeTransformer {
         def explode(p: Symbol) = p.valiumFields.map(x => newValDef(self.explode(p, x), EmptyTree)() setType NoType)
         val vparamss1 = vparamss.map(_.flatMap { case vdef @ ValDef(_, _, Vu(_), _) => explode(vdef.symbol); case vparam => List(vparam) })
         commit("A06", treeCopy.DefDef(tree, mods, name, tparams, vparamss1, tpt, e) setType NoType)
-      case LabelDef(name, params @ Vus(), rhs) =>
-        val params1 = params.zip(tree.symbol.paramss.flatten).map {
-          case (ptree @ Vu(_), psym) => Ident(psym) setType psym.info
-          case (ptree, psym) => ptree
-        }
-        commit("A06", treeCopy.LabelDef(tree, name, params1, rhs))
+      case LabelDef(name, Vus(), rhs) =>
+        commit("A06", treeCopy.LabelDef(tree, name, tree.symbol.paramss.flatten.map(psym => Ident(psym) setType psym.info), rhs))
       case DefDef(mods, name, tparams, vparamss, tpt @ VSu(_), c) =>
         commit("A07", treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt.toValiumField, c) setType NoType)
       case DefDef(mods, name, tparams, vparamss, tpt @ VMu(_), c) =>

@@ -1,0 +1,101 @@
+warning: 'valium' selects 5 phases
+[Now checking: valium-prepare]
+[Now checking: valium-verify]
+[Now checking: valium-inject]
+[Not checkable: valium-coerce]
+[[syntax trees at end of            valium-convert]] // newSource1.scala
+package valium.testcases.multibridge {
+  @valium final class C extends Object {
+    <paramaccessor> private[this] val x1: Int = _;
+    <stable> <accessor> <paramaccessor> def x1(): Int = C.this.x1;
+    <paramaccessor> private[this] val x2: Int = _;
+    <stable> <accessor> <paramaccessor> def x2(): Int = C.this.x2;
+    def <init>(x1: Int, x2: Int): valium.testcases.multibridge.C = {
+      C.super.<init>();
+      ()
+    };
+    override def toString(): String = new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"C(", ", ", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{C.this.x1(), C.this.x2()}))
+  };
+  abstract trait Foo[X] extends Object {
+    def foo(foox: X, fooy$x1: Int, fooy$x2: Int): X
+  };
+  abstract trait Bar[Y] extends Object {
+    def foo(barx$x1: Int, barx$x2: Int, bary: Y): Y
+  };
+  abstract trait IntForC extends Object {
+    def foo(forcx$x1: Int, forcx$x2: Int, forcy$x1: Int, forcy$x2: Int): valium.testcases.multibridge.C
+  };
+  class FooForC extends Object with valium.testcases.multibridge.Foo[valium.testcases.multibridge.C] with valium.testcases.multibridge.Bar[valium.testcases.multibridge.C] with valium.testcases.multibridge.IntForC {
+    def <init>(): valium.testcases.multibridge.FooForC = {
+      FooForC.super.<init>();
+      ()
+    };
+    override def foo(x$x1: Int, x$x2: Int, y$x1: Int, y$x2: Int): valium.testcases.multibridge.C = {
+      scala.this.Predef.println(new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"", ", ", ""})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{new valium.testcases.multibridge.C(x$x1, x$x2), new valium.testcases.multibridge.C(y$x1, y$x2)})));
+      new valium.testcases.multibridge.C(x$x1, x$x2)
+    };
+    @scala.annotation.bridge override def foo(barx$x1: Int, barx$x2: Int, @scala.annotation.bridge bary: valium.testcases.multibridge.C): valium.testcases.multibridge.C = {
+      <synthetic> val arg$x$x1: Int = barx$x1;
+      <synthetic> val arg$x$x2: Int = barx$x2;
+      <synthetic> val $2: valium.testcases.multibridge.C = bary;
+      <synthetic> val $1$x1: Int = $2.x1;
+      <synthetic> val $1$x2: Int = $2.x2;
+      <synthetic> val arg$y$x1: Int = $1$x1;
+      <synthetic> val arg$y$x2: Int = $1$x2;
+      foo(arg$x$x1, arg$x$x2, arg$y$x1, arg$y$x2)
+    };
+    @scala.annotation.bridge override def foo(@scala.annotation.bridge foox: valium.testcases.multibridge.C, fooy$x1: Int, fooy$x2: Int): valium.testcases.multibridge.C = {
+      <synthetic> val $4: valium.testcases.multibridge.C = foox;
+      <synthetic> val $3$x1: Int = $4.x1;
+      <synthetic> val $3$x2: Int = $4.x2;
+      <synthetic> val arg$x$x1: Int = $3$x1;
+      <synthetic> val arg$x$x2: Int = $3$x2;
+      <synthetic> val arg$y$x1: Int = fooy$x1;
+      <synthetic> val arg$y$x2: Int = fooy$x2;
+      foo(arg$x$x1, arg$x$x2, arg$y$x1, arg$y$x2)
+    }
+  };
+  object Test extends Object {
+    def <init>(): valium.testcases.multibridge.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    def main(args: Array[String]): Unit = {
+      <synthetic> val : valium.testcases.multibridge.C = new valium.testcases.multibridge.C(0, 1);
+      <synthetic> val $5$x1: Int = 1;
+      <synthetic> val $5$x2: Int = 2;
+      <synthetic> val arg$fooy$x1: Int = $5$x1;
+      <synthetic> val arg$fooy$x2: Int = $5$x2;
+      (new valium.testcases.multibridge.FooForC(): valium.testcases.multibridge.Foo[valium.testcases.multibridge.C]).foo(, arg$fooy$x1, arg$fooy$x2);
+      <synthetic> val $6$x1: Int = 2;
+      <synthetic> val $6$x2: Int = 3;
+      <synthetic> val arg|x$x1: Int = $6$x1;
+      <synthetic> val arg|x$x2: Int = $6$x2;
+      <synthetic> val : valium.testcases.multibridge.C = new valium.testcases.multibridge.C(3, 4);
+      (new valium.testcases.multibridge.FooForC(): valium.testcases.multibridge.Bar[valium.testcases.multibridge.C]).foo(arg|x$x1, arg|x$x2, );
+      <synthetic> val $7$x1: Int = 4;
+      <synthetic> val $7$x2: Int = 5;
+      <synthetic> val arg$forcx$x1: Int = $7$x1;
+      <synthetic> val arg$forcx$x2: Int = $7$x2;
+      <synthetic> val $8$x1: Int = 5;
+      <synthetic> val $8$x2: Int = 6;
+      <synthetic> val arg$forcy$x1: Int = $8$x1;
+      <synthetic> val arg$forcy$x2: Int = $8$x2;
+      (new valium.testcases.multibridge.FooForC(): valium.testcases.multibridge.IntForC).foo(arg$forcx$x1, arg$forcx$x2, arg$forcy$x1, arg$forcy$x2);
+      {
+        <synthetic> val $9$x1: Int = 6;
+        <synthetic> val $9$x2: Int = 7;
+        <synthetic> val arg$x$x1: Int = $9$x1;
+        <synthetic> val arg$x$x2: Int = $9$x2;
+        <synthetic> val $10$x1: Int = 7;
+        <synthetic> val $10$x2: Int = 8;
+        <synthetic> val arg$y$x1: Int = $10$x1;
+        <synthetic> val arg$y$x2: Int = $10$x2;
+        new valium.testcases.multibridge.FooForC().foo(arg$x$x1, arg$x$x2, arg$y$x1, arg$y$x2);
+        ()
+      }
+    }
+  }
+}
+
+[Now checking: valium-convert]
