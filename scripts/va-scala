@@ -19,7 +19,7 @@ then
   exit 1
 fi
 
-SCALA_VERSION=2.11.0-RC1
+SCALA_VERSION=2.11
 VALIUM_VERSION=0.1-SNAPSHOT
 PLUGIN_JAR=$VALIUM_PATH/components/plugin/target/scala-$SCALA_VERSION/valium-plugin_$SCALA_VERSION-$VALIUM_VERSION.jar
 RUNTIME_JAR=$VALIUM_PATH/components/runtime/target/scala-$SCALA_VERSION/valium-runtime_$SCALA_VERSION-$VALIUM_VERSION.jar
