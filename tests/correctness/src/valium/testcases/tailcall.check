@@ -92,6 +92,7 @@ package valium.testcases.tailcalls {
 
 [Now checking: valium-prepare]
 [Now checking: valium-verify]
+[Now checking: valium-addext]
 [Now checking: valium-inject]
 [[syntax trees at end of             valium-coerce]] // newSource1.scala
 package valium.testcases.tailcalls {
@@ -175,7 +176,6 @@ package valium.testcases.tailcalls {
 }
 
 [Now checking: valium-convert]
-[Now checking: valium-addext]
 [Not checkable: explicitouter]
 [Now checking: erasure]
 [Now checking: posterasure]

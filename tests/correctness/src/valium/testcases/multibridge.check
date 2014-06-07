@@ -1,6 +1,7 @@
-warning: 'valium' selects 5 phases
+warning: 'valium' selects 6 phases
 [Now checking: valium-prepare]
 [Now checking: valium-verify]
+[Now checking: valium-addext]
 [Now checking: valium-inject]
 [Not checkable: valium-coerce]
 [[syntax trees at end of            valium-convert]] // newSource1.scala
