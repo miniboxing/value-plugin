@@ -10,7 +10,7 @@ import difflib._
 import java.io.PrintWriter
 
 /* Taken from: [[https://github.com/nicolasstucki/specialized/commit/f7ee90610d0052cb3607cef138051575db3c2eb9]] */
-class TestSuite {
+class PartestSuite {
 
   private[this] def files(dirs: List[String], ext: String, what: String) = {
     val cwd = sys.props.get("user.dir").getOrElse(".")
@@ -32,7 +32,7 @@ class TestSuite {
   // TODO: This needs to be general, it's currently a mess
   private[this] def pluginCompilerFlag() =
     try {
-      "-Xplugin:" + files(List("..", "..", "components", "plugin", "target", "scala-2.11.0-RC1"), ".jar", "plugin").head.toString
+      "-Xplugin:" + files(List("..", "..", "components", "plugin", "target", "scala-2.11"), ".jar", "plugin").head.toString
     } catch {
       case x: NoSuchElementException =>
         sys.error("The plugin jar is not available! Run \"sbt miniboxing-plugin/package\" to generate it.")
