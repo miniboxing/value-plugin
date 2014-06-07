@@ -7,6 +7,7 @@ import inject._
 import coerce._
 import convert._
 import addext._
+import extmethods._
 
 /** Removes the known problems in the Scala ASTs that cause the plugin
  *  to malfunction. For example: tailcall introduces .asInstancOf-s that
@@ -54,6 +55,22 @@ trait ValiumVerifyPhase extends
       new TreeVerifier(unit).traverse(tree)
       tree
     }
+  }
+}
+
+/** Representation conversion phase `C @value -> fields` */
+trait ValiumExtMethodsPhase extends
+    ValiumPluginComponent
+    with ValiumExtMethodsInfoTransformer
+    with ValiumExtMethodsTreeTransformer { self =>
+  import global._
+  import helper._
+  def valiumExtMethodsPhase: StdPhase
+  def afterExtMethods[T](op: => T): T = global.exitingPhase(valiumExtMethodsPhase)(op)
+  def beforeExtMethods[T](op: => T): T = global.enteringPhase(valiumExtMethodsPhase)(op)
+
+  override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
+    override def transform(tree: Tree) = tree
   }
 }
 

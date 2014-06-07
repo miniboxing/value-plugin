@@ -20,7 +20,7 @@ class Valium(val global: Global) extends Plugin { plugin =>
     ValiumInjectPhaseObj,
     ValiumCoercePhaseObj,
     ValiumConvertPhaseObj,
-    ValiumAddExtensionMethodsPhaseObj
+    ValiumExtMethodsPhaseObj
   )
 
   // LDL adaptation
@@ -66,10 +66,26 @@ class Valium(val global: Global) extends Plugin { plugin =>
     }
   }
 
-  private object ValiumInjectPhaseObj extends ValiumInjectPhase { self =>
+  private object ValiumExtMethodsPhaseObj extends ValiumExtMethodsPhase { self =>
     val global: Valium.this.global.type = Valium.this.global
     val runsAfter = List()
     override val runsRightAfter = Some(ValiumVerifyPhaseObj.phaseName)
+    val phaseName = Valium.this.name + "-addext"
+
+    import global._
+    val helper: plugin.helper.type = plugin.helper
+
+    var valiumExtMethodsPhase : StdPhase = _
+    override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
+      valiumExtMethodsPhase = new Phase(prev)
+      valiumExtMethodsPhase
+    }
+  }
+
+  private object ValiumInjectPhaseObj extends ValiumInjectPhase { self =>
+    val global: Valium.this.global.type = Valium.this.global
+    val runsAfter = List()
+    override val runsRightAfter = Some(ValiumExtMethodsPhaseObj.phaseName)
     val phaseName = Valium.this.name + "-inject"
 
     import global._
@@ -111,22 +127,6 @@ class Valium(val global: Global) extends Plugin { plugin =>
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
       valiumConvertPhase = new Phase(prev)
       valiumConvertPhase
-    }
-  }
-
-  private object ValiumAddExtensionMethodsPhaseObj extends ValiumAddExtensionMethodsPhase { self =>
-    val global: Valium.this.global.type = Valium.this.global
-    val runsAfter = List()
-    override val runsRightAfter = Some(ValiumConvertPhaseObj.phaseName)
-    val phaseName = Valium.this.name + "-addext"
-
-    import global._
-    val helper: plugin.helper.type = plugin.helper
-
-    var valiumAddExtPhase : StdPhase = _
-    override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
-      valiumAddExtPhase = new Phase(prev)
-      valiumAddExtPhase
     }
   }
 }
