@@ -15,6 +15,12 @@ package valium.testcases.singlebridge {
     };
     override def toString(): String = new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"C(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{C.this.x1()}))
   };
+  <synthetic> object C extends Object {
+    def <init>(): valium.testcases.singlebridge.C.type = {
+      C.super.<init>();
+      ()
+    }
+  };
   abstract trait Foo[X] extends Object {
     def foo(foox: X, fooy$x1: Int): X
   };

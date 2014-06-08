@@ -14,12 +14,24 @@ package <empty> {
       ()
     }
   };
+  <synthetic> object VS extends Object {
+    def <init>(): VS.type = {
+      VS.super.<init>();
+      ()
+    }
+  };
   @value final class VM extends Object {
     <paramaccessor> private[this] val x1: Int = _;
     <stable> <accessor> <paramaccessor> def x1(): Int = VM.this.x1;
     <paramaccessor> private[this] val x2: Int = _;
     <stable> <accessor> <paramaccessor> def x2(): Int = VM.this.x2;
     def <init>(x1: Int, x2: Int): VM = {
+      VM.super.<init>();
+      ()
+    }
+  };
+  <synthetic> object VM extends Object {
+    def <init>(): VM.type = {
       VM.super.<init>();
       ()
     }

@@ -20,6 +20,12 @@ package valium.testcases.singlepoly {
     override def hashCode(): Int = Point.this.x().hashCode();
     override def equals(other: Any): Boolean = other.isInstanceOf[valium.testcases.singlepoly.Point[T]]().&&(other.asInstanceOf[valium.testcases.singlepoly.Point[T]]().x().==(Point.this.x()))
   };
+  <synthetic> object Point extends Object {
+    def <init>(): valium.testcases.singlepoly.Point.type = {
+      Point.super.<init>();
+      ()
+    }
+  };
   object Test extends Object {
     def <init>(): valium.testcases.singlepoly.Test.type = {
       Test.super.<init>();

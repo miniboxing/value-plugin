@@ -61,17 +61,12 @@ trait ValiumVerifyPhase extends
 trait ValiumAddExtPhase extends
     ValiumPluginComponent
     with ValiumAddExtInfoTransformer
-    with ValiumAddExtTreeTransformer
-    with ValiumAddExtTreeRewriter{ self =>
+    with ValiumAddExtTreeTransformer { self =>
   import global._
   import helper._
   def valiumExtMethodsPhase: StdPhase
   def afterExtMethods[T](op: => T): T = global.exitingPhase(valiumExtMethodsPhase)(op)
   def beforeExtMethods[T](op: => T): T = global.enteringPhase(valiumExtMethodsPhase)(op)
-
-  override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
-    override def transform(tree: Tree) = tree
-  }
 }
 
 /** Transforms `C` to `C @value` where appropriate (arguments of methods, local and field values, returns types of 1-param valium classes) */

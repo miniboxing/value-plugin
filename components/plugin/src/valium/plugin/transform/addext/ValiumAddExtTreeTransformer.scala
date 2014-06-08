@@ -28,8 +28,12 @@ trait ValiumAddExtTreeTransformer {
 
   import scala.collection.{ mutable, immutable }
 
-  def newTransformer(unit: CompilationUnit): Transformer =
-    new Extender(unit)
+//  def newTransformer(unit: CompilationUnit): Transformer =
+//    new Extender(unit)
+
+  override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
+    override def transform(tree: Tree) = tree
+  }
 
   /** Generate stream of possible names for the extension version of given instance method `imeth`.
    *  If the method is not overloaded, this stream consists of just "extension$imeth".
@@ -126,7 +130,7 @@ trait ValiumAddExtTreeTransformer {
       stpe
   }
 
-  class Extender(unit: CompilationUnit) extends TreeRewriter(unit) {
+  class Extender(unit: CompilationUnit) extends TypingTransformer(unit) {
     private val extensionDefs = mutable.Map[Symbol, mutable.ListBuffer[Tree]]()
 
     def checkNonCyclic(pos: Position, seen: Set[Symbol], clazz: Symbol): Unit =
@@ -186,7 +190,8 @@ trait ValiumAddExtTreeTransformer {
       // good: [B#16151 >: A#16149, A#16149 <: AnyRef#2189]($this#16150: Foo#6965[A#16149])(x#16153: B#16151)List#2457[B#16151]
     }
 
-    def rewrite(tree: Tree): Result =
+    override def transform(tree: Tree): Tree = {
+
       tree match {
         case Template(_, _, _) =>
           if (currentOwner.isValiumClass) {
@@ -199,7 +204,9 @@ trait ValiumAddExtTreeTransformer {
             super.transform(tree)
           } else if (currentOwner.isStaticOwner) {
             super.transform(tree)
-          } else tree
+          } else
+            tree
+
         case DefDef(_, _, tparams, vparamss, _, rhs) if tree.symbol.isValiumMethodWithExtension =>
           val origMeth      = tree.symbol
           val origThis      = currentOwner
@@ -248,18 +255,25 @@ trait ValiumAddExtTreeTransformer {
           val sel     = Select(gen.mkAttributedRef(companion), extensionMeth)
           val targs   = origTpeParams map (_.tpeHK)
           val forward = atOwner(origMeth)(gen.mkMethodCall(sel, targs, This(origThis) :: vparamss.flatten.map(s => Ident(s.symbol))))
+          val typedFw = localTyper.typedPos(rhs.pos)(forward)
 
-          localTyper.typedPos(rhs.pos)(forward)
-        case md @ ModuleDef(_, _, _) =>
-          val extraStats = extensionDefs remove md.symbol match {
+          localTyper.typedPos(rhs.pos)(deriveDefDef(tree)(_ => forward))
+
+        case md @ ClassDef(_, _, _, _) if md.symbol.isModuleClass =>
+
+          val moduleSym = md.symbol.linkedClassOfClass.companionModule
+          val extraStats = extensionDefs remove moduleSym match {
             case Some(defns) => defns.toList map (defn => atOwner(md.symbol)(localTyper.typedPos(md.pos.focus)(defn.duplicate)))
             case _           => Nil
           }
-          if (extraStats.isEmpty) md
-          else deriveModuleDef(md)(tmpl => deriveTemplate(tmpl)(_ ++ extraStats))
+          if (extraStats.isEmpty)
+            md
+          else
+            deriveClassDef(md)(tmpl => deriveTemplate(tmpl)(_ ++ extraStats))
         case _ =>
-          Descend
+          super.transform(tree)
       }
+    }
   }
 
   final class SubstututeRecursion(origMeth: Symbol, extensionMeth: Symbol,

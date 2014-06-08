@@ -15,6 +15,12 @@ package valium.testsuite.coerce2 {
       ()
     }
   };
+  <synthetic> object Point extends Object {
+    def <init>(): valium.testsuite.coerce2.Point.type = {
+      Point.super.<init>();
+      ()
+    }
+  };
   class Points extends Object {
     <paramaccessor> private[this] val p1: valium.testsuite.coerce2.Point @unboxed = _;
     <stable> <accessor> <paramaccessor> def p1(): valium.testsuite.coerce2.Point = scala.this.unbox2box[valium.testsuite.coerce2.Point](Points.this.p1);

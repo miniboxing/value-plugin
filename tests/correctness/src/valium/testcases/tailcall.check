@@ -18,12 +18,24 @@ package valium.testcases.tailcalls {
       ()
     }
   };
+  <synthetic> object C extends Object {
+    def <init>(): valium.testcases.tailcalls.C.type = {
+      C.super.<init>();
+      ()
+    }
+  };
   @value class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
     <paramaccessor> private[this] val d: Double = _;
     <stable> <accessor> <paramaccessor> def d(): Double = D.this.d;
     def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
+      D.super.<init>();
+      ()
+    }
+  };
+  <synthetic> object D extends Object {
+    def <init>(): valium.testcases.tailcalls.D.type = {
       D.super.<init>();
       ()
     }
@@ -60,12 +72,24 @@ package valium.testcases.tailcalls {
       ()
     }
   };
+  <synthetic> object C extends Object {
+    def <init>(): valium.testcases.tailcalls.C.type = {
+      C.super.<init>();
+      ()
+    }
+  };
   @value class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
     <paramaccessor> private[this] val d: Double = _;
     <stable> <accessor> <paramaccessor> def d(): Double = D.this.d;
     def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
+      D.super.<init>();
+      ()
+    }
+  };
+  <synthetic> object D extends Object {
+    def <init>(): valium.testcases.tailcalls.D.type = {
       D.super.<init>();
       ()
     }
@@ -104,12 +128,24 @@ package valium.testcases.tailcalls {
       ()
     }
   };
+  <synthetic> object C extends Object {
+    def <init>(): valium.testcases.tailcalls.C.type = {
+      C.super.<init>();
+      ()
+    }
+  };
   @value final class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
     <paramaccessor> private[this] val d: Double = _;
     <stable> <accessor> <paramaccessor> def d(): Double = D.this.d;
     def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
+      D.super.<init>();
+      ()
+    }
+  };
+  <synthetic> object D extends Object {
+    def <init>(): valium.testcases.tailcalls.D.type = {
       D.super.<init>();
       ()
     }
@@ -145,12 +181,24 @@ package valium.testcases.tailcalls {
       ()
     }
   };
+  <synthetic> object C extends Object {
+    def <init>(): valium.testcases.tailcalls.C.type = {
+      C.super.<init>();
+      ()
+    }
+  };
   @value final class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
     <paramaccessor> private[this] val d: Double = _;
     <stable> <accessor> <paramaccessor> def d(): Double = D.this.d;
     def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
+      D.super.<init>();
+      ()
+    }
+  };
+  <synthetic> object D extends Object {
+    def <init>(): valium.testcases.tailcalls.D.type = {
       D.super.<init>();
       ()
     }

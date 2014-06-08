@@ -17,6 +17,12 @@ package valium.testcases.coerce1 {
       new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{Point.this.x()}))
     }
   };
+  <synthetic> object Point extends Object {
+    def <init>(): valium.testcases.coerce1.Point.type = {
+      Point.super.<init>();
+      ()
+    }
+  };
   object Test extends Object {
     def <init>(): valium.testcases.coerce1.Test.type = {
       Test.super.<init>();

@@ -22,6 +22,12 @@ package valium.testcases.multi {
       new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ", ", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{Point.this.x(), Point.this.y()}))
     }
   };
+  <synthetic> object Point extends Object {
+    def <init>(): valium.testcases.multi.Point.type = {
+      Point.super.<init>();
+      ()
+    }
+  };
   object Test extends Object {
     def <init>(): valium.testcases.multi.Test.type = {
       Test.super.<init>();

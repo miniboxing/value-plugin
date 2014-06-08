@@ -3,7 +3,6 @@ package valium.plugin
 import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.Plugin
 import scala.tools.nsc.plugins.PluginComponent
-
 import transform._
 import metadata._
 
@@ -129,4 +128,25 @@ class Valium(val global: Global) extends Plugin { plugin =>
       valiumConvertPhase
     }
   }
+
+  object ValiumPlugin extends global.analyzer.AnalyzerPlugin {
+    import global._
+    import analyzer.Typer
+
+    override def pluginsTypeSig(tpe: Type, typer: Typer, defTree: Tree, pt: Type): Type = {
+      defTree match {
+        case cdef @ ClassDef(Modifiers(_, _, List(Apply(Select(New(Ident(TypeName("value"))), _), _))), _, _, _) =>
+          val clazz = defTree.symbol
+          val annotations = defTree.symbol.annotations
+          annotations.map(_.completeInfo)
+          val containsValium = annotations.exists(_.tpe.typeSymbol == plugin.helper.ValiumClass)
+          if (containsValium)
+            typer.namer.enclosingNamerWithScope(clazz.owner.rawInfo.decls).ensureCompanionObject(cdef)
+        case _ =>
+      }
+      tpe
+    }
+  }
+
+  global.analyzer.addAnalyzerPlugin(ValiumPlugin)
 }

@@ -24,6 +24,12 @@ package valium.testcases.multipoly {
     override def hashCode(): Int = Point.this.x().hashCode();
     override def equals(other: Any): Boolean = other.isInstanceOf[valium.testcases.multipoly.Point[T]]().&&(other.asInstanceOf[valium.testcases.multipoly.Point[T]]().x().==(Point.this.x())).&&(other.asInstanceOf[valium.testcases.multipoly.Point[T]]().y().==(Point.this.y()))
   };
+  <synthetic> object Point extends Object {
+    def <init>(): valium.testcases.multipoly.Point.type = {
+      Point.super.<init>();
+      ()
+    }
+  };
   object Test extends Object {
     def <init>(): valium.testcases.multipoly.Test.type = {
       Test.super.<init>();
