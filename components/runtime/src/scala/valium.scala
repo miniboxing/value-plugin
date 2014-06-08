@@ -1,4 +1,4 @@
 package scala
 
 /** Marks a class for transformation */
-class valium extends annotation.StaticAnnotation
+class value extends annotation.StaticAnnotation

@@ -1,6 +1,6 @@
 package valium.testcases.coerce1
 
-@valium
+@value
 class Point(val x: Double) {
   override def toString: String = {
     val p1 = this

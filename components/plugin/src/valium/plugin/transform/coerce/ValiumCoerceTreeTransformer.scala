@@ -92,7 +92,6 @@ trait ValiumCoerceTreeTransformer {
             super.typed(Apply(gen.mkAttributedRef(box2unbox), List(tree)), mode, pt)
 
           case Select(qual, meth) if qual.isTerm && tree.symbol.isMethod =>
-            
             val qual2 = super.typed(qual.clearType(), mode | QUALmode, WildcardType)
             if (qual2.isUnboxedValiumRef) {
               val tpe2 = if (qual2.tpe.hasAnnotation(UnboxedClass)) qual2.tpe else qual2.tpe.widen

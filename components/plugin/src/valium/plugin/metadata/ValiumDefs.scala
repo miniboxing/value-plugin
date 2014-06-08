@@ -8,7 +8,7 @@ trait ValiumDefs {
   import global._
   import definitions._
 
-  lazy val ValiumClass = rootMirror.getRequiredClass("scala.valium")
+  lazy val ValiumClass = rootMirror.getRequiredClass("scala.value")
 
   /**
    * This class should only appear in the tree starting from the `valium-inject` phase

@@ -1,7 +1,7 @@
 package valium.junit.single
 import org.junit.Test
 
-@valium
+@value
 class Point(val x: Double) {
   override def toString: String = {
     val p1 = this

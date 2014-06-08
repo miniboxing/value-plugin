@@ -1,6 +1,6 @@
 package valium.testcases.multipoly
 
-@valium
+@value
 class Point[T](val x: T, val y: T) {
   override def toString: String = {
     val p1 = this

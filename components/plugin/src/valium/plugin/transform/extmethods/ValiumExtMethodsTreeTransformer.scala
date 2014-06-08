@@ -27,7 +27,7 @@ trait ValiumExtMethodsTreeTransformer {
    */
   abstract class ExtensionMethods extends Transform with TypingTransformers {
 
-    import global._ // the global environment
+    import global._      // the global environment
     import definitions._ // standard classes and methods
 
     /** the following two members override abstract members in Transform */

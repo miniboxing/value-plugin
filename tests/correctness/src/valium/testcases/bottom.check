@@ -6,7 +6,7 @@ warning: 'valium' selects 6 phases
 [Not checkable: valium-coerce]
 [[syntax trees at end of            valium-convert]] // newSource1.scala
 package <empty> {
-  @valium final class VS extends Object {
+  @value final class VS extends Object {
     <paramaccessor> private[this] val x1: Int = _;
     <stable> <accessor> <paramaccessor> def x1(): Int = VS.this.x1;
     def <init>(x1: Int): VS = {
@@ -14,7 +14,7 @@ package <empty> {
       ()
     }
   };
-  @valium final class VM extends Object {
+  @value final class VM extends Object {
     <paramaccessor> private[this] val x1: Int = _;
     <stable> <accessor> <paramaccessor> def x1(): Int = VM.this.x1;
     <paramaccessor> private[this] val x2: Int = _;

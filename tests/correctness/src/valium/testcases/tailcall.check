@@ -10,7 +10,7 @@
 [Now checking: uncurry]
 [[syntax trees at end of                 tailcalls]] // newSource1.scala
 package valium.testcases.tailcalls {
-  @valium class C extends Object {
+  @value class C extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = C.this.i;
     def <init>(i: Int): valium.testcases.tailcalls.C = {
@@ -18,7 +18,7 @@ package valium.testcases.tailcalls {
       ()
     }
   };
-  @valium class D extends Object {
+  @value class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
     <paramaccessor> private[this] val d: Double = _;
@@ -52,7 +52,7 @@ package valium.testcases.tailcalls {
 [Not checkable: specialize]
 [[syntax trees at end of            valium-prepare]] // newSource1.scala
 package valium.testcases.tailcalls {
-  @valium class C extends Object {
+  @value class C extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = C.this.i;
     def <init>(i: Int): valium.testcases.tailcalls.C = {
@@ -60,7 +60,7 @@ package valium.testcases.tailcalls {
       ()
     }
   };
-  @valium class D extends Object {
+  @value class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
     <paramaccessor> private[this] val d: Double = _;
@@ -96,7 +96,7 @@ package valium.testcases.tailcalls {
 [Now checking: valium-inject]
 [[syntax trees at end of             valium-coerce]] // newSource1.scala
 package valium.testcases.tailcalls {
-  @valium final class C extends Object {
+  @value final class C extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = C.this.i;
     def <init>(i: Int): valium.testcases.tailcalls.C = {
@@ -104,7 +104,7 @@ package valium.testcases.tailcalls {
       ()
     }
   };
-  @valium final class D extends Object {
+  @value final class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
     <paramaccessor> private[this] val d: Double = _;
@@ -137,7 +137,7 @@ package valium.testcases.tailcalls {
 [Not checkable: valium-coerce]
 [[syntax trees at end of            valium-convert]] // newSource1.scala
 package valium.testcases.tailcalls {
-  @valium final class C extends Object {
+  @value final class C extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = C.this.i;
     def <init>(i: Int): valium.testcases.tailcalls.C = {
@@ -145,7 +145,7 @@ package valium.testcases.tailcalls {
       ()
     }
   };
-  @valium final class D extends Object {
+  @value final class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
     <stable> <accessor> <paramaccessor> def i(): Int = D.this.i;
     <paramaccessor> private[this] val d: Double = _;

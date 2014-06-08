@@ -1,6 +1,6 @@
 package valium.testcases.singlepoly
 
-@valium
+@value
 class Point[T](val x: T) {
   override def toString: String = {
     val p1 = this

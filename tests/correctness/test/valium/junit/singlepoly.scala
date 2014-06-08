@@ -1,7 +1,7 @@
 package valium.junit.singlepoly
 import org.junit.Test
 
-@valium
+@value
 class Point[T](val x: T) {
   override def toString: String = {
     val p1 = this

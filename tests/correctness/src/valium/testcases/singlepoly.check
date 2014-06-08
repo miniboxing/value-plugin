@@ -6,7 +6,7 @@ warning: 'valium' selects 6 phases
 [Not checkable: valium-coerce]
 [[syntax trees at end of            valium-convert]] // newSource1.scala
 package valium.testcases.singlepoly {
-  @valium final class Point[T] extends Object {
+  @value final class Point[T] extends Object {
     <paramaccessor> private[this] val x: T = _;
     <stable> <accessor> <paramaccessor> def x(): T = Point.this.x;
     def <init>(x: T): valium.testcases.singlepoly.Point[T] = {

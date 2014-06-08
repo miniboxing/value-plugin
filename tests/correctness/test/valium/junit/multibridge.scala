@@ -1,7 +1,7 @@
 package valium.junit.multibridge
 import org.junit.Test
 
-@valium class C(val x1: Int, val x2: Int) {
+@value class C(val x1: Int, val x2: Int) {
   override def toString = s"C($x1, $x2)"
 }
 

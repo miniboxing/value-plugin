@@ -1,6 +1,6 @@
 package valium.testcases.singlebridge
 
-@valium class C(val x1: Int) {
+@value class C(val x1: Int) {
   override def toString = s"C($x1)"
 }
 

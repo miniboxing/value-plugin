@@ -1,6 +1,6 @@
 package valium.testcases.multi
 
-@valium
+@value
 class Point(val x: Double, val y: Double) {
   override def toString: String = {
     val p1 = this

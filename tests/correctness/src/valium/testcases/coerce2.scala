@@ -1,6 +1,6 @@
 package valium.testsuite.coerce2
 
-@valium
+@value
 class Point(val x: Double, val y: Double)
 
 class Points(val p1: Point, val p2: Point)
