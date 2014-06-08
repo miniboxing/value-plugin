@@ -7,7 +7,6 @@ import inject._
 import coerce._
 import convert._
 import addext._
-import extmethods._
 
 /** Removes the known problems in the Scala ASTs that cause the plugin
  *  to malfunction. For example: tailcall introduces .asInstancOf-s that
@@ -58,11 +57,11 @@ trait ValiumVerifyPhase extends
   }
 }
 
-/** Representation conversion phase `C @value -> fields` */
-trait ValiumExtMethodsPhase extends
+/** Extension methods extractor */
+trait ValiumAddExtPhase extends
     ValiumPluginComponent
-    with ValiumExtMethodsInfoTransformer
-    with ValiumExtMethodsTreeTransformer { self =>
+    with ValiumAddExtInfoTransformer
+    with ValiumAddExtTreeTransformer { self =>
   import global._
   import helper._
   def valiumExtMethodsPhase: StdPhase
@@ -123,26 +122,6 @@ trait ValiumConvertPhase extends
       tree1.foreach(tree => if (tree.tpe == null && !tree.toString.contains("apply$mcV$sp")) unit.error(tree.pos, s"[valium-convert] tree not typed: $tree"))
       def isDisallowed(tree: Tree) = afterConvert(tree.symbol == box2unbox || tree.symbol == unbox2box || tree.symbol.isUnboxedValiumRef || tree.isUnboxedValiumRef)
       tree1.collect{ case sub if isDisallowed(sub) => unit.error(sub.pos, s"unexpected leftovers after convert: $sub (${sub.symbol.isUnboxedValiumRef}, ${sub.isUnboxedValiumRef})") }
-      tree1
-    }
-  }
-}
-
-/** Extension methods extractor */
-trait ValiumAddExtensionMethodsPhase extends
-    ValiumPluginComponent
-    with ValiumAddExtInfoTransformer
-    with ValiumAddExtTreeTransformer { self =>
-  import global._
-  def valiumAddExtPhase: StdPhase
-  def afterAddExt[T](op: => T): T = global.exitingPhase(valiumAddExtPhase)(op)
-  def beforeAddExt[T](op: => T): T = global.enteringPhase(valiumAddExtPhase)(op)
-
-  override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
-    override def transform(tree: Tree) = {
-      // execute the tree transformer after all symbols have been processed
-      val tree1 = afterAddExt(new TreeTransformer(unit).transform(tree))
-      tree1.foreach(tree => if (tree.tpe == null && !tree.toString.contains("apply$mcV$sp")) unit.error(tree.pos, s"[valium-addext] tree not typed: $tree"))
       tree1
     }
   }

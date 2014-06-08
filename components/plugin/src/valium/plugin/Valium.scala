@@ -17,10 +17,10 @@ class Valium(val global: Global) extends Plugin { plugin =>
   val components = List[PluginComponent](
     ValiumPreparePhaseObj,
     ValiumVerifyPhaseObj,
+    ValiumAddExtPhaseObj,
     ValiumInjectPhaseObj,
     ValiumCoercePhaseObj,
-    ValiumConvertPhaseObj,
-    ValiumExtMethodsPhaseObj
+    ValiumConvertPhaseObj
   )
 
   // LDL adaptation
@@ -66,7 +66,7 @@ class Valium(val global: Global) extends Plugin { plugin =>
     }
   }
 
-  private object ValiumExtMethodsPhaseObj extends ValiumExtMethodsPhase { self =>
+  private object ValiumAddExtPhaseObj extends ValiumAddExtPhase { self =>
     val global: Valium.this.global.type = Valium.this.global
     val runsAfter = List()
     override val runsRightAfter = Some(ValiumVerifyPhaseObj.phaseName)
@@ -85,7 +85,7 @@ class Valium(val global: Global) extends Plugin { plugin =>
   private object ValiumInjectPhaseObj extends ValiumInjectPhase { self =>
     val global: Valium.this.global.type = Valium.this.global
     val runsAfter = List()
-    override val runsRightAfter = Some(ValiumExtMethodsPhaseObj.phaseName)
+    override val runsRightAfter = Some(ValiumAddExtPhaseObj.phaseName)
     val phaseName = Valium.this.name + "-inject"
 
     import global._

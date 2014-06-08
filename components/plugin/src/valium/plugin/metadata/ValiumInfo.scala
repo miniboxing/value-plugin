@@ -33,6 +33,7 @@ trait ValiumInfo {
     def explodedSymbols = sym.attachments.get[ExplodedSymbolsAttachment].map(_.syms).getOrElse(Map())
     def isValiumBridge = sym != null && sym.hasAnnotation(BridgeClass)
     def markValiumBridge = { if (sym != null) sym.addAnnotation(AnnotationInfo.marker(BridgeClass.tpe)); sym }
+    def isValiumMethodWithExtension = sym.isMethod && sym.owner.isValiumClass && !sym.isParamAccessor && !sym.isConstructor && !sym.hasFlag(SUPERACCESSOR) && !sym.isMacro
   }
 
   case class ExplodedSymbolsAttachment(syms: Map[Name, Symbol])

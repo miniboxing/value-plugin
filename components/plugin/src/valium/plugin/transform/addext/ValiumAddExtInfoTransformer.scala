@@ -5,7 +5,7 @@ package addext
 import scala.tools.nsc.transform.InfoTransform
 
 trait ValiumAddExtInfoTransformer extends InfoTransform {
-  self: ValiumAddExtensionMethodsPhase =>
+  self: ValiumAddExtPhase =>
 
   import global._
   import definitions._
