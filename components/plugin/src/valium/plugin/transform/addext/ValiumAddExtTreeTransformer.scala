@@ -28,8 +28,8 @@ trait ValiumAddExtTreeTransformer {
 
   import scala.collection.{ mutable, immutable }
 
-//  def newTransformer(unit: CompilationUnit): Transformer =
-//    new Extender(unit)
+  def newTransformer(unit: CompilationUnit): Transformer =
+    new Extender(unit)
 
   /** Generate stream of possible names for the extension version of given instance method `imeth`.
    *  If the method is not overloaded, this stream consists of just "extension$imeth".
@@ -126,7 +126,7 @@ trait ValiumAddExtTreeTransformer {
       stpe
   }
 
-  class Extender(unit: CompilationUnit) extends TypingTransformer(unit) {
+  class Extender(unit: CompilationUnit) extends TreeRewriter(unit) {
     private val extensionDefs = mutable.Map[Symbol, mutable.ListBuffer[Tree]]()
 
     def checkNonCyclic(pos: Position, seen: Set[Symbol], clazz: Symbol): Unit =
@@ -186,7 +186,7 @@ trait ValiumAddExtTreeTransformer {
       // good: [B#16151 >: A#16149, A#16149 <: AnyRef#2189]($this#16150: Foo#6965[A#16149])(x#16153: B#16151)List#2457[B#16151]
     }
 
-    override def transform(tree: Tree): Tree = {
+    def rewrite(tree: Tree): Result =
       tree match {
         case Template(_, _, _) =>
           if (currentOwner.isValiumClass) {
@@ -250,13 +250,6 @@ trait ValiumAddExtTreeTransformer {
           val forward = atOwner(origMeth)(gen.mkMethodCall(sel, targs, This(origThis) :: vparamss.flatten.map(s => Ident(s.symbol))))
 
           localTyper.typedPos(rhs.pos)(forward)
-        case _ =>
-          super.transform(tree)
-      }
-    }
-
-    override def transformStats(stats: List[Tree], exprOwner: Symbol): List[Tree] =
-      super.transformStats(stats, exprOwner) map {
         case md @ ModuleDef(_, _, _) =>
           val extraStats = extensionDefs remove md.symbol match {
             case Some(defns) => defns.toList map (defn => atOwner(md.symbol)(localTyper.typedPos(md.pos.focus)(defn.duplicate)))
@@ -264,8 +257,8 @@ trait ValiumAddExtTreeTransformer {
           }
           if (extraStats.isEmpty) md
           else deriveModuleDef(md)(tmpl => deriveTemplate(tmpl)(_ ++ extraStats))
-        case stat =>
-          stat
+        case _ =>
+          Descend
       }
   }
 

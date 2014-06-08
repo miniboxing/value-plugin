@@ -61,7 +61,8 @@ trait ValiumVerifyPhase extends
 trait ValiumAddExtPhase extends
     ValiumPluginComponent
     with ValiumAddExtInfoTransformer
-    with ValiumAddExtTreeTransformer { self =>
+    with ValiumAddExtTreeTransformer
+    with ValiumAddExtTreeRewriter{ self =>
   import global._
   import helper._
   def valiumExtMethodsPhase: StdPhase
