@@ -13,13 +13,14 @@ package valium.testcases.singlebridge {
       C.super.<init>();
       ()
     };
-    override def toString(): String = new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"C(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{C.this.x1()}))
+    override def toString(): String = singlebridge.this.C.toString$xtension(C.this.x1())
   };
   <synthetic> object C extends Object {
     def <init>(): valium.testcases.singlebridge.C.type = {
       C.super.<init>();
       ()
-    }
+    };
+    final def toString$xtension($this$x1: Int): String = new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"C(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x1}))
   };
   abstract trait Foo[X] extends Object {
     def foo(foox: X, fooy$x1: Int): X

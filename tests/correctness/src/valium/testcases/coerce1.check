@@ -12,15 +12,16 @@ package valium.testcases.coerce1 {
       Point.super.<init>();
       ()
     };
-    override def toString(): String = {
-      val p1: valium.testcases.coerce1.Point @unboxed = scala.this.box2unbox[valium.testcases.coerce1.Point](this);
-      new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{Point.this.x()}))
-    }
+    override def toString(): String = coerce1.this.Point.toString$xtension(scala.this.box2unbox[valium.testcases.coerce1.Point](Point.this))
   };
   <synthetic> object Point extends Object {
     def <init>(): valium.testcases.coerce1.Point.type = {
       Point.super.<init>();
       ()
+    };
+    final def toString$xtension($this: valium.testcases.coerce1.Point @unboxed): String = {
+      val p1: valium.testcases.coerce1.Point @unboxed = $this;
+      new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{scala.this.unbox2box[valium.testcases.coerce1.Point]($this).x()}))
     }
   };
   object Test extends Object {

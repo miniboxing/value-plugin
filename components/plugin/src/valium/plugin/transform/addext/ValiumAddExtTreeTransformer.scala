@@ -28,12 +28,12 @@ trait ValiumAddExtTreeTransformer {
 
   import scala.collection.{ mutable, immutable }
 
-//  def newTransformer(unit: CompilationUnit): Transformer =
-//    new Extender(unit)
+  def newTransformer(unit: CompilationUnit): Transformer =
+    new Extender(unit)
 
-  override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
-    override def transform(tree: Tree) = tree
-  }
+//  override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
+//    override def transform(tree: Tree) = tree
+//  }
 
   /** Generate stream of possible names for the extension version of given instance method `imeth`.
    *  If the method is not overloaded, this stream consists of just "extension$imeth".
@@ -60,11 +60,11 @@ trait ValiumAddExtTreeTransformer {
       case OverloadedType(_, alts) =>
         val index = alts indexOf imeth
         assert(index >= 0, alts+" does not contain "+imeth)
-        def altName(index: Int) = newTermName(imeth.name+"$extension"+index)
+        def altName(index: Int) = newTermName(imeth.name+"$xtension"+index)
         altName(index) #:: ((0 until alts.length).toStream filter (index != _) map altName)
       case tpe =>
         assert(tpe != NoType, imeth.name+" not found in "+imeth.owner+"'s decls: "+imeth.owner.info.decls)
-        Stream(newTermName(imeth.name+"$extension"))
+        Stream(newTermName(imeth.name+"$xtension"))
     }
   }
 
@@ -194,6 +194,7 @@ trait ValiumAddExtTreeTransformer {
 
       tree match {
         case Template(_, _, _) =>
+
           if (currentOwner.isValiumClass) {
             checkNonCyclic(currentOwner.pos, Set(), currentOwner)
             extensionDefs(currentOwner.companionModule) = new mutable.ListBuffer[Tree]
@@ -259,17 +260,17 @@ trait ValiumAddExtTreeTransformer {
 
           localTyper.typedPos(rhs.pos)(deriveDefDef(tree)(_ => forward))
 
-        case md @ ClassDef(_, _, _, _) if md.symbol.isModuleClass =>
-
+        case md @ ClassDef(_, _, _, _) if md.symbol.isModuleClass && md.symbol.companionClass.isValiumClass =>
           val moduleSym = md.symbol.linkedClassOfClass.companionModule
           val extraStats = extensionDefs remove moduleSym match {
             case Some(defns) => defns.toList map (defn => atOwner(md.symbol)(localTyper.typedPos(md.pos.focus)(defn.duplicate)))
             case _           => Nil
           }
           if (extraStats.isEmpty)
-            md
+            super.transform(md)
           else
-            deriveClassDef(md)(tmpl => deriveTemplate(tmpl)(_ ++ extraStats))
+            localTyper.typed(deriveClassDef(md)(tmpl => deriveTemplate(tmpl)(_ ++ extraStats)))
+
         case _ =>
           super.transform(tree)
       }

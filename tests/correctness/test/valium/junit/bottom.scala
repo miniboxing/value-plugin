@@ -1,8 +1,8 @@
 package valium.junit.bottom
 import org.junit.Test
 
-@value case class VS(val x1: Int)
-@value case class VM(val x1: Int, val x2: Int)
+@value class VS(val x1: Int)
+@value class VM(val x1: Int, val x2: Int)
 
 class Bottom {
   @Test(expected = classOf[NotImplementedError]) def nothingSingle(): Unit = {
@@ -12,7 +12,7 @@ class Bottom {
 
   @Test def nullSingle(): Unit = {
     def test: VS = null
-    assert(test == VS(0))
+    assert(test.x1 == 0)
   }
 
   @Test(expected = classOf[NotImplementedError])  def nothingMulti(): Unit = {

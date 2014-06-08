@@ -13,18 +13,21 @@ package valium.testcases.singlepoly {
       Point.super.<init>();
       ()
     };
-    override def toString(): String = {
-      <synthetic> val p1$x: T = this.x();
-      new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{Point.this.x()}))
-    };
-    override def hashCode(): Int = Point.this.x().hashCode();
-    override def equals(other: Any): Boolean = other.isInstanceOf[valium.testcases.singlepoly.Point[T]]().&&(other.asInstanceOf[valium.testcases.singlepoly.Point[T]]().x().==(Point.this.x()))
+    override def toString(): String = singlepoly.this.Point.toString$xtension[T](Point.this.x());
+    override def hashCode(): Int = singlepoly.this.Point.hashCode$xtension[T](Point.this.x());
+    override def equals(other: Any): Boolean = singlepoly.this.Point.equals$xtension[T](Point.this.x(), other)
   };
   <synthetic> object Point extends Object {
     def <init>(): valium.testcases.singlepoly.Point.type = {
       Point.super.<init>();
       ()
-    }
+    };
+    final def toString$xtension[T]($this$x: T): String = {
+      <synthetic> val p1$x: T = $this$x;
+      new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x}))
+    };
+    final def hashCode$xtension[T]($this$x: T): Int = $this$x.hashCode();
+    final def equals$xtension[T]($this$x: T, other: Any): Boolean = other.isInstanceOf[valium.testcases.singlepoly.Point[T]]().&&(other.asInstanceOf[valium.testcases.singlepoly.Point[T]]().x().==($this$x))
   };
   object Test extends Object {
     def <init>(): valium.testcases.singlepoly.Test.type = {

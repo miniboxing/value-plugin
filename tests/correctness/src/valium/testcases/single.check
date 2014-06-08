@@ -13,15 +13,16 @@ package valium.testcases.single {
       Point.super.<init>();
       ()
     };
-    override def toString(): String = {
-      <synthetic> val p1$x: Double = this.x();
-      new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{Point.this.x()}))
-    }
+    override def toString(): String = single.this.Point.toString$xtension(Point.this.x())
   };
   <synthetic> object Point extends Object {
     def <init>(): valium.testcases.single.Point.type = {
       Point.super.<init>();
       ()
+    };
+    final def toString$xtension($this$x: Double): String = {
+      <synthetic> val p1$x: Double = $this$x;
+      new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x}))
     }
   };
   object Test extends Object {
