@@ -61,7 +61,9 @@ trait ValiumVerifyPhase extends
 trait ValiumAddExtPhase extends
     ValiumPluginComponent
     with ValiumAddExtInfoTransformer
-    with ValiumAddExtTreeTransformer { self =>
+    with ValiumAddExtTreeTransformer
+//    with ValiumAddExtSynthetizeMethods
+    with scala.tools.nsc.ast.TreeDSL { self =>
   import global._
   import helper._
   def valiumExtMethodsPhase: StdPhase

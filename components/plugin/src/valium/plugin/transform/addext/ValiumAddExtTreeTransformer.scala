@@ -193,7 +193,7 @@ trait ValiumAddExtTreeTransformer {
     override def transform(tree: Tree): Tree = {
 
       tree match {
-        case Template(_, _, _) =>
+        case Template(_, _, stats) =>
 
           if (currentOwner.isValiumClass) {
             checkNonCyclic(currentOwner.pos, Set(), currentOwner)
@@ -202,7 +202,46 @@ trait ValiumAddExtTreeTransformer {
             // SI-7859 make param accessors accessible so the erasure can generate unbox operations.
             val paramAccessors = currentOwner.info.decls.filter(sym => sym.isParamAccessor && sym.isMethod)
             paramAccessors.foreach(_.makeNotPrivate(currentOwner))
-            super.transform(tree)
+
+            // TODO:
+            //  1) For case classes, remove the default hashCode and equals
+            //  2) For value classes, add synthesized default hashCode and equals
+
+            val sym = currentOwner
+
+            def isEquals(sym: Symbol) =
+              sym.allOverriddenSymbols.contains(Any_equals)
+            def isHashCode(sym: Symbol) =
+              sym.allOverriddenSymbols.contains(Any_hashCode)
+
+            var addSyntheticEquals = true
+            var addSyntheticHashCode = true
+
+            val nstats1 =
+              stats.flatMap {
+                case stat if stat.hasSymbol && isEquals(stat.symbol) =>
+                  addSyntheticEquals = false
+                  if (stat.symbol.isSynthetic) {
+//                    println("dropping: " + stat)
+
+                    Nil // TODO: Update
+                  } else
+                    List(stat)
+                case stat if stat.hasSymbol && isHashCode(stat.symbol) =>
+                  addSyntheticHashCode = false
+                  if (stat.symbol.isSynthetic) {
+//                    println("dropping: " + stat)
+
+                    Nil // TODO: Update
+                  } else
+                    List(stat)
+                case stat =>
+                  List(stat)
+              }
+
+            val nstats2 = nstats1 ++ Nil // TODO: Synthesize
+
+            super.transform(localTyper.typed(deriveTemplate(tree)(_ => nstats2)))
           } else if (currentOwner.isStaticOwner) {
             super.transform(tree)
           } else

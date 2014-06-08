@@ -1,0 +1,7 @@
+warning: 'valium' selects 6 phases
+[Now checking: valium-prepare]
+[Now checking: valium-verify]
+[Now checking: valium-addext]
+[Now checking: valium-inject]
+[Not checkable: valium-coerce]
+[Now checking: valium-convert]
