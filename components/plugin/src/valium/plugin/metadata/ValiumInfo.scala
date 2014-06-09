@@ -25,7 +25,7 @@ trait ValiumInfo {
   implicit class RichSymbol(sym: Symbol) {
     def isValiumClass = sym != null && sym.hasAnnotation(ValiumClass)
     def valiumFields = if (sym.isValiumClass || sym.isBoxedValiumRef || sym.isUnboxedValiumRef) sym.info.members.sorted.filter(sym => sym.isMethod && sym.isParamAccessor && sym.isGetter).toList else Nil
-    def valiumField = valiumFields match { case f :: Nil => f; case _ => throw new Exception(sym.toString) }
+    def valiumField = valiumFields match { case f :: Nil => f; case _ => throw new Exception(sym.toString + "  " + sym.associatedFile + "  " + valiumFields) }
     def isBoxedValiumRef = sym != null && sym.info.isBoxedValiumRef
     def isUnboxedValiumRef = sym != null && sym.info.isUnboxedValiumRef
     def isInjected = sym == box2unbox || sym == unbox2box
@@ -247,6 +247,32 @@ trait ValiumInfo {
       case Apply(TypeApplyOp(tree, Any_asInstanceOf, tpe :: Nil), Nil) => Some((tree, TypeTree(tpe)))
       case _ => None
     }
+  }
+
+  object MaybeTypeApply {
+    def unapply(tree: Tree): Option[(Tree, List[Type])] = tree match {
+      case TypeApply(fun, targs) => Some((fun, targs.map(_.tpe)))
+      case _ => Some((tree, Nil))
+    }
+
+    def apply(tree: Tree, targs: List[Type]): Tree =
+      if (targs.isEmpty)
+        tree
+        else
+          TypeApply(tree, targs.map(TypeTree(_)))
+  }
+
+  object MaybeApply {
+    def unapply(tree: Tree): Option[(Tree, List[Tree])] = tree match {
+      case Apply(fun, args) => Some((fun, args))
+      case _ => Some((tree, Nil))
+    }
+
+    def apply(tree: Tree, args: List[Tree]): Tree =
+      if (args.isEmpty)
+        tree
+        else
+          Apply(tree, args)
   }
 
   def box2unbox(tree: Tree): Tree = atPos(tree.pos)(Apply(gen.mkAttributedRef(box2unbox), List(tree)) setType tree.tpe.toUnboxedValiumRef)

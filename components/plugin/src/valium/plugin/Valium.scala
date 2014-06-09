@@ -74,10 +74,10 @@ class Valium(val global: Global) extends Plugin { plugin =>
     import global._
     val helper: plugin.helper.type = plugin.helper
 
-    var valiumExtMethodsPhase : StdPhase = _
+    var valiumAddExtPhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
-      valiumExtMethodsPhase = new Phase(prev)
-      valiumExtMethodsPhase
+      valiumAddExtPhase = new Phase(prev)
+      valiumAddExtPhase
     }
   }
 
@@ -97,7 +97,12 @@ class Valium(val global: Global) extends Plugin { plugin =>
     }
   }
 
-  private object ValiumCoercePhaseObj extends ValiumCoercePhase { self =>
+  private object ValiumCoercePhaseObj extends {
+
+    val valiumAddExtPhase = ValiumAddExtPhaseObj
+
+  } with ValiumCoercePhase { self =>
+
     val global: Valium.this.global.type = Valium.this.global
     val runsAfter = List()
     override val runsRightAfter = Some(ValiumInjectPhaseObj.phaseName)
@@ -106,7 +111,8 @@ class Valium(val global: Global) extends Plugin { plugin =>
     import global._
     val helper: plugin.helper.type = plugin.helper
 
-    var valiumCoercePhase : StdPhase = _
+    var valiumCoercePhase: StdPhase = _
+
     def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
       valiumCoercePhase = new CoercePhase(prev)
       valiumCoercePhase

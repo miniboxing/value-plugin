@@ -66,9 +66,9 @@ trait ValiumAddExtPhase extends
     with scala.tools.nsc.ast.TreeDSL { self =>
   import global._
   import helper._
-  def valiumExtMethodsPhase: StdPhase
-  def afterExtMethods[T](op: => T): T = global.exitingPhase(valiumExtMethodsPhase)(op)
-  def beforeExtMethods[T](op: => T): T = global.enteringPhase(valiumExtMethodsPhase)(op)
+  def valiumAddExtPhase: StdPhase
+  def afterAddExt[T](op: => T): T = global.exitingPhase(valiumAddExtPhase)(op)
+  def beforeAddExt[T](op: => T): T = global.enteringPhase(valiumAddExtPhase)(op)
 }
 
 /** Transforms `C` to `C @value` where appropriate (arguments of methods, local and field values, returns types of 1-param valium classes) */
@@ -98,6 +98,7 @@ trait ValiumCoercePhase extends
     with ValiumAnnotationCheckers { self =>
   import global._
   def valiumCoercePhase: StdPhase
+  def valiumAddExtPhase: ValiumAddExtPhase { val global: ValiumCoercePhase.this.global.type }
   def afterCoerce[T](op: => T): T = global.exitingPhase(valiumCoercePhase)(op)
   def beforeCoerce[T](op: => T): T = global.enteringPhase(valiumCoercePhase)(op)
 }

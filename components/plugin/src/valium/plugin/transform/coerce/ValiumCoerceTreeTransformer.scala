@@ -91,13 +91,38 @@ trait ValiumCoerceTreeTransformer {
             val tree2 = super.typed(tree.clearType(), mode, WildcardType)
             super.typed(Apply(gen.mkAttributedRef(box2unbox), List(tree)), mode, pt)
 
-          case Select(qual, meth) if qual.isTerm && tree.symbol.isMethod =>
+
+          case MaybeApply(MaybeTypeApply(sel @ Select(qual, meth), targs), args) if qual.isTerm && sel.symbol.isMethod =>
+
+
             val qual2 = super.typed(qual.clearType(), mode | QUALmode, WildcardType)
+//            println()
+//            println(tree + "  " + qual2 + "  " + qual2.tpe)
+
             if (qual2.isUnboxedValiumRef) {
-              val tpe2 = if (qual2.tpe.hasAnnotation(UnboxedClass)) qual2.tpe else qual2.tpe.widen
-              val tpe3 = tpe2.toBoxedValiumRef
-              val qual3 = super.typed(qual.clearType(), mode, tpe3)
-              super.typed(Select(qual3, meth) setSymbol tree.symbol, mode, pt)
+//            println("inside " + context.owner)
+
+//              println(sel.symbol + "  " + sel.symbol.owner + "  " + sel.symbol.isValiumMethodWithExtension)
+              // if we have an extenstion method, use that one
+              if (sel.symbol.isValiumMethodWithExtension) {
+//                println("could use an extension method")
+              }
+//                Apply(gen.mkAttributedRef((fn.symbol)), qualifier :: args)
+//                    val allArgss = qual :: argss.flatten
+//                    val origThis = extensionMeth.owner.companionClass
+//                    val baseType = qual.tpe.baseType(origThis)
+//                    val allTargs = targs.map(_.tpe) ::: baseType.typeArgs
+//                    val fun = gen.mkAttributedTypeApply(gen.mkAttributedThis(extensionMeth.owner), extensionMeth, allTargs)
+//                    allArgss.foldLeft(fun)(Apply(_, _))
+//
+//              } else {
+                val tpe2 = if (qual2.tpe.hasAnnotation(UnboxedClass)) qual2.tpe else qual2.tpe.widen
+                val tpe3 = tpe2.toBoxedValiumRef
+                val qual3 = super.typed(qual.clearType(), mode, tpe3)
+                val res = super.typed(MaybeApply(MaybeTypeApply(Select(qual3, meth) setSymbol tree.symbol, targs), args), mode, pt)
+//                println(res)
+                res
+//              }
             } else {
               retypecheck()
             }
