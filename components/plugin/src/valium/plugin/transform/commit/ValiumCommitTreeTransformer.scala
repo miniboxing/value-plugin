@@ -1,9 +1,9 @@
 package valium.plugin
 package transform
-package convert
+package commit
 
-trait ValiumConvertTreeTransformer {
-  this: ValiumConvertPhase =>
+trait ValiumCommitTreeTransformer {
+  this: ValiumCommitPhase =>
 
   import global._
   import definitions._

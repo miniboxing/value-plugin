@@ -19,7 +19,7 @@ class Valium(val global: Global) extends Plugin { plugin =>
     ValiumAddExtPhaseObj,
     ValiumInjectPhaseObj,
     ValiumCoercePhaseObj,
-    ValiumConvertPhaseObj
+    ValiumCommitPhaseObj
   )
 
   // LDL adaptation
@@ -119,11 +119,11 @@ class Valium(val global: Global) extends Plugin { plugin =>
     }
   }
 
-  private object ValiumConvertPhaseObj extends ValiumConvertPhase { self =>
+  private object ValiumCommitPhaseObj extends ValiumCommitPhase { self =>
     val global: Valium.this.global.type = Valium.this.global
     val runsAfter = List()
     override val runsRightAfter = Some(ValiumCoercePhaseObj.phaseName)
-    val phaseName = Valium.this.name + "-convert"
+    val phaseName = Valium.this.name + "-commit"
 
     import global._
     val helper: plugin.helper.type = plugin.helper

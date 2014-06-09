@@ -4,7 +4,7 @@ warning: 'valium' selects 6 phases
 [Now checking: valium-addext]
 [Now checking: valium-inject]
 [Not checkable: valium-coerce]
-[[syntax trees at end of            valium-convert]] // newSource1.scala
+[[syntax trees at end of             valium-commit]] // newSource1.scala
 package valium.testcases.multibridge {
   @value final class C extends Object {
     <paramaccessor> private[this] val x1: Int = _;
@@ -137,4 +137,4 @@ package valium.testcases.multibridge {
   }
 }
 
-[Now checking: valium-convert]
+[Now checking: valium-commit]

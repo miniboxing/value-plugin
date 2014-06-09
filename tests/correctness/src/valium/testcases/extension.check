@@ -71,4 +71,4 @@ package valium.junit.extension {
 }
 
 [Not checkable: valium-coerce]
-[Now checking: valium-convert]
+[Now checking: valium-commit]

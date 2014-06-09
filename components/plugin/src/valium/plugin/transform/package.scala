@@ -3,10 +3,10 @@ package transform
 
 import metadata._
 import verify._
+import addext._
 import inject._
 import coerce._
-import convert._
-import addext._
+import commit._
 
 /** Removes the known problems in the Scala ASTs that cause the plugin
  *  to malfunction. For example: tailcall introduces .asInstancOf-s that
@@ -104,10 +104,10 @@ trait ValiumCoercePhase extends
 }
 
 /** Representation conversion phase `C @value -> fields` */
-trait ValiumConvertPhase extends
+trait ValiumCommitPhase extends
     ValiumPluginComponent
-    with ValiumConvertInfoTransformer
-    with ValiumConvertTreeTransformer { self =>
+    with ValiumCommitInfoTransformer
+    with ValiumCommitTreeTransformer { self =>
   import global._
   import helper._
   def valiumConvertPhase: StdPhase

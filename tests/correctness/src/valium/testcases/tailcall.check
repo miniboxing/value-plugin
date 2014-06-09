@@ -185,7 +185,7 @@ package valium.testcases.tailcalls {
 }
 
 [Not checkable: valium-coerce]
-[[syntax trees at end of            valium-convert]] // newSource1.scala
+[[syntax trees at end of             valium-commit]] // newSource1.scala
 package valium.testcases.tailcalls {
   @value final class C extends Object {
     <paramaccessor> private[this] val i: Int = _;
@@ -268,7 +268,7 @@ package valium.testcases.tailcalls {
   }
 }
 
-[Now checking: valium-convert]
+[Now checking: valium-commit]
 [Not checkable: explicitouter]
 [Now checking: erasure]
 [Now checking: posterasure]

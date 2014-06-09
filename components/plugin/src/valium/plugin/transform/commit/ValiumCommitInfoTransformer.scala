@@ -1,11 +1,11 @@
 package valium.plugin
 package transform
-package convert
+package commit
 
 import scala.tools.nsc.transform.InfoTransform
 
-trait ValiumConvertInfoTransformer extends InfoTransform {
-  self: ValiumConvertPhase =>
+trait ValiumCommitInfoTransformer extends InfoTransform {
+  self: ValiumCommitPhase =>
 
   import global._
   import definitions._
