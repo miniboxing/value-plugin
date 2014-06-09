@@ -37,21 +37,21 @@ package <empty> {
       ()
     };
     override <synthetic> def equals(x$1: Any): Boolean = {
-      <synthetic> val $2: VM = VM.this;
-      <synthetic> val $1$x1: Int = $2.x1;
-      <synthetic> val $1$x2: Int = $2.x2;
-      <synthetic> val this$x1: Int = $1$x1;
-      <synthetic> val this$x2: Int = $1$x2;
-      <synthetic> val : Any = x$1;
-      VM.equals$xtension(this$x1, this$x2, )
+      <synthetic> val $$8: VM = VM.this;
+      <synthetic> val 4$x1: Int = $$8.x1;
+      <synthetic> val 4$x2: Int = $$8.x2;
+      <synthetic> val this$x1$5: Int = 4$x1;
+      <synthetic> val this$x2$6: Int = 4$x2;
+      <synthetic> val 7: Any = x$1;
+      VM.equals$xtension(this$x1$5, this$x2$6, 7)
     };
     override <synthetic> def hashCode(): Int = {
-      <synthetic> val $4: VM = VM.this;
-      <synthetic> val $3$x1: Int = $4.x1;
-      <synthetic> val $3$x2: Int = $4.x2;
-      <synthetic> val this$x1: Int = $3$x1;
-      <synthetic> val this$x2: Int = $3$x2;
-      VM.hashCode$xtension(this$x1, this$x2)
+      <synthetic> val $$12: VM = VM.this;
+      <synthetic> val 9$x1: Int = $$12.x1;
+      <synthetic> val 9$x2: Int = $$12.x2;
+      <synthetic> val this$x1$10: Int = 9$x1;
+      <synthetic> val this$x2$11: Int = 9$x2;
+      VM.hashCode$xtension(this$x1$10, this$x2$11)
     }
   };
   <synthetic> object VM extends Object {
@@ -60,9 +60,9 @@ package <empty> {
       ()
     };
     final <synthetic> def equals$xtension($this$x1: Int, $this$x2: Int, x$1: Any): Boolean = x$1.isInstanceOf[VM]().&&({
-      <synthetic> val $5: VM = x$1.asInstanceOf[VM]();
-      <synthetic> val VM$1$x1: Int = $5.x1;
-      <synthetic> val VM$1$x2: Int = $5.x2;
+      <synthetic> val $$13: VM = x$1.asInstanceOf[VM]();
+      <synthetic> val VM$1$x1: Int = $$13.x1;
+      <synthetic> val VM$1$x2: Int = $$13.x2;
       $this$x1.==(VM$1$x1).&&($this$x2.==(VM$1$x2))
     });
     final <synthetic> def hashCode$xtension($this$x1: Int, $this$x2: Int): Int = 2743.+($this$x1.hashCode()).+($this$x2.hashCode())
