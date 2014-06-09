@@ -128,10 +128,10 @@ class Valium(val global: Global) extends Plugin { plugin =>
     import global._
     val helper: plugin.helper.type = plugin.helper
 
-    var valiumConvertPhase : StdPhase = _
+    var valiumCommitPhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
-      valiumConvertPhase = new Phase(prev)
-      valiumConvertPhase
+      valiumCommitPhase = new Phase(prev)
+      valiumCommitPhase
     }
   }
 

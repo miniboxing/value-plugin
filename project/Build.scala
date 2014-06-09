@@ -32,7 +32,9 @@ object ValiumBuild extends Build {
         println(s"Going for custom scala home at $scalaHome")
         Some(file(scalaHome))
       } else None
-    }
+    },
+
+    parallelExecution in Test := false
   )
 
   val pluginDeps = Seq(

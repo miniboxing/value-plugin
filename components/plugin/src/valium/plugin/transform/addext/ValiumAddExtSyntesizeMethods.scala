@@ -84,7 +84,7 @@ trait ValiumAddExtSynthetizeMethods {
      *    (this.underlying == that.underlying
      */
     private def equalsDerivedValueClassMethod(symbol: Symbol): Tree = {
-      def equ(symbol: Symbol) = equalsCore(symbol, clazz.valiumFields.map(_.getter(clazz0)))
+      def equ(symbol: Symbol) = equalsCore(symbol, clazz.valiumFields.map(_.getterIn(clazz0)))
       if (symbol == NoSymbol)
         createMethod(nme.equals_, List(AnyTpe), BooleanTpe) { equ }
       else
@@ -96,7 +96,7 @@ trait ValiumAddExtSynthetizeMethods {
      * def hashCode(): Int = this.underlying.hashCode
      */
     private def hashCodeDerivedValueClassMethod(symbol: Symbol): Tree = {
-      def hash(symbol: Symbol) = clazz.valiumFields.map(field => Select(mkThisSelect(field.getter(clazz0)), nme.hashCode_))
+      def hash(symbol: Symbol) = clazz.valiumFields.map(field => Select(mkThisSelect(field.getterIn(clazz0)), nme.hashCode_))
               .foldLeft[Tree](Literal(Constant(clazz0.name.toString.hashCode()))){ case (pres, code) => Apply(Select(pres, nme.PLUS), List(code)) }
       if (symbol == NoSymbol)
         createMethod(nme.hashCode_, Nil, IntTpe) { m => hash(m) }

@@ -110,16 +110,16 @@ trait ValiumCommitPhase extends
     with ValiumCommitTreeTransformer { self =>
   import global._
   import helper._
-  def valiumConvertPhase: StdPhase
-  def afterConvert[T](op: => T): T = global.exitingPhase(valiumConvertPhase)(op)
-  def beforeConvert[T](op: => T): T = global.enteringPhase(valiumConvertPhase)(op)
+  def valiumCommitPhase: StdPhase
+  def afterCommit[T](op: => T): T = global.exitingPhase(valiumCommitPhase)(op)
+  def beforeCommit[T](op: => T): T = global.enteringPhase(valiumCommitPhase)(op)
 
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {
       // execute the tree transformer after all symbols have been processed
-      val tree1 = afterConvert(new TreeConverter(unit).transform(tree))
+      val tree1 = afterCommit(new TreeConverter(unit).transform(tree))
       tree1.foreach(tree => if (tree.tpe == null && !tree.toString.contains("apply$mcV$sp")) unit.error(tree.pos, s"[valium-convert] tree not typed: $tree"))
-      def isDisallowed(tree: Tree) = afterConvert(tree.symbol == box2unbox || tree.symbol == unbox2box || tree.symbol.isUnboxedValiumRef || tree.isUnboxedValiumRef)
+      def isDisallowed(tree: Tree) = afterCommit(tree.symbol == box2unbox || tree.symbol == unbox2box || tree.symbol.isUnboxedValiumRef || tree.isUnboxedValiumRef)
       tree1.collect{ case sub if isDisallowed(sub) => unit.error(sub.pos, s"unexpected leftovers after convert: $sub (${sub.symbol.isUnboxedValiumRef}, ${sub.isUnboxedValiumRef})") }
       tree1
     }
