@@ -138,9 +138,10 @@ trait ValiumCommitTreeTransformer {
             val exploded = p.valiumFields.map(x => temp(nme.argExplode(p, x), unbox2box(arg1, x)))
             precomputed ++ exploded
           } else {
-            List(temp(nme.EMPTY, arg))
+            List(temp(valiumnme.argPrecompute(p), arg))
           }
         })
+
         def apply1(args1: List[Tree]) = {
           val core1 = core match {
             case tapp @ TypeApply(core, targs) => treeCopy.TypeApply(tapp, core.clearType(), targs).clearType()

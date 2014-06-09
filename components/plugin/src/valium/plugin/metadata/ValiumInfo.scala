@@ -63,7 +63,7 @@ trait ValiumInfo {
 
   implicit def nme2valiumnme(nme: global.nme.type): valiumnme.type = valiumnme
   object valiumnme {
-    private def gensym(prefix: String) = TermName(prefix + globalFreshNameCreator.newName(""))
+    private def gensym(prefix: String) = TermName(prefix + globalFreshNameCreator.newName("$"))
     def paramExplode(p: Symbol, f: Symbol): TermName = paramExplode(p, f.name)
     def paramExplode(p: Symbol, n: Name): TermName = TermName(p.name + "$" + n.toString)
     def valueExplode(v: Symbol, f: Symbol): TermName = valueExplode(v, f.name)
