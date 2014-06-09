@@ -1,0 +1,74 @@
+warning: 'valium' selects 6 phases
+[Now checking: valium-prepare]
+[Now checking: valium-verify]
+[Now checking: valium-addext]
+[Now checking: valium-inject]
+[[syntax trees at end of             valium-coerce]] // newSource1.scala
+package valium.junit.extension {
+  @value final class VS[T] extends Object {
+    <paramaccessor> private[this] val x1: T = _;
+    <stable> <accessor> <paramaccessor> def x1(): T = VS.this.x1;
+    def <init>(x1: T): valium.junit.extension.VS[T] = {
+      VS.super.<init>();
+      ()
+    };
+    def foo[U](t: T, u: U): String = extension.this.VS.foo$xtension[U, T](scala.this.box2unbox[valium.junit.extension.VS[T]](VS.this), t, u);
+    override <synthetic> def ==(x$1: Any): Boolean = extension.this.VS.==$xtension[T](scala.this.box2unbox[valium.junit.extension.VS[T]](VS.this), x$1);
+    override <synthetic> def hashCode(): Int = extension.this.VS.hashCode$xtension[T](scala.this.box2unbox[valium.junit.extension.VS[T]](VS.this))
+  };
+  <synthetic> object VS extends Object {
+    def <init>(): valium.junit.extension.VS.type = {
+      VS.super.<init>();
+      ()
+    };
+    final def foo$xtension[U, T]($this: valium.junit.extension.VS[T] @unboxed, t: T, u: U): String = t.toString().+("  ").+(u.toString()).+("  ").+(scala.this.unbox2box[valium.junit.extension.VS[T]]($this).x1().toString());
+    final <synthetic> def ==$xtension[T]($this: valium.junit.extension.VS[T] @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.junit.extension.VS[T]]().&&({
+      <synthetic> val VS$1: valium.junit.extension.VS[T] @unboxed = scala.this.box2unbox[valium.junit.extension.VS[T]](x$1.asInstanceOf[valium.junit.extension.VS[T]]());
+      scala.this.unbox2box[valium.junit.extension.VS[T]]($this).x1().==(scala.this.unbox2box[valium.junit.extension.VS[T]](VS$1).x1())
+    });
+    final <synthetic> def hashCode$xtension[T]($this: valium.junit.extension.VS[T] @unboxed): Int = 2749.+(scala.this.unbox2box[valium.junit.extension.VS[T]]($this).x1().hashCode())
+  };
+  @value final class VM[T] extends Object {
+    <paramaccessor> private[this] val x1: T = _;
+    <stable> <accessor> <paramaccessor> def x1(): T = VM.this.x1;
+    <paramaccessor> private[this] val x2: Int = _;
+    <stable> <accessor> <paramaccessor> def x2(): Int = VM.this.x2;
+    def <init>(x1: T, x2: Int): valium.junit.extension.VM[T] = {
+      VM.super.<init>();
+      ()
+    };
+    def bar[U](t: T, u: U): String = extension.this.VM.bar$xtension[U, T](scala.this.box2unbox[valium.junit.extension.VM[T]](VM.this), t, u);
+    override <synthetic> def ==(x$1: Any): Boolean = extension.this.VM.==$xtension[T](scala.this.box2unbox[valium.junit.extension.VM[T]](VM.this), x$1);
+    override <synthetic> def hashCode(): Int = extension.this.VM.hashCode$xtension[T](scala.this.box2unbox[valium.junit.extension.VM[T]](VM.this))
+  };
+  <synthetic> object VM extends Object {
+    def <init>(): valium.junit.extension.VM.type = {
+      VM.super.<init>();
+      ()
+    };
+    final def bar$xtension[U, T]($this: valium.junit.extension.VM[T] @unboxed, t: T, u: U): String = t.toString().+("  ").+(u.toString()).+("  ").+(scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x1().toString()).+("  ").+(scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x2().toString());
+    final <synthetic> def ==$xtension[T]($this: valium.junit.extension.VM[T] @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.junit.extension.VM[T]]().&&({
+      <synthetic> val VM$1: valium.junit.extension.VM[T] @unboxed = scala.this.box2unbox[valium.junit.extension.VM[T]](x$1.asInstanceOf[valium.junit.extension.VM[T]]());
+      scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x1().==(scala.this.unbox2box[valium.junit.extension.VM[T]](VM$1).x1()).&&(scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x2().==(scala.this.unbox2box[valium.junit.extension.VM[T]](VM$1).x2()))
+    });
+    final <synthetic> def hashCode$xtension[T]($this: valium.junit.extension.VM[T] @unboxed): Int = 2743.+(scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x1().hashCode()).+(scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x2().hashCode())
+  };
+  object Test extends Object {
+    def <init>(): valium.junit.extension.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    def main(args: Array[String]): Unit = {
+      val vs: valium.junit.extension.VS[Int] @unboxed = scala.this.box2unbox[valium.junit.extension.VS[Int]](new valium.junit.extension.VS[Int](1));
+      val vm: valium.junit.extension.VM[Int] @unboxed = scala.this.box2unbox[valium.junit.extension.VM[Int]](new valium.junit.extension.VM[Int](2, 3));
+      scala.this.Predef.println(VS.this.hashCode$xtension[Int](vs));
+      scala.this.Predef.println(VM.this.hashCode$xtension[Int](vm));
+      scala.this.Predef.println(VS.this.==$xtension[Int](vs, (scala.this.unbox2box[valium.junit.extension.VM[Int]](vm): Any)));
+      scala.this.Predef.println(VS.this.foo$xtension[String, Int](vs, 4, "x"));
+      scala.this.Predef.println(VM.this.bar$xtension[String, Int](vm, 5, "y"))
+    }
+  }
+}
+
+[Not checkable: valium-coerce]
+[Now checking: valium-convert]
