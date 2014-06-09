@@ -84,7 +84,9 @@ trait ValiumCoerceTreeTransformer {
           case _ if tree.tpe == null =>
             fallback()
 
-          // intercept bm-s:
+          // Intercept bm-s (unstable expressions of type unboxed multi-param value class) -- which are hard to translate
+          // note that intercepting and boxing them simplifies the commit phase
+          // Criteria:
           //  - it's a multi-param value class
           //  - pt is marked with @unboxed
           //  - is a b (=!isA(_))
@@ -93,40 +95,34 @@ trait ValiumCoerceTreeTransformer {
             super.typed(Apply(gen.mkAttributedRef(box2unbox), List(tree)), mode, pt)
 
 
+          // Intercept calls with the receiver being an unboxed value classe
+          //  - if we can redirect to a
           case MaybeApply(MaybeTypeApply(sel @ Select(qual, meth), targs), args) if qual.isTerm && sel.symbol.isMethod =>
-
-
             val qual2 = super.typed(qual.clearType(), mode | QUALmode, WildcardType)
-//            println()
-//            println(tree + "  " + qual2 + "  " + qual2.tpe)
-
             if (qual2.isUnboxedValiumRef) {
-              // for methods such as hashCode and ==, we need to redirect to the most specific symbol
-              val sym = sel.symbol
-              val sym2 = sym.matchingSymbol(qual2.tpe.typeSymbol, qual2.tpe)
+              // for methods such as hashCode and ==, we need to redirect to the most specific symbol, since the
+              // symbol is created later in the pipeline, therefore the typer marks the symbol as Object's hashCode.
+              val objectMethod = sel.symbol
+              val vclassMethod = objectMethod.matchingSymbol(qual2.tpe.typeSymbol, qual2.tpe)
 
-              if (sym2.isValiumMethodWithExtension) {
-//                println("could use an extension method for " + tree)
-//                println("\n\n\n\n\n\n" + sym2 + "  "  + sym2 + "\n\n\n\n\n\n")
-//                println(global.phase.name)
-                val extMeth = valiumAddExtPhase.afterAddExt(valiumAddExtPhase.extensionMethod(sym2))
-//                println("could use ext method for " + tree)
-//                println("extension method: " + extMeth)
-
-
-//                val allArgss = qual :: argss.flatten
-//                val origThis = extensionMeth.owner.companionClass
-//                val baseType = qual.tpe.baseType(origThis)
-//                val allTargs = targs.map(_.tpe) ::: baseType.typeArgs
-//                val fun = gen.mkAttributedTypeApply(gen.mkAttributedThis(extensionMeth.owner), extensionMeth, allTargs)
-//                allArgss.foldLeft(fun)(Apply(_, _))
-//                Apply(gen.mkAttributedRef((fn.symbol)), qual :: args)
+              if (vclassMethod.isValiumMethodWithExtension) {
+                // This is a value class method with an extension => redirect
+                val extMethod = valiumAddExtPhase.extensionMethod(vclassMethod).asInstanceOf[Symbol]
+                val allArgs = qual :: args
+                val origThis = extMethod.owner.companionClass
+                val baseType = qual.tpe.baseType(origThis)
+                val allTargs = targs ::: baseType.typeArgs
+                val fun = MaybeTypeApply(gen.mkAttributedSelect(gen.mkAttributedThis(extMethod.owner), extMethod), allTargs)
+                val app = MaybeApply(fun, allArgs)
+                val res = super.typed(app, mode, pt)
+                res
+              } else {
+                // There is no corresponding extension method => box
+                val tpe2 = if (qual2.tpe.hasAnnotation(UnboxedClass)) qual2.tpe else qual2.tpe.widen
+                val tpe3 = tpe2.toBoxedValiumRef
+                val qual3 = super.typed(qual.clearType(), mode, tpe3)
+                super.typed(MaybeApply(MaybeTypeApply(Select(qual3, meth) setSymbol tree.symbol, targs), args), mode, pt)
               }
-
-              val tpe2 = if (qual2.tpe.hasAnnotation(UnboxedClass)) qual2.tpe else qual2.tpe.widen
-              val tpe3 = tpe2.toBoxedValiumRef
-              val qual3 = super.typed(qual.clearType(), mode, tpe3)
-              super.typed(MaybeApply(MaybeTypeApply(Select(qual3, meth) setSymbol tree.symbol, targs), args), mode, pt)
             } else {
               retypecheck()
             }

@@ -13,7 +13,7 @@ package <empty> {
       VS.super.<init>();
       ()
     };
-    override <synthetic> def equals(x$1: Any): Boolean = VS.equals$xtension(VS.this.x1(), x$1);
+    override <synthetic> def ==(x$1: Any): Boolean = VS.==$xtension(VS.this.x1(), x$1);
     override <synthetic> def hashCode(): Int = VS.hashCode$xtension(VS.this.x1())
   };
   <synthetic> object VS extends Object {
@@ -21,7 +21,7 @@ package <empty> {
       VS.super.<init>();
       ()
     };
-    final <synthetic> def equals$xtension($this$x1: Int, x$1: Any): Boolean = x$1.isInstanceOf[VS]().&&({
+    final <synthetic> def ==$xtension($this$x1: Int, x$1: Any): Boolean = x$1.isInstanceOf[VS]().&&({
       <synthetic> val VS$1$x1: Int = x$1.asInstanceOf[VS]().x1();
       $this$x1.==(VS$1$x1)
     });
@@ -36,14 +36,14 @@ package <empty> {
       VM.super.<init>();
       ()
     };
-    override <synthetic> def equals(x$1: Any): Boolean = {
+    override <synthetic> def ==(x$1: Any): Boolean = {
       <synthetic> val $2: VM = VM.this;
       <synthetic> val $1$x1: Int = $2.x1;
       <synthetic> val $1$x2: Int = $2.x2;
       <synthetic> val this$x1: Int = $1$x1;
       <synthetic> val this$x2: Int = $1$x2;
       <synthetic> val : Any = x$1;
-      VM.equals$xtension(this$x1, this$x2, )
+      VM.==$xtension(this$x1, this$x2, )
     };
     override <synthetic> def hashCode(): Int = {
       <synthetic> val $4: VM = VM.this;
@@ -59,7 +59,7 @@ package <empty> {
       VM.super.<init>();
       ()
     };
-    final <synthetic> def equals$xtension($this$x1: Int, $this$x2: Int, x$1: Any): Boolean = x$1.isInstanceOf[VM]().&&({
+    final <synthetic> def ==$xtension($this$x1: Int, $this$x2: Int, x$1: Any): Boolean = x$1.isInstanceOf[VM]().&&({
       <synthetic> val $5: VM = x$1.asInstanceOf[VM]();
       <synthetic> val VM$1$x1: Int = $5.x1;
       <synthetic> val VM$1$x2: Int = $5.x2;

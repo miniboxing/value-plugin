@@ -39,7 +39,7 @@ package valium.testcases.singlepoly {
         <synthetic> val p2$x: Double = p1$x;
         def p3(): Double = p2$x;
         scala.this.Predef.println(new valium.testcases.singlepoly.Point[Double](p2$x));
-        scala.this.Predef.println(new valium.testcases.singlepoly.Point[Double](p2$x).toString());
+        scala.this.Predef.println(Point.this.toString$xtension[Double](p2$x));
         <synthetic> val p4$x: Double = identity2mono(p3());
         <synthetic> var p5$x: Double = 3.0;
         p5$x = p2$x;
@@ -49,7 +49,7 @@ package valium.testcases.singlepoly {
         <synthetic> val p2$x: T = p1$x;
         def p3(): T = p2$x;
         scala.this.Predef.println(new valium.testcases.singlepoly.Point[T](p2$x));
-        scala.this.Predef.println(new valium.testcases.singlepoly.Point[T](p2$x).toString());
+        scala.this.Predef.println(Point.this.toString$xtension[T](p2$x));
         <synthetic> val p4$x: T = identity2poly[T](p3());
         <synthetic> var p5$x: T = new valium.testcases.singlepoly.Point[Double](3.0).asInstanceOf[valium.testcases.singlepoly.Point[T]]().x();
         p5$x = p2$x;
@@ -94,7 +94,7 @@ package valium.testcases.singlepoly {
   }
 }.&&({
             <synthetic> val C1$1: C1 = x$1.asInstanceOf[C1]();
-            new valium.testcases.singlepoly.Point[Double](C1.this.p2()).==(new valium.testcases.singlepoly.Point[Double](C1$1.p2())).&&(C1$1.canEqual(C1.this))
+            C1.this.p2().==(new valium.testcases.singlepoly.Point[Double](C1$1.p2())).&&(C1$1.canEqual(C1.this))
           }))
         };
         <synthetic> object C1 extends scala.runtime.AbstractFunction1[valium.testcases.singlepoly.Point[Double],C1] with Serializable {
@@ -157,7 +157,7 @@ package valium.testcases.singlepoly {
   }
 }.&&({
             <synthetic> val C11$1: C11[T] = x$1.asInstanceOf[C11[T]]();
-            new valium.testcases.singlepoly.Point[T](C11.this.p2()).==(new valium.testcases.singlepoly.Point[T](C11$1.p2())).&&(C11$1.canEqual(C11.this))
+            C11.this.p2().==(new valium.testcases.singlepoly.Point[T](C11$1.p2())).&&(C11$1.canEqual(C11.this))
           }))
         };
         <synthetic> object C11 extends Object with Serializable {
@@ -216,7 +216,7 @@ package valium.testcases.singlepoly {
   }
 }.&&({
             <synthetic> val C12$1: C12 = x$1.asInstanceOf[C12]();
-            new valium.testcases.singlepoly.Point[T](C12.this.p2()).==(new valium.testcases.singlepoly.Point[T](C12$1.p2())).&&(C12$1.canEqual(C12.this))
+            C12.this.p2().==(new valium.testcases.singlepoly.Point[T](C12$1.p2())).&&(C12$1.canEqual(C12.this))
           }))
         };
         <synthetic> object C12 extends scala.runtime.AbstractFunction1[valium.testcases.singlepoly.Point[T],C12] with Serializable {

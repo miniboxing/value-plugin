@@ -14,7 +14,7 @@ package valium.testcases.singlebridge {
       ()
     };
     override def toString(): String = singlebridge.this.C.toString$xtension(C.this.x1());
-    override <synthetic> def equals(x$1: Any): Boolean = singlebridge.this.C.equals$xtension(C.this.x1(), x$1);
+    override <synthetic> def ==(x$1: Any): Boolean = singlebridge.this.C.==$xtension(C.this.x1(), x$1);
     override <synthetic> def hashCode(): Int = singlebridge.this.C.hashCode$xtension(C.this.x1())
   };
   <synthetic> object C extends Object {
@@ -23,7 +23,7 @@ package valium.testcases.singlebridge {
       ()
     };
     final def toString$xtension($this$x1: Int): String = new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"C(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x1}));
-    final <synthetic> def equals$xtension($this$x1: Int, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.singlebridge.C]().&&({
+    final <synthetic> def ==$xtension($this$x1: Int, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.singlebridge.C]().&&({
       <synthetic> val C$1$x1: Int = x$1.asInstanceOf[valium.testcases.singlebridge.C]().x1();
       $this$x1.==(C$1$x1)
     });

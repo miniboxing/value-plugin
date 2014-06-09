@@ -65,7 +65,7 @@ package valium.testcases.multipoly {
         <synthetic> val p2$y: Double = p1$y;
         def p3(): valium.testcases.multipoly.Point[Double] = new valium.testcases.multipoly.Point[Double](p2$x, p2$y);
         scala.this.Predef.println(new valium.testcases.multipoly.Point[Double](p2$x, p2$y));
-        scala.this.Predef.println(new valium.testcases.multipoly.Point[Double](p2$x, p2$y).toString());
+        scala.this.Predef.println(Point.this.toString$xtension[Double](p2$x, p2$y));
         <synthetic> val $7: valium.testcases.multipoly.Point[Double] = {
           <synthetic> val $9: valium.testcases.multipoly.Point[Double] = p3();
           <synthetic> val $8$x: Double = $9.x;
@@ -87,7 +87,7 @@ package valium.testcases.multipoly {
         <synthetic> val p2$y: T = p1$y;
         def p3(): valium.testcases.multipoly.Point[T] = new valium.testcases.multipoly.Point[T](p2$x, p2$y);
         scala.this.Predef.println(new valium.testcases.multipoly.Point[T](p2$x, p2$y));
-        scala.this.Predef.println(new valium.testcases.multipoly.Point[T](p2$x, p2$y).toString());
+        scala.this.Predef.println(Point.this.toString$xtension[T](p2$x, p2$y));
         <synthetic> val $10: valium.testcases.multipoly.Point[T] = {
           <synthetic> val $12: valium.testcases.multipoly.Point[T] = p3();
           <synthetic> val $11$x: T = $12.x;

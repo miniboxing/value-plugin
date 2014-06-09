@@ -234,8 +234,8 @@ trait ValiumAddExtTreeTransformer {
                   List(stat)
               }
 
-            if (addSyntheticEquals)   nstats1 ::= beforeAddExt(localTyper.typed(synthesis.makeEquals()))
-            if (addSyntheticHashCode) nstats1 ::= beforeAddExt(localTyper.typed(synthesis.makeHashCode()))
+            if (addSyntheticEquals)   nstats1 = nstats1 ::: List(beforeAddExt(localTyper.typed(synthesis.makeEquals())))
+            if (addSyntheticHashCode) nstats1 = nstats1 ::: List(beforeAddExt(localTyper.typed(synthesis.makeHashCode())))
 
             super.transform(localTyper.typed(deriveTemplate(tree)(_ => nstats1)))
           } else if (currentOwner.isStaticOwner) {

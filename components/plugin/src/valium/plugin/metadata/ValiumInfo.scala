@@ -251,8 +251,9 @@ trait ValiumInfo {
 
   object MaybeTypeApply {
     def unapply(tree: Tree): Option[(Tree, List[Type])] = tree match {
-      case TypeApply(fun, targs) => Some((fun, targs.map(_.tpe)))
-      case _ => Some((tree, Nil))
+      case TypeApply(fun, targs)           => Some((fun, targs.map(_.tpe)))
+      case _ if tree.tpe.typeParams == Nil => Some((tree, Nil))
+      case _                               => None
     }
 
     def apply(tree: Tree, targs: List[Type]): Tree =
@@ -264,15 +265,16 @@ trait ValiumInfo {
 
   object MaybeApply {
     def unapply(tree: Tree): Option[(Tree, List[Tree])] = tree match {
-      case Apply(fun, args) => Some((fun, args))
-      case _ => Some((tree, Nil))
+      case Apply(fun, args)             => Some((fun, args))
+      case _ if tree.tpe.paramss == Nil => Some((tree, Nil))
+      case _                            => None
     }
 
     def apply(tree: Tree, args: List[Tree]): Tree =
       if (args.isEmpty)
         tree
-        else
-          Apply(tree, args)
+      else
+        Apply(tree, args)
   }
 
   def box2unbox(tree: Tree): Tree = atPos(tree.pos)(Apply(gen.mkAttributedRef(box2unbox), List(tree)) setType tree.tpe.toUnboxedValiumRef)

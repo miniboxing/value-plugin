@@ -23,14 +23,14 @@ package valium.testcases.multi {
       <synthetic> val this$y: Double = $1$y;
       multi.this.Point.toString$xtension(this$x, this$y)
     };
-    override <synthetic> def equals(x$1: Any): Boolean = {
+    override <synthetic> def ==(x$1: Any): Boolean = {
       <synthetic> val $4: valium.testcases.multi.Point = Point.this;
       <synthetic> val $3$x: Double = $4.x;
       <synthetic> val $3$y: Double = $4.y;
       <synthetic> val this$x: Double = $3$x;
       <synthetic> val this$y: Double = $3$y;
       <synthetic> val : Any = x$1;
-      multi.this.Point.equals$xtension(this$x, this$y, )
+      multi.this.Point.==$xtension(this$x, this$y, )
     };
     override <synthetic> def hashCode(): Int = {
       <synthetic> val $6: valium.testcases.multi.Point = Point.this;
@@ -51,7 +51,7 @@ package valium.testcases.multi {
       <synthetic> val p1$y: Double = $this$y;
       new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ", ", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x, $this$y}))
     };
-    final <synthetic> def equals$xtension($this$x: Double, $this$y: Double, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.multi.Point]().&&({
+    final <synthetic> def ==$xtension($this$x: Double, $this$y: Double, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.multi.Point]().&&({
       <synthetic> val $7: valium.testcases.multi.Point = x$1.asInstanceOf[valium.testcases.multi.Point]();
       <synthetic> val Point$1$x: Double = $7.x;
       <synthetic> val Point$1$y: Double = $7.y;
@@ -70,7 +70,7 @@ package valium.testcases.multi {
         <synthetic> val p2$y: Double = p1$y;
         def p3(): valium.testcases.multi.Point = new valium.testcases.multi.Point(p2$x, p2$y);
         scala.this.Predef.println(new valium.testcases.multi.Point(p2$x, p2$y));
-        scala.this.Predef.println(new valium.testcases.multi.Point(p2$x, p2$y).toString());
+        scala.this.Predef.println(Point.this.toString$xtension(p2$x, p2$y));
         <synthetic> val $8: valium.testcases.multi.Point = {
           <synthetic> val $10: valium.testcases.multi.Point = p3();
           <synthetic> val $9$x: Double = $10.x;

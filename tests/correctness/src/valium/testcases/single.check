@@ -14,7 +14,7 @@ package valium.testcases.single {
       ()
     };
     override def toString(): String = single.this.Point.toString$xtension(Point.this.x());
-    override <synthetic> def equals(x$1: Any): Boolean = single.this.Point.equals$xtension(Point.this.x(), x$1);
+    override <synthetic> def ==(x$1: Any): Boolean = single.this.Point.==$xtension(Point.this.x(), x$1);
     override <synthetic> def hashCode(): Int = single.this.Point.hashCode$xtension(Point.this.x())
   };
   <synthetic> object Point extends Object {
@@ -26,7 +26,7 @@ package valium.testcases.single {
       <synthetic> val p1$x: Double = $this$x;
       new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x}))
     };
-    final <synthetic> def equals$xtension($this$x: Double, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.single.Point]().&&({
+    final <synthetic> def ==$xtension($this$x: Double, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.single.Point]().&&({
       <synthetic> val Point$1$x: Double = x$1.asInstanceOf[valium.testcases.single.Point]().x();
       $this$x.==(Point$1$x)
     });
@@ -42,7 +42,7 @@ package valium.testcases.single {
         <synthetic> val p2$x: Double = p1$x;
         def p3(): Double = p2$x;
         scala.this.Predef.println(new valium.testcases.single.Point(p2$x));
-        scala.this.Predef.println(new valium.testcases.single.Point(p2$x).toString());
+        scala.this.Predef.println(Point.this.toString$xtension(p2$x));
         <synthetic> val p4$x: Double = identity2(p3());
         <synthetic> var p5$x: Double = 3.0;
         p5$x = p2$x;
@@ -87,7 +87,7 @@ package valium.testcases.single {
   }
 }.&&({
             <synthetic> val C1$1: C1 = x$1.asInstanceOf[C1]();
-            new valium.testcases.single.Point(C1.this.p2()).==(new valium.testcases.single.Point(C1$1.p2())).&&(C1$1.canEqual(C1.this))
+            C1.this.p2().==(new valium.testcases.single.Point(C1$1.p2())).&&(C1$1.canEqual(C1.this))
           }))
         };
         <synthetic> object C1 extends scala.runtime.AbstractFunction1[valium.testcases.single.Point,C1] with Serializable {
