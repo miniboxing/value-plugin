@@ -86,7 +86,7 @@ trait ValiumAddExtSynthetizeMethods {
     private def equalsDerivedValueClassMethod(symbol: Symbol): Tree = {
       def equ(symbol: Symbol) = equalsCore(symbol, clazz.valiumFields.map(_.getter(clazz0)))
       if (symbol == NoSymbol)
-        createMethod(nme.EQ, List(AnyTpe), BooleanTpe) { equ }
+        createMethod(nme.equals_, List(AnyTpe), BooleanTpe) { equ }
       else
         equ(symbol)
     }

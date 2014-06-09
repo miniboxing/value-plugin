@@ -23,14 +23,14 @@ package valium.testcases.multibridge {
       <synthetic> val this$x2: Int = $1$x2;
       multibridge.this.C.toString$xtension(this$x1, this$x2)
     };
-    override <synthetic> def ==(x$1: Any): Boolean = {
+    override <synthetic> def equals(x$1: Any): Boolean = {
       <synthetic> val $4: valium.testcases.multibridge.C = C.this;
       <synthetic> val $3$x1: Int = $4.x1;
       <synthetic> val $3$x2: Int = $4.x2;
       <synthetic> val this$x1: Int = $3$x1;
       <synthetic> val this$x2: Int = $3$x2;
       <synthetic> val : Any = x$1;
-      multibridge.this.C.==$xtension(this$x1, this$x2, )
+      multibridge.this.C.equals$xtension(this$x1, this$x2, )
     };
     override <synthetic> def hashCode(): Int = {
       <synthetic> val $6: valium.testcases.multibridge.C = C.this;
@@ -47,7 +47,7 @@ package valium.testcases.multibridge {
       ()
     };
     final def toString$xtension($this$x1: Int, $this$x2: Int): String = new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"C(", ", ", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x1, $this$x2}));
-    final <synthetic> def ==$xtension($this$x1: Int, $this$x2: Int, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.multibridge.C]().&&({
+    final <synthetic> def equals$xtension($this$x1: Int, $this$x2: Int, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.multibridge.C]().&&({
       <synthetic> val $7: valium.testcases.multibridge.C = x$1.asInstanceOf[valium.testcases.multibridge.C]();
       <synthetic> val C$1$x1: Int = $7.x1;
       <synthetic> val C$1$x2: Int = $7.x2;

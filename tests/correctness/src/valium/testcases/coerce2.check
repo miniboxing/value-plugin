@@ -14,7 +14,7 @@ package valium.testsuite.coerce2 {
       Point.super.<init>();
       ()
     };
-    override <synthetic> def ==(x$1: Any): Boolean = coerce2.this.Point.==$xtension(scala.this.box2unbox[valium.testsuite.coerce2.Point](Point.this), x$1);
+    override <synthetic> def equals(x$1: Any): Boolean = coerce2.this.Point.equals$xtension(scala.this.box2unbox[valium.testsuite.coerce2.Point](Point.this), x$1);
     override <synthetic> def hashCode(): Int = coerce2.this.Point.hashCode$xtension(scala.this.box2unbox[valium.testsuite.coerce2.Point](Point.this))
   };
   <synthetic> object Point extends Object {
@@ -22,7 +22,7 @@ package valium.testsuite.coerce2 {
       Point.super.<init>();
       ()
     };
-    final <synthetic> def ==$xtension($this: valium.testsuite.coerce2.Point @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.testsuite.coerce2.Point]().&&({
+    final <synthetic> def equals$xtension($this: valium.testsuite.coerce2.Point @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.testsuite.coerce2.Point]().&&({
       <synthetic> val Point$1: valium.testsuite.coerce2.Point @unboxed = scala.this.box2unbox[valium.testsuite.coerce2.Point](x$1.asInstanceOf[valium.testsuite.coerce2.Point]());
       scala.this.unbox2box[valium.testsuite.coerce2.Point]($this).x().==(scala.this.unbox2box[valium.testsuite.coerce2.Point](Point$1).x()).&&(scala.this.unbox2box[valium.testsuite.coerce2.Point]($this).y().==(scala.this.unbox2box[valium.testsuite.coerce2.Point](Point$1).y()))
     });

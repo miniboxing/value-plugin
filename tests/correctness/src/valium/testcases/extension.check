@@ -13,7 +13,7 @@ package valium.junit.extension {
       ()
     };
     def foo[U](t: T, u: U): String = extension.this.VS.foo$xtension[U, T](scala.this.box2unbox[valium.junit.extension.VS[T]](VS.this), t, u);
-    override <synthetic> def ==(x$1: Any): Boolean = extension.this.VS.==$xtension[T](scala.this.box2unbox[valium.junit.extension.VS[T]](VS.this), x$1);
+    override <synthetic> def equals(x$1: Any): Boolean = extension.this.VS.equals$xtension[T](scala.this.box2unbox[valium.junit.extension.VS[T]](VS.this), x$1);
     override <synthetic> def hashCode(): Int = extension.this.VS.hashCode$xtension[T](scala.this.box2unbox[valium.junit.extension.VS[T]](VS.this))
   };
   <synthetic> object VS extends Object {
@@ -22,7 +22,7 @@ package valium.junit.extension {
       ()
     };
     final def foo$xtension[U, T]($this: valium.junit.extension.VS[T] @unboxed, t: T, u: U): String = t.toString().+("  ").+(u.toString()).+("  ").+(scala.this.unbox2box[valium.junit.extension.VS[T]]($this).x1().toString());
-    final <synthetic> def ==$xtension[T]($this: valium.junit.extension.VS[T] @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.junit.extension.VS[T]]().&&({
+    final <synthetic> def equals$xtension[T]($this: valium.junit.extension.VS[T] @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.junit.extension.VS[T]]().&&({
       <synthetic> val VS$1: valium.junit.extension.VS[T] @unboxed = scala.this.box2unbox[valium.junit.extension.VS[T]](x$1.asInstanceOf[valium.junit.extension.VS[T]]());
       scala.this.unbox2box[valium.junit.extension.VS[T]]($this).x1().==(scala.this.unbox2box[valium.junit.extension.VS[T]](VS$1).x1())
     });
@@ -38,7 +38,7 @@ package valium.junit.extension {
       ()
     };
     def bar[U](t: T, u: U): String = extension.this.VM.bar$xtension[U, T](scala.this.box2unbox[valium.junit.extension.VM[T]](VM.this), t, u);
-    override <synthetic> def ==(x$1: Any): Boolean = extension.this.VM.==$xtension[T](scala.this.box2unbox[valium.junit.extension.VM[T]](VM.this), x$1);
+    override <synthetic> def equals(x$1: Any): Boolean = extension.this.VM.equals$xtension[T](scala.this.box2unbox[valium.junit.extension.VM[T]](VM.this), x$1);
     override <synthetic> def hashCode(): Int = extension.this.VM.hashCode$xtension[T](scala.this.box2unbox[valium.junit.extension.VM[T]](VM.this))
   };
   <synthetic> object VM extends Object {
@@ -47,7 +47,7 @@ package valium.junit.extension {
       ()
     };
     final def bar$xtension[U, T]($this: valium.junit.extension.VM[T] @unboxed, t: T, u: U): String = t.toString().+("  ").+(u.toString()).+("  ").+(scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x1().toString()).+("  ").+(scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x2().toString());
-    final <synthetic> def ==$xtension[T]($this: valium.junit.extension.VM[T] @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.junit.extension.VM[T]]().&&({
+    final <synthetic> def equals$xtension[T]($this: valium.junit.extension.VM[T] @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.junit.extension.VM[T]]().&&({
       <synthetic> val VM$1: valium.junit.extension.VM[T] @unboxed = scala.this.box2unbox[valium.junit.extension.VM[T]](x$1.asInstanceOf[valium.junit.extension.VM[T]]());
       scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x1().==(scala.this.unbox2box[valium.junit.extension.VM[T]](VM$1).x1()).&&(scala.this.unbox2box[valium.junit.extension.VM[T]]($this).x2().==(scala.this.unbox2box[valium.junit.extension.VM[T]](VM$1).x2()))
     });
@@ -63,7 +63,7 @@ package valium.junit.extension {
       val vm: valium.junit.extension.VM[Int] @unboxed = scala.this.box2unbox[valium.junit.extension.VM[Int]](new valium.junit.extension.VM[Int](2, 3));
       scala.this.Predef.println(VS.this.hashCode$xtension[Int](vs));
       scala.this.Predef.println(VM.this.hashCode$xtension[Int](vm));
-      scala.this.Predef.println(VS.this.==$xtension[Int](vs, (scala.this.unbox2box[valium.junit.extension.VM[Int]](vm): Any)));
+      scala.this.Predef.println(scala.this.unbox2box[valium.junit.extension.VS[Int]](vs).==((scala.this.unbox2box[valium.junit.extension.VM[Int]](vm): Any)));
       scala.this.Predef.println(VS.this.foo$xtension[String, Int](vs, 4, "x"));
       scala.this.Predef.println(VM.this.bar$xtension[String, Int](vm, 5, "y"))
     }
