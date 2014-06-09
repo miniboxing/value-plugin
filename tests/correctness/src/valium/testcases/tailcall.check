@@ -126,13 +126,20 @@ package valium.testcases.tailcalls {
     def <init>(i: Int): valium.testcases.tailcalls.C = {
       C.super.<init>();
       ()
-    }
+    };
+    override <synthetic> def equals(x$1: Any): Boolean = tailcalls.this.C.equals$xtension(scala.this.box2unbox[valium.testcases.tailcalls.C](C.this), x$1);
+    override <synthetic> def hashCode(): Int = tailcalls.this.C.hashCode$xtension(scala.this.box2unbox[valium.testcases.tailcalls.C](C.this))
   };
   <synthetic> object C extends Object {
     def <init>(): valium.testcases.tailcalls.C.type = {
       C.super.<init>();
       ()
-    }
+    };
+    final <synthetic> def equals$xtension($this: valium.testcases.tailcalls.C @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.tailcalls.C]().&&({
+      <synthetic> val C$1: valium.testcases.tailcalls.C @unboxed = scala.this.box2unbox[valium.testcases.tailcalls.C](x$1.asInstanceOf[valium.testcases.tailcalls.C]());
+      scala.this.unbox2box[valium.testcases.tailcalls.C]($this).i().==(scala.this.unbox2box[valium.testcases.tailcalls.C](C$1).i())
+    });
+    final <synthetic> def hashCode$xtension($this: valium.testcases.tailcalls.C @unboxed): Int = 67.+(scala.this.unbox2box[valium.testcases.tailcalls.C]($this).i().hashCode())
   };
   @value final class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
@@ -142,13 +149,20 @@ package valium.testcases.tailcalls {
     def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
       D.super.<init>();
       ()
-    }
+    };
+    override <synthetic> def equals(x$1: Any): Boolean = tailcalls.this.D.equals$xtension(scala.this.box2unbox[valium.testcases.tailcalls.D](D.this), x$1);
+    override <synthetic> def hashCode(): Int = tailcalls.this.D.hashCode$xtension(scala.this.box2unbox[valium.testcases.tailcalls.D](D.this))
   };
   <synthetic> object D extends Object {
     def <init>(): valium.testcases.tailcalls.D.type = {
       D.super.<init>();
       ()
-    }
+    };
+    final <synthetic> def equals$xtension($this: valium.testcases.tailcalls.D @unboxed, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.tailcalls.D]().&&({
+      <synthetic> val D$1: valium.testcases.tailcalls.D @unboxed = scala.this.box2unbox[valium.testcases.tailcalls.D](x$1.asInstanceOf[valium.testcases.tailcalls.D]());
+      scala.this.unbox2box[valium.testcases.tailcalls.D]($this).i().==(scala.this.unbox2box[valium.testcases.tailcalls.D](D$1).i()).&&(scala.this.unbox2box[valium.testcases.tailcalls.D]($this).d().==(scala.this.unbox2box[valium.testcases.tailcalls.D](D$1).d()))
+    });
+    final <synthetic> def hashCode$xtension($this: valium.testcases.tailcalls.D @unboxed): Int = 68.+(scala.this.unbox2box[valium.testcases.tailcalls.D]($this).i().hashCode()).+(scala.this.unbox2box[valium.testcases.tailcalls.D]($this).d().hashCode())
   };
   object Test extends Object {
     def <init>(): valium.testcases.tailcalls.Test.type = {
@@ -179,13 +193,20 @@ package valium.testcases.tailcalls {
     def <init>(i: Int): valium.testcases.tailcalls.C = {
       C.super.<init>();
       ()
-    }
+    };
+    override <synthetic> def equals(x$1: Any): Boolean = tailcalls.this.C.equals$xtension(C.this.i(), x$1);
+    override <synthetic> def hashCode(): Int = tailcalls.this.C.hashCode$xtension(C.this.i())
   };
   <synthetic> object C extends Object {
     def <init>(): valium.testcases.tailcalls.C.type = {
       C.super.<init>();
       ()
-    }
+    };
+    final <synthetic> def equals$xtension($this$i: Int, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.tailcalls.C]().&&({
+      <synthetic> val C$1$i: Int = x$1.asInstanceOf[valium.testcases.tailcalls.C]().i();
+      $this$i.==(C$1$i)
+    });
+    final <synthetic> def hashCode$xtension($this$i: Int): Int = 67.+($this$i.hashCode())
   };
   @value final class D extends Object {
     <paramaccessor> private[this] val i: Int = _;
@@ -195,13 +216,37 @@ package valium.testcases.tailcalls {
     def <init>(i: Int, d: Double): valium.testcases.tailcalls.D = {
       D.super.<init>();
       ()
+    };
+    override <synthetic> def equals(x$1: Any): Boolean = {
+      <synthetic> val $2: valium.testcases.tailcalls.D = D.this;
+      <synthetic> val $1$i: Int = $2.i;
+      <synthetic> val $1$d: Double = $2.d;
+      <synthetic> val this$i: Int = $1$i;
+      <synthetic> val this$d: Double = $1$d;
+      <synthetic> val : Any = x$1;
+      tailcalls.this.D.equals$xtension(this$i, this$d, )
+    };
+    override <synthetic> def hashCode(): Int = {
+      <synthetic> val $4: valium.testcases.tailcalls.D = D.this;
+      <synthetic> val $3$i: Int = $4.i;
+      <synthetic> val $3$d: Double = $4.d;
+      <synthetic> val this$i: Int = $3$i;
+      <synthetic> val this$d: Double = $3$d;
+      tailcalls.this.D.hashCode$xtension(this$i, this$d)
     }
   };
   <synthetic> object D extends Object {
     def <init>(): valium.testcases.tailcalls.D.type = {
       D.super.<init>();
       ()
-    }
+    };
+    final <synthetic> def equals$xtension($this$i: Int, $this$d: Double, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.tailcalls.D]().&&({
+      <synthetic> val $5: valium.testcases.tailcalls.D = x$1.asInstanceOf[valium.testcases.tailcalls.D]();
+      <synthetic> val D$1$i: Int = $5.i;
+      <synthetic> val D$1$d: Double = $5.d;
+      $this$i.==(D$1$i).&&($this$d.==(D$1$d))
+    });
+    final <synthetic> def hashCode$xtension($this$i: Int, $this$d: Double): Int = 68.+($this$i.hashCode()).+($this$d.hashCode())
   };
   object Test extends Object {
     def <init>(): valium.testcases.tailcalls.Test.type = {

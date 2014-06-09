@@ -214,32 +214,33 @@ trait ValiumAddExtTreeTransformer {
             def isHashCode(sym: Symbol) =
               sym.allOverriddenSymbols.contains(Any_hashCode)
 
+            lazy val synthesis = new SyntheticMethods(sym, localTyper.context)
             var addSyntheticEquals = true
             var addSyntheticHashCode = true
 
             val nstats1 =
               stats.flatMap {
-                case stat if stat.hasSymbol && isEquals(stat.symbol) =>
+                case stat if stat.hasSymbolField && isEquals(stat.symbol) =>
                   addSyntheticEquals = false
                   if (stat.symbol.isSynthetic) {
-//                    println("dropping: " + stat)
-
-                    Nil // TODO: Update
+                    val newEq = localTyper.typed(deriveDefDef(stat)(rhs => localTyper.typed(synthesis.makeEquals(stat.symbol))))
+                    List(newEq)
                   } else
                     List(stat)
-                case stat if stat.hasSymbol && isHashCode(stat.symbol) =>
+                case stat if stat.hasSymbolField && isHashCode(stat.symbol) =>
                   addSyntheticHashCode = false
                   if (stat.symbol.isSynthetic) {
-//                    println("dropping: " + stat)
-
-                    Nil // TODO: Update
+                    val newHash = localTyper.typed(deriveDefDef(stat)(rhs => localTyper.typed(synthesis.makeHashCode(stat.symbol))))
+                    List(newHash)
                   } else
                     List(stat)
                 case stat =>
                   List(stat)
               }
 
-            val nstats2 = nstats1 ++ Nil // TODO: Synthesize
+            val nstats2 = nstats1 ++
+                (if (addSyntheticEquals)   List(localTyper.typed(synthesis.makeEquals())) else Nil) ++
+                (if (addSyntheticHashCode) List(localTyper.typed(synthesis.makeHashCode())) else Nil)
 
             super.transform(localTyper.typed(deriveTemplate(tree)(_ => nstats2)))
           } else if (currentOwner.isStaticOwner) {

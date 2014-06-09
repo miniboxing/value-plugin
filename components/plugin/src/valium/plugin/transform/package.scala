@@ -62,7 +62,7 @@ trait ValiumAddExtPhase extends
     ValiumPluginComponent
     with ValiumAddExtInfoTransformer
     with ValiumAddExtTreeTransformer
-//    with ValiumAddExtSynthetizeMethods
+    with ValiumAddExtSynthetizeMethods
     with scala.tools.nsc.ast.TreeDSL { self =>
   import global._
   import helper._

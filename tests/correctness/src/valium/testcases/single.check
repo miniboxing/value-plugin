@@ -13,7 +13,9 @@ package valium.testcases.single {
       Point.super.<init>();
       ()
     };
-    override def toString(): String = single.this.Point.toString$xtension(Point.this.x())
+    override def toString(): String = single.this.Point.toString$xtension(Point.this.x());
+    override <synthetic> def equals(x$1: Any): Boolean = single.this.Point.equals$xtension(Point.this.x(), x$1);
+    override <synthetic> def hashCode(): Int = single.this.Point.hashCode$xtension(Point.this.x())
   };
   <synthetic> object Point extends Object {
     def <init>(): valium.testcases.single.Point.type = {
@@ -23,7 +25,12 @@ package valium.testcases.single {
     final def toString$xtension($this$x: Double): String = {
       <synthetic> val p1$x: Double = $this$x;
       new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x}))
-    }
+    };
+    final <synthetic> def equals$xtension($this$x: Double, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.single.Point]().&&({
+      <synthetic> val Point$1$x: Double = x$1.asInstanceOf[valium.testcases.single.Point]().x();
+      $this$x.==(Point$1$x)
+    });
+    final <synthetic> def hashCode$xtension($this$x: Double): Int = 77292912.+($this$x.hashCode())
   };
   object Test extends Object {
     def <init>(): valium.testcases.single.Test.type = {

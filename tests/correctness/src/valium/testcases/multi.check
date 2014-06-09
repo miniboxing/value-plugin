@@ -22,6 +22,23 @@ package valium.testcases.multi {
       <synthetic> val this$x: Double = $1$x;
       <synthetic> val this$y: Double = $1$y;
       multi.this.Point.toString$xtension(this$x, this$y)
+    };
+    override <synthetic> def equals(x$1: Any): Boolean = {
+      <synthetic> val $4: valium.testcases.multi.Point = Point.this;
+      <synthetic> val $3$x: Double = $4.x;
+      <synthetic> val $3$y: Double = $4.y;
+      <synthetic> val this$x: Double = $3$x;
+      <synthetic> val this$y: Double = $3$y;
+      <synthetic> val : Any = x$1;
+      multi.this.Point.equals$xtension(this$x, this$y, )
+    };
+    override <synthetic> def hashCode(): Int = {
+      <synthetic> val $6: valium.testcases.multi.Point = Point.this;
+      <synthetic> val $5$x: Double = $6.x;
+      <synthetic> val $5$y: Double = $6.y;
+      <synthetic> val this$x: Double = $5$x;
+      <synthetic> val this$y: Double = $5$y;
+      multi.this.Point.hashCode$xtension(this$x, this$y)
     }
   };
   <synthetic> object Point extends Object {
@@ -33,7 +50,14 @@ package valium.testcases.multi {
       <synthetic> val p1$x: Double = $this$x;
       <synthetic> val p1$y: Double = $this$y;
       new StringContext(scala.this.Predef.wrapRefArray[String](Array[String]{"Point(", ", ", ")"})).s(scala.this.Predef.genericWrapArray[Any](Array[Any]{$this$x, $this$y}))
-    }
+    };
+    final <synthetic> def equals$xtension($this$x: Double, $this$y: Double, x$1: Any): Boolean = x$1.isInstanceOf[valium.testcases.multi.Point]().&&({
+      <synthetic> val $7: valium.testcases.multi.Point = x$1.asInstanceOf[valium.testcases.multi.Point]();
+      <synthetic> val Point$1$x: Double = $7.x;
+      <synthetic> val Point$1$y: Double = $7.y;
+      $this$x.==(Point$1$x).&&($this$y.==(Point$1$y))
+    });
+    final <synthetic> def hashCode$xtension($this$x: Double, $this$y: Double): Int = 77292912.+($this$x.hashCode()).+($this$y.hashCode())
   };
   object Test extends Object {
     def <init>(): valium.testcases.multi.Test.type = {
@@ -47,16 +71,16 @@ package valium.testcases.multi {
         def p3(): valium.testcases.multi.Point = new valium.testcases.multi.Point(p2$x, p2$y);
         scala.this.Predef.println(new valium.testcases.multi.Point(p2$x, p2$y));
         scala.this.Predef.println(new valium.testcases.multi.Point(p2$x, p2$y).toString());
-        <synthetic> val $3: valium.testcases.multi.Point = {
-          <synthetic> val $5: valium.testcases.multi.Point = p3();
-          <synthetic> val $4$x: Double = $5.x;
-          <synthetic> val $4$y: Double = $5.y;
-          <synthetic> val arg$p1$x: Double = $4$x;
-          <synthetic> val arg$p1$y: Double = $4$y;
+        <synthetic> val $8: valium.testcases.multi.Point = {
+          <synthetic> val $10: valium.testcases.multi.Point = p3();
+          <synthetic> val $9$x: Double = $10.x;
+          <synthetic> val $9$y: Double = $10.y;
+          <synthetic> val arg$p1$x: Double = $9$x;
+          <synthetic> val arg$p1$y: Double = $9$y;
           identity2(arg$p1$x, arg$p1$y)
         };
-        <synthetic> val p4$x: Double = $3.x;
-        <synthetic> val p4$y: Double = $3.y;
+        <synthetic> val p4$x: Double = $8.x;
+        <synthetic> val p4$y: Double = $8.y;
         <synthetic> var p5$x: Double = 3.0;
         <synthetic> var p5$y: Double = 0.3;
         p5$x = p2$x;
@@ -114,11 +138,11 @@ package valium.testcases.multi {
           final override <synthetic> def toString(): String = "C1";
           case <synthetic> def apply(p2$x: Double, p2$y: Double): C1 = new C1(p2$x, p2$y);
           @scala.annotation.bridge case <synthetic> def apply(@scala.annotation.bridge v1: valium.testcases.multi.Point): C1 = {
-            <synthetic> val $7: valium.testcases.multi.Point = v1;
-            <synthetic> val $6$x: Double = $7.x;
-            <synthetic> val $6$y: Double = $7.y;
-            <synthetic> val arg$p2$x: Double = $6$x;
-            <synthetic> val arg$p2$y: Double = $6$y;
+            <synthetic> val $12: valium.testcases.multi.Point = v1;
+            <synthetic> val $11$x: Double = $12.x;
+            <synthetic> val $11$y: Double = $12.y;
+            <synthetic> val arg$p2$x: Double = $11$x;
+            <synthetic> val arg$p2$y: Double = $11$y;
             apply(arg$p2$x, arg$p2$y)
           };
           case <synthetic> def unapply(x$0: C1): Option[valium.testcases.multi.Point] = if (x$0.==(null))
@@ -147,24 +171,24 @@ package valium.testcases.multi {
         new C2(p1$x, p1$y).y()
       };
       scala.this.Predef.println({
-        <synthetic> val $8$x: Double = 1.0;
-        <synthetic> val $8$y: Double = 1.1;
-        <synthetic> val arg$p1$x: Double = $8$x;
-        <synthetic> val arg$p1$y: Double = $8$y;
+        <synthetic> val $13$x: Double = 1.0;
+        <synthetic> val $13$y: Double = 1.1;
+        <synthetic> val arg$p1$x: Double = $13$x;
+        <synthetic> val arg$p1$y: Double = $13$y;
         identity(arg$p1$x, arg$p1$y)
       });
       scala.this.Predef.println({
-        <synthetic> val $9$x: Double = 2.0;
-        <synthetic> val $9$y: Double = 2.1;
-        <synthetic> val arg$p1$x: Double = $9$x;
-        <synthetic> val arg$p1$y: Double = $9$y;
+        <synthetic> val $14$x: Double = 2.0;
+        <synthetic> val $14$y: Double = 2.1;
+        <synthetic> val arg$p1$x: Double = $14$x;
+        <synthetic> val arg$p1$y: Double = $14$y;
         identity(arg$p1$x, arg$p1$y)
       });
       scala.this.Predef.println({
-        <synthetic> val $10$x: Double = 3.0;
-        <synthetic> val $10$y: Double = 3.1;
-        <synthetic> val arg$p1$x: Double = $10$x;
-        <synthetic> val arg$p1$y: Double = $10$y;
+        <synthetic> val $15$x: Double = 3.0;
+        <synthetic> val $15$y: Double = 3.1;
+        <synthetic> val arg$p1$x: Double = $15$x;
+        <synthetic> val arg$p1$y: Double = $15$y;
         identity(arg$p1$x, arg$p1$y)
       })
     }
