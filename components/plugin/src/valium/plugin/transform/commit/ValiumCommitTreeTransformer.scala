@@ -121,7 +121,7 @@ trait ValiumCommitTreeTransformer {
         commit("B07", Select(es, es.tpe.valiumField))
       case Box2unbox(em @ EM(_, _)) =>
         commit("B08", em)
-      case A(e, a) =>
+      case AS(e, a) =>
         commit("B09", Eax(e, a, a.valiumField))
       case bs @ BS(_, _) =>
         commit("B10", bs setType bs.tpe.toValiumField)
@@ -163,7 +163,7 @@ trait ValiumCommitTreeTransformer {
         commit("B13", a2.valiumFields.map(x => Assign(Eax(e1, a1, x), unbox2box(a2, x))))
       case Assign(lhs @ A(e1, a1), b2 @ B(_, _)) =>
         val precomputed = temp(nme.assignPrecompute(), b2)
-        commit("B14", List(precomputed, lhs, Ident(precomputed.symbol)))
+        commit("B14", List(precomputed, Assign(lhs, Ident(precomputed.symbol))))
       case Assign(A(e1, b1), c2 @ C(_, _)) =>
         val precomputed = temp(nme.assignPrecompute(), e1)
         commit("B15", List(precomputed, Assign(Select(Ident(precomputed.symbol), b1), c2)))
