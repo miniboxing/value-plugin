@@ -7,6 +7,7 @@ import scala.tools.nsc.Phase
 import scala.reflect.internal.Mode
 import scala.reflect.internal.Mode._
 import scala.util.DynamicVariable
+import scala.reflect.internal.Flags._
 
 trait ValiumCoerceTreeTransformer {
   this: ValiumCoercePhase =>
@@ -100,29 +101,32 @@ trait ValiumCoerceTreeTransformer {
 //            println(tree + "  " + qual2 + "  " + qual2.tpe)
 
             if (qual2.isUnboxedValiumRef) {
-//            println("inside " + context.owner)
+              // for methods such as hashCode and ==, we need to redirect to the most specific symbol
+              val sym = sel.symbol
+              val sym2 = sym.matchingSymbol(qual2.tpe.typeSymbol, qual2.tpe)
 
-//              println(sel.symbol + "  " + sel.symbol.owner + "  " + sel.symbol.isValiumMethodWithExtension)
-              // if we have an extenstion method, use that one
-              if (sel.symbol.isValiumMethodWithExtension) {
-//                println("could use an extension method")
+              if (sym2.isValiumMethodWithExtension) {
+//                println("could use an extension method for " + tree)
+//                println("\n\n\n\n\n\n" + sym2 + "  "  + sym2 + "\n\n\n\n\n\n")
+//                println(global.phase.name)
+                val extMeth = valiumAddExtPhase.afterAddExt(valiumAddExtPhase.extensionMethod(sym2))
+//                println("could use ext method for " + tree)
+//                println("extension method: " + extMeth)
+
+
+//                val allArgss = qual :: argss.flatten
+//                val origThis = extensionMeth.owner.companionClass
+//                val baseType = qual.tpe.baseType(origThis)
+//                val allTargs = targs.map(_.tpe) ::: baseType.typeArgs
+//                val fun = gen.mkAttributedTypeApply(gen.mkAttributedThis(extensionMeth.owner), extensionMeth, allTargs)
+//                allArgss.foldLeft(fun)(Apply(_, _))
+//                Apply(gen.mkAttributedRef((fn.symbol)), qual :: args)
               }
-//                Apply(gen.mkAttributedRef((fn.symbol)), qualifier :: args)
-//                    val allArgss = qual :: argss.flatten
-//                    val origThis = extensionMeth.owner.companionClass
-//                    val baseType = qual.tpe.baseType(origThis)
-//                    val allTargs = targs.map(_.tpe) ::: baseType.typeArgs
-//                    val fun = gen.mkAttributedTypeApply(gen.mkAttributedThis(extensionMeth.owner), extensionMeth, allTargs)
-//                    allArgss.foldLeft(fun)(Apply(_, _))
-//
-//              } else {
-                val tpe2 = if (qual2.tpe.hasAnnotation(UnboxedClass)) qual2.tpe else qual2.tpe.widen
-                val tpe3 = tpe2.toBoxedValiumRef
-                val qual3 = super.typed(qual.clearType(), mode, tpe3)
-                val res = super.typed(MaybeApply(MaybeTypeApply(Select(qual3, meth) setSymbol tree.symbol, targs), args), mode, pt)
-//                println(res)
-                res
-//              }
+
+              val tpe2 = if (qual2.tpe.hasAnnotation(UnboxedClass)) qual2.tpe else qual2.tpe.widen
+              val tpe3 = tpe2.toBoxedValiumRef
+              val qual3 = super.typed(qual.clearType(), mode, tpe3)
+              super.typed(MaybeApply(MaybeTypeApply(Select(qual3, meth) setSymbol tree.symbol, targs), args), mode, pt)
             } else {
               retypecheck()
             }

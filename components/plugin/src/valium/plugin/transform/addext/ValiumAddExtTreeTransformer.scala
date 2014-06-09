@@ -74,7 +74,7 @@ trait ValiumAddExtTreeTransformer {
   }
 
   /** Return the extension method that corresponds to given instance method `meth`. */
-  def extensionMethod(imeth: Symbol): Symbol = enteringPhase(currentRun.refchecksPhase) {
+  def extensionMethod(imeth: Symbol): Symbol = afterAddExt {
     val companionInfo = companionModuleForce(imeth.owner).info
     val candidates = extensionNames(imeth) map (companionInfo.decl(_)) filter (_.exists)
     val matching = candidates filter (alt => normalize(alt.tpe, imeth.owner) matches imeth.tpe)
@@ -106,7 +106,7 @@ trait ValiumAddExtTreeTransformer {
   object ExtensionMethodType {
     def unapply(tp: Type) = tp match {
       case MethodType(thiz :: rest, restpe) if thiz.name == nme.SELF =>
-        Some((thiz, if (rest.isEmpty) restpe else MethodType(rest, restpe) ))
+        Some((thiz, MethodType(rest, restpe)))
       case _ =>
         None
     }
@@ -209,40 +209,35 @@ trait ValiumAddExtTreeTransformer {
 
             val sym = currentOwner
 
-            def isEquals(sym: Symbol) =
-              sym.allOverriddenSymbols.contains(Any_equals)
-            def isHashCode(sym: Symbol) =
-              sym.allOverriddenSymbols.contains(Any_hashCode)
+            def isEquals(sym: Symbol) =   sym.allOverriddenSymbols.contains(Any_equals)
+            def isHashCode(sym: Symbol) = sym.allOverriddenSymbols.contains(Any_hashCode)
 
             lazy val synthesis = new SyntheticMethods(sym, localTyper.context)
             var addSyntheticEquals = true
             var addSyntheticHashCode = true
 
-            val nstats1 =
+            var nstats1 =
               stats.flatMap {
                 case stat if stat.hasSymbolField && isEquals(stat.symbol) =>
                   addSyntheticEquals = false
-                  if (stat.symbol.isSynthetic) {
-                    val newEq = localTyper.typed(deriveDefDef(stat)(rhs => localTyper.typed(synthesis.makeEquals(stat.symbol))))
-                    List(newEq)
-                  } else
+                  if (stat.symbol.isSynthetic)
+                    List(localTyper.typed(deriveDefDef(stat)(rhs => localTyper.typed(synthesis.makeEquals(stat.symbol)))))
+                  else
                     List(stat)
                 case stat if stat.hasSymbolField && isHashCode(stat.symbol) =>
                   addSyntheticHashCode = false
-                  if (stat.symbol.isSynthetic) {
-                    val newHash = localTyper.typed(deriveDefDef(stat)(rhs => localTyper.typed(synthesis.makeHashCode(stat.symbol))))
-                    List(newHash)
-                  } else
+                  if (stat.symbol.isSynthetic)
+                    List(localTyper.typed(deriveDefDef(stat)(rhs => localTyper.typed(synthesis.makeHashCode(stat.symbol)))))
+                  else
                     List(stat)
                 case stat =>
                   List(stat)
               }
 
-            val nstats2 = nstats1 ++
-                (if (addSyntheticEquals)   List(localTyper.typed(synthesis.makeEquals())) else Nil) ++
-                (if (addSyntheticHashCode) List(localTyper.typed(synthesis.makeHashCode())) else Nil)
+            if (addSyntheticEquals)   nstats1 ::= beforeAddExt(localTyper.typed(synthesis.makeEquals()))
+            if (addSyntheticHashCode) nstats1 ::= beforeAddExt(localTyper.typed(synthesis.makeHashCode()))
 
-            super.transform(localTyper.typed(deriveTemplate(tree)(_ => nstats2)))
+            super.transform(localTyper.typed(deriveTemplate(tree)(_ => nstats1)))
           } else if (currentOwner.isStaticOwner) {
             super.transform(tree)
           } else
