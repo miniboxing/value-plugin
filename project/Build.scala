@@ -22,7 +22,7 @@ object ValiumBuild extends Build {
       Resolver.sonatypeRepo("snapshots")
     ),
 
-    scalacOptions ++= Seq("-feature", "-deprecation", "-unchecked", "-Xlint"),
+    scalacOptions ++= Seq("-feature", "-deprecation", "-unchecked", "-Xlint", "-optimize"),
 
     publishArtifact in packageDoc := false,
 
@@ -46,8 +46,7 @@ object ValiumBuild extends Build {
       // "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
       "com.novocode" % "junit-interface" % "0.10-M2" % "test"
     ),
-    parallelExecution in Test := false,
-    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
+    parallelExecution in Test := false
   )
 
   val testsDeps: Seq[Setting[_]] = junitDeps ++ Seq(
@@ -83,8 +82,21 @@ object ValiumBuild extends Build {
     )
   )
 
-  lazy val valium      = Project(id = "valium",         base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests)
+  val scalameterDeps = {
+    val scalaMeter  = Seq("com.github.axel22" %% "scalameter" % "0.5-M2")
+    val scalaMeterFramework = new TestFramework("org.scalameter.ScalaMeterFramework")
+    Seq(
+      libraryDependencies ++= scalaMeter,
+      testFrameworks += scalaMeterFramework,
+      // this generates untyped trees, which prevent the 
+      // valium plugin from transforming the code
+      scalacOptions in Compile += "-no-specialization"
+    )
+  }
+
+  lazy val valium      = Project(id = "valium",         base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests, benchmarks)
   lazy val runtime     = Project(id = "valium-runtime", base = file("components/runtime"),     settings = defaults)
   lazy val plugin      = Project(id = "valium-plugin",  base = file("components/plugin"),      settings = defaults ++ pluginDeps) dependsOn(runtime)
-  lazy val tests       = Project(id = "valium-tests",   base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ partestLikeDeps) dependsOn(plugin, runtime)
+  lazy val tests       = Project(id = "valium-tests",   base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ partestLikeDeps) dependsOn (plugin, runtime)
+  lazy val benchmarks  = Project(id = "valium-bench",   base = file("tests/benchmarks"),       settings = defaults ++ testsDeps ++ scalameterDeps) dependsOn (plugin, runtime)
 }

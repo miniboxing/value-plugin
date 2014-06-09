@@ -1,3 +1,5 @@
+# Value Class Plugin (Project Valium)
+
 Copyright (c) 2014, LAMP, EPFL
 All rights reserved.
 
@@ -25,3 +27,12 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Complex FFT Example
+
+The complext FFT example is taken from the Rosetta Code Project and is
+distributed under the GNU Free Documentation License 1.2: 
+http://www.gnu.org/licenses/fdl-1.2.html
+
+Code location: tests/benchmarks/src/valium/bench/complex
+Code URL: http://rosettacode.org/wiki/Fast_Fourier_transform#Scala
